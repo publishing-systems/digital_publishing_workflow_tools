@@ -237,10 +237,6 @@ class EntityResolverLocal implements EntityResolver
                 }
             }
         }
-        catch (FileNotFoundException ex)
-        {
-            throw constructTermination("messageConfigFileErrorWhileReading", ex, null, configFile.getAbsolutePath());
-        }
         catch (XMLStreamException ex)
         {
             throw constructTermination("messageConfigFileErrorWhileReading", ex, null, configFile.getAbsolutePath());

@@ -27,22 +27,22 @@ xsltransformator1: xsltransformator1.class
 
 
 JobDefinition.class: JobDefinition.java
-	javac JobDefinition.java
+	javac -encoding UTF-8 JobDefinition.java
 
 ProgramTerminationException.class: ProgramTerminationException.java
-	javac ProgramTerminationException.java
+	javac -encoding UTF-8 ProgramTerminationException.java
 
 TransformerErrorListener.class: TransformerErrorListener.java
-	javac TransformerErrorListener.java
+	javac -encoding UTF-8 TransformerErrorListener.java
 
 EntityResolverLocal.class: EntityResolverLocal.java
-	javac EntityResolverLocal.java
+	javac -encoding UTF-8 EntityResolverLocal.java
 
 EntityResolverLocal2.class: EntityResolverLocal2.java
-	javac EntityResolverLocal2.java
+	javac -encoding UTF-8 EntityResolverLocal2.java
 
 xsltransformator1.class: xsltransformator1.java JobDefinition.class ProgramTerminationException.class TransformerErrorListener.class EntityResolverLocal.class EntityResolverLocal2.class
-	javac xsltransformator1.java
+	javac -encoding UTF-8 xsltransformator1.java
 
 clean:
 	rm -f xsltransformator1.class
