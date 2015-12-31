@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Stephan Kreutzer
+/* Copyright (C) 2015-2016 Stephan Kreutzer
  *
  * This file is part of https_client_1, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -82,7 +82,7 @@ public class https_client_1
 
     public static void main(String args[])
     {
-        System.out.print("https_client_1 Copyright (C) 2015 Stephan Kreutzer\n" +
+        System.out.print("https_client_1 Copyright (C) 2015-2016 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -117,16 +117,22 @@ public class https_client_1
                 writer.write("<https-client-1-result-information>\n");
                 writer.write("  <success>\n");
 
-                for (Map.Entry<String, String> entry : client.result.entrySet())
+                if (client.result != null)
                 {
-                    // Ampersand needs to be the first, otherwise it would double-encode
-                    // other entities.
-                    String value = entry.getValue();
-                    value = value.replaceAll("&", "&amp;");
-                    value = value.replaceAll("<", "&lt;");
-                    value = value.replaceAll(">", "&gt;");
+                    if (client.result.isEmpty() != true)
+                    {
+                        for (Map.Entry<String, String> entry : client.result.entrySet())
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            String value = entry.getValue();
+                            value = value.replaceAll("&", "&amp;");
+                            value = value.replaceAll("<", "&lt;");
+                            value = value.replaceAll(">", "&gt;");
 
-                    writer.write("    <" + entry.getKey() + ">" + value + "</" + entry.getKey() + ">\n");
+                            writer.write("    <" + entry.getKey() + ">" + value + "</" + entry.getKey() + ">\n");
+                        }
+                    }
                 }
 
                 if (client.resultCertificates != null)
@@ -561,9 +567,15 @@ public class https_client_1
             connection.setRequestMethod(requestMethod);
             connection.setUseCaches(false);
 
-            for (Map.Entry<String, String> field : requestHeaderFields.entrySet())
+            if (requestHeaderFields != null)
             {
-                connection.setRequestProperty(field.getKey(), field.getValue());
+                if (requestHeaderFields.isEmpty() != true)
+                {
+                    for (Map.Entry<String, String> field : requestHeaderFields.entrySet())
+                    {
+                        connection.setRequestProperty(field.getKey(), field.getValue());
+                    }
+                }
             }
 
             connection.setRequestProperty("User-Agent", "https_client_1 of digital_publishing_workflow_tools (publishing-systems.org)");
@@ -649,6 +661,8 @@ public class https_client_1
                     }
                 }
             }
+
+            connection.connect();
         }
         catch (MalformedURLException ex)
         {
