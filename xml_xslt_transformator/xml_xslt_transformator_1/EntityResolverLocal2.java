@@ -1,22 +1,22 @@
 /* Copyright (C) 2014-2015 Stephan Kreutzer
  *
- * This file is part of xsltransformator1, a submodule of the
+ * This file is part of xml_xslt_transformator_1, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * xsltransformator1 is free software: you can redistribute it and/or modify
+ * xml_xslt_transformator_1 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * xsltransformator1 is distributed in the hope that it will be useful,
+ * xml_xslt_transformator_1 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with xsltransformator1. If not, see <http://www.gnu.org/licenses/>.
+ * along with xml_xslt_transformator_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/xsltransformator/xsltransformator1/EntityResolverLocal2.java
+ * @file $/xml_xslt_transformator/xml_xslt_transformator_1/EntityResolverLocal2.java
  * @brief Resolves external XML entities locally.
  * @author Stephan Kreutzer
  * @since 2014-04-06
@@ -215,7 +215,7 @@ class EntityResolverLocal2 implements EntityResolver2
                         }
                         else
                         {
-                            System.out.println("xsltransformator1: " + getI10nStringFormatted("messageConfigFileTagFoundOutsideOfOtherTagAndIgnored", this.configFile.getAbsolutePath(), "resolve", "entity"));
+                            System.out.println("xml_xslt_transformator_1: " + getI10nStringFormatted("messageConfigFileTagFoundOutsideOfOtherTagAndIgnored", this.configFile.getAbsolutePath(), "resolve", "entity"));
                         }
                     }
                 }
@@ -326,11 +326,11 @@ class EntityResolverLocal2 implements EntityResolver2
         {
             if (arguments == null)
             {
-                message = "xsltransformator1: " + getI10nString(id);
+                message = "xml_xslt_transformator_1: " + getI10nString(id);
             }
             else
             {
-                message = "xsltransformator1: " + getI10nStringFormatted(id, arguments);
+                message = "xml_xslt_transformator_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 

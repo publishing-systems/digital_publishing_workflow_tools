@@ -1,22 +1,22 @@
 /* Copyright (C) 2014-2015 Stephan Kreutzer
  *
- * This file is part of xsltransformator1, a submodule of the
+ * This file is part of xml_xslt_transformator_1, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * xsltransformator1 is free software: you can redistribute it and/or modify
+ * xml_xslt_transformator_1 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * xsltransformator1 is distributed in the hope that it will be useful,
+ * xml_xslt_transformator_1 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with xsltransformator1. If not, see <http://www.gnu.org/licenses/>.
+ * along with xml_xslt_transformator_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/xsltransformator/xsltransformator1/xsltransformator1.java
+ * @file $/xml_xslt_transformator/xml_xslt_transformator_1/xml_xslt_transformator_1.java
  * @brief Wrapper for using a Java XSLT processor from the command line.
  * @author Stephan Kreutzer
  * @since 2014-03-29
@@ -64,26 +64,26 @@ import javax.xml.transform.TransformerException;
 
 
 
-public class xsltransformator1
+public class xml_xslt_transformator_1
 {
-    protected xsltransformator1()
+    protected xml_xslt_transformator_1()
     {
         // Singleton to protect this.resultInfoFile from conflicting use.
     }
 
-    public static xsltransformator1 getInstance()
+    public static xml_xslt_transformator_1 getInstance()
     {
-        if (xsltransformator1.xsltransformator1Instance == null)
+        if (xml_xslt_transformator_1.xml_xslt_transformator_1Instance == null)
         {
-            xsltransformator1.xsltransformator1Instance = new xsltransformator1();
+            xml_xslt_transformator_1.xml_xslt_transformator_1Instance = new xml_xslt_transformator_1();
         }
 
-        return xsltransformator1.xsltransformator1Instance;
+        return xml_xslt_transformator_1.xml_xslt_transformator_1Instance;
     }
 
     public static void main(String args[])
     {
-        System.out.print("xsltransformator1 Copyright (C) 2014-2015 Stephan Kreutzer\n" +
+        System.out.print("xml_xslt_transformator_1 Copyright (C) 2014-2015 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -91,7 +91,7 @@ public class xsltransformator1
                          "https://github.com/publishing-systems/digital_publishing_workflow_tools/ and\n" +
                          "the project website http://www.publishing-systems.org.\n\n");
 
-        xsltransformator1 transformator1 = xsltransformator1.getInstance();
+        xml_xslt_transformator_1 transformator1 = xml_xslt_transformator_1.getInstance();
 
         try
         {
@@ -102,20 +102,20 @@ public class xsltransformator1
             transformator1.handleTermination(ex);
         }
 
-        if (xsltransformator1.resultInfoFile != null)
+        if (xml_xslt_transformator_1.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(xsltransformator1.resultInfoFile),
+                                        new FileOutputStream(xml_xslt_transformator_1.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by xsltransformator1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<xsltransformator1-result-information>\n");
+                writer.write("<!-- This file was created by xml_xslt_transformator_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<xml-xslt-transformator-1-result-information>\n");
                 writer.write("  <success/>\n");
-                writer.write("</xsltransformator1-result-information>\n");
+                writer.write("</xml-xslt-transformator-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -136,14 +136,14 @@ public class xsltransformator1
             }
         }
 
-        xsltransformator1.resultInfoFile = null;
+        xml_xslt_transformator_1.resultInfoFile = null;
     }
 
     public int transform(String args[]) throws ProgramTerminationException
     {
         if (args.length < 2)
         {
-            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\txsltransformator1 " + getI10nString("messageParameterList") + "\n");
+            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\txml_xslt_transformator_1 " + getI10nString("messageParameterList") + "\n");
         }
 
 
@@ -175,7 +175,7 @@ public class xsltransformator1
             }
         }
 
-        xsltransformator1.resultInfoFile = resultInfoFile;
+        xml_xslt_transformator_1.resultInfoFile = resultInfoFile;
 
         File jobFile = new File(args[0]);
 
@@ -207,7 +207,7 @@ public class xsltransformator1
             throw constructTermination("messageJobFileIsntReadable", null, null, jobFile.getAbsolutePath());
         }
 
-        System.out.println("xsltransformator1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
+        System.out.println("xml_xslt_transformator_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
 
         List<JobDefinition> jobs = new ArrayList<JobDefinition>();
@@ -411,7 +411,7 @@ public class xsltransformator1
                 {
                     if (i == 0)
                     {
-                        System.out.println("xsltransformator1: " + getI10nStringFormatted("messageCantUseEntityResolver2", jobDefinition.GetEntitiesResolverConfigFile().getAbsolutePath()));
+                        System.out.println("xml_xslt_transformator_1: " + getI10nStringFormatted("messageCantUseEntityResolver2", jobDefinition.GetEntitiesResolverConfigFile().getAbsolutePath()));
                     }
 
                     localResolver = new EntityResolverLocal(jobDefinition.GetEntitiesResolverConfigFile());
@@ -433,7 +433,7 @@ public class xsltransformator1
                 {
                     if (i == 0)
                     {
-                        System.out.println("xsltransformator1: " + getI10nStringFormatted("messageNoEntityResolver"));
+                        System.out.println("xml_xslt_transformator_1: " + getI10nStringFormatted("messageNoEntityResolver"));
                     }
                 }
                 
@@ -489,11 +489,11 @@ public class xsltransformator1
         {
             if (arguments == null)
             {
-                message = "xsltransformator1: " + getI10nString(id);
+                message = "xml_xslt_transformator_1: " + getI10nString(id);
             }
             else
             {
-                message = "xsltransformator1: " + getI10nStringFormatted(id, arguments);
+                message = "xml_xslt_transformator_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -519,19 +519,19 @@ public class xsltransformator1
             innerException.printStackTrace();
         }
 
-        if (xsltransformator1.resultInfoFile != null)
+        if (xml_xslt_transformator_1.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(xsltransformator1.resultInfoFile),
+                                        new FileOutputStream(xml_xslt_transformator_1.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by xsltransformator1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<xsltransformator1-result-information>\n");
-                writer.write("  <error>\n");
+                writer.write("<!-- This file was created by xml_xslt_transformator_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<xml-xslt-transformator-1-result-information>\n");
+                writer.write("  <failure>\n");
 
                 if (bundle != null)
                 {
@@ -638,8 +638,8 @@ public class xsltransformator1
                     writer.write("    </exception>\n");
                 }
 
-                writer.write("  </error>\n");
-                writer.write("</xsltransformator1-result-information>\n");
+                writer.write("  </failure>\n");
+                writer.write("</xml-xslt-transformator-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -657,7 +657,7 @@ public class xsltransformator1
             }
         }
 
-        xsltransformator1.resultInfoFile = null;
+        xml_xslt_transformator_1.resultInfoFile = null;
 
         System.exit(-1);
         return -1;
@@ -697,11 +697,11 @@ public class xsltransformator1
         return formatter.format(arguments);
     }
 
-    private static xsltransformator1 xsltransformator1Instance;
+    private static xml_xslt_transformator_1 xml_xslt_transformator_1Instance;
 
     public static File resultInfoFile;
 
-    private static final String L10N_BUNDLE = "l10n.l10nXsltransformator1Console";
+    private static final String L10N_BUNDLE = "l10n.l10nXmlXsltTransformator1Console";
     private ResourceBundle l10nConsole;
 }
 
