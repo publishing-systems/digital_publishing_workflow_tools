@@ -25,12 +25,12 @@ along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
     </header>
     <data source="./input_data.xml"/>
     <!--
-      Only set this if the certificate should be considered valid for a different host as
-      well for testing purposes. In other cases, leaving this setting activated might lead
-      to the acceptance of every certificate for the host configured here, WHICH WILL
-      BREAK SECURITY!
+      Only set this if certificates for other hosts should be accepted as valid for the host
+      specified here, which should be the same as the one configured within the request
+      URL above. This is for testing purposes only. If active in a production environment,
+      IT WOULD BREAK YOUR SECURITY!
     -->
     <!-- accept-host-for-certificate-mismatch host="debug.example.org"/ -->
   </request>
-  <result destination="./output_data.xml"/>
+  <response destination="./output_data.xml" omit-certificates-info="false"/>
 </https-client-1-jobfile>

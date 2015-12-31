@@ -55,6 +55,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
+import java.security.cert.Certificate;
+import javax.net.ssl.SSLPeerUnverifiedException;
 
 
 
@@ -65,6 +67,7 @@ public class https_client_1
         // Singleton to protect https_client_1.resultInfoFile from conflicting use.
 
         https_client_1.result = new HashMap<String, String>();
+        https_client_1.resultCertificates = null;
     }
 
     public static https_client_1 getInstance()
@@ -89,6 +92,7 @@ public class https_client_1
 
         https_client_1 client = https_client_1.getInstance();
         client.result.clear();
+        client.resultCertificates = null;
 
         try
         {
@@ -115,7 +119,32 @@ public class https_client_1
 
                 for (Map.Entry<String, String> entry : client.result.entrySet())
                 {
-                    writer.write("    <" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">\n");
+                    // Ampersand needs to be the first, otherwise it would double-encode
+                    // other entities.
+                    String value = entry.getValue();
+                    value = value.replaceAll("&", "&amp;");
+                    value = value.replaceAll("<", "&lt;");
+                    value = value.replaceAll(">", "&gt;");
+
+                    writer.write("    <" + entry.getKey() + ">" + value + "</" + entry.getKey() + ">\n");
+                }
+
+                if (client.resultCertificates != null)
+                {
+                    writer.write("    <certificates>\n");
+
+                    for (Certificate certificate : client.resultCertificates)
+                    {
+                        writer.write("      <certificate");
+                        writer.write(" type=\"" + certificate.getType() + "\"");
+                        writer.write(" hash=\"" + certificate.hashCode() + "\"");
+                        writer.write(" public-key-algorithm=\"" + certificate.getPublicKey().getAlgorithm() + "\"");
+                        writer.write(" public-key-format=\"" + certificate.getPublicKey().getFormat() + "\">");
+                        writer.write(Base64Coder.encode(certificate.getPublicKey().getEncoded()));
+                        writer.write("</certificate>\n");
+                    }
+
+                    writer.write("    </certificates>\n");
                 }
 
                 writer.write("  </success>\n");
@@ -142,6 +171,7 @@ public class https_client_1
 
         client.resultInfoFile = null;
         client.result.clear();
+        client.resultCertificates = null;
     }
 
     public int request(String args[]) throws ProgramTerminationException
@@ -220,7 +250,8 @@ public class https_client_1
         Map<String, String> requestHeaderFields = null;
         File requestDataSourceFile = null;
         String requestAcceptHostForCertificateMismatch = null;
-        File resultDataFile = null;
+        File responseDataFile = null;
+        boolean responseOmitCertificatesInfo = false;
 
         try
         {
@@ -394,33 +425,43 @@ public class https_client_1
                             throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "accept-host-for-certificate-mismatch", "host");
                         }
                     }
-                    else if (tagName.equals("result") == true)
+                    else if (tagName.equals("response") == true)
                     {
-                        StartElement resultElement = event.asStartElement();
-                        Attribute destinationAttribute = resultElement.getAttributeByName(new QName("destination"));
+                        StartElement responseElement = event.asStartElement();
+                        Attribute destinationAttribute = responseElement.getAttributeByName(new QName("destination"));
 
                         if (destinationAttribute == null)
                         {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), "result", "destination");
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), "response", "destination");
                         }
 
-                        if (resultDataFile != null)
+                        if (responseDataFile != null)
                         {
-                            throw constructTermination("messageJobFileSettingConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), "result", "destination");
+                            throw constructTermination("messageJobFileSettingConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), "response", "destination");
                         }
 
-                        String resultDataDestination = destinationAttribute.getValue();
+                        String responseDataDestination = destinationAttribute.getValue();
 
-                        if (resultDataDestination.isEmpty() == true)
+                        if (responseDataDestination.isEmpty() == true)
                         {
-                            throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "result", "destination");
+                            throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "response", "destination");
                         }
 
-                        resultDataFile = new File(resultDataDestination);
+                        responseDataFile = new File(responseDataDestination);
 
-                        if (resultDataFile.isAbsolute() != true)
+                        if (responseDataFile.isAbsolute() != true)
                         {
-                            resultDataFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + resultDataDestination);
+                            responseDataFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + responseDataDestination);
+                        }
+
+                        Attribute omitCertificatesInfoAttribute = responseElement.getAttributeByName(new QName("omit-certificates-info"));
+
+                        if (omitCertificatesInfoAttribute != null)
+                        {
+                            if (omitCertificatesInfoAttribute.getValue().equals("true") == true)
+                            {
+                                responseOmitCertificatesInfo = true;
+                            }
                         }
                     }
                 }
@@ -469,21 +510,21 @@ public class https_client_1
             throw constructTermination("messageJobFileRequestURLIsntConfigured", null, null, jobFile.getAbsolutePath(), "request");
         }
 
-        if (resultDataFile == null)
+        if (responseDataFile == null)
         {
-            throw constructTermination("messageJobFileResultDataFileIsntConfigured", null, null, jobFile.getAbsolutePath(), "result");
+            throw constructTermination("messageJobFileResponseDataFileIsntConfigured", null, null, jobFile.getAbsolutePath(), "response");
         }
 
-        if (resultDataFile.exists() == true)
+        if (responseDataFile.exists() == true)
         {
-            if (resultDataFile.isDirectory() == true)
+            if (responseDataFile.isDirectory() == true)
             {
-                throw constructTermination("messageResultDataPathIsADirectory", null, null, resultDataFile.getAbsolutePath());
+                throw constructTermination("messageResponseDataPathIsADirectory", null, null, responseDataFile.getAbsolutePath());
             }
 
-            if (resultDataFile.canWrite() != true)
+            if (responseDataFile.canWrite() != true)
             {
-                throw constructTermination("messageResultDataFileIsntWritable", null, null, resultDataFile.getAbsolutePath());
+                throw constructTermination("messageResponseDataFileIsntWritable", null, null, responseDataFile.getAbsolutePath());
             }
         }
 
@@ -532,17 +573,17 @@ public class https_client_1
             {
                 if (requestDataSourceFile.exists() != true)
                 {
-                    throw constructTermination("messageDataFileDoesntExist", null, null, jobFile.getAbsolutePath(), requestDataSourceFile.getAbsolutePath());
+                    throw constructTermination("messageRequestDataFileDoesntExist", null, null, jobFile.getAbsolutePath(), requestDataSourceFile.getAbsolutePath());
                 }
 
                 if (requestDataSourceFile.isFile() != true)
                 {
-                    throw constructTermination("messageDataPathIsntAFile", null, null, jobFile.getAbsolutePath(), requestDataSourceFile.getAbsolutePath());
+                    throw constructTermination("messageRequestDataPathIsntAFile", null, null, jobFile.getAbsolutePath(), requestDataSourceFile.getAbsolutePath());
                 }
 
                 if (requestDataSourceFile.canRead() != true)
                 {
-                    throw constructTermination("messageDataFileIsntReadable", null, null, jobFile.getAbsolutePath(), requestDataSourceFile.getAbsolutePath());
+                    throw constructTermination("messageRequestDataFileIsntReadable", null, null, jobFile.getAbsolutePath(), requestDataSourceFile.getAbsolutePath());
                 }
 
                 boolean exception = false;
@@ -620,6 +661,20 @@ public class https_client_1
 
         if (connection != null)
         {
+            if (responseOmitCertificatesInfo == false)
+            {
+                https_client_1.result.put("cipher-suite", connection.getCipherSuite());
+
+                try
+                {
+                    https_client_1.resultCertificates = connection.getServerCertificates();
+                }
+                catch (SSLPeerUnverifiedException ex)
+                {
+                    throw constructTermination("messageResponseCantGetCertificates", ex, null);
+                }
+            }
+
             try
             {
                 https_client_1.result.put("http-status-code", Integer.toString(connection.getResponseCode()));
@@ -658,7 +713,7 @@ public class https_client_1
 
                 try
                 {
-                    writer = new FileOutputStream(resultDataFile);
+                    writer = new FileOutputStream(responseDataFile);
 
                     int bytesRead = reader.read(data, 0, data.length);
 
@@ -716,14 +771,14 @@ public class https_client_1
             {
                 try
                 {
-                    resultDataFile = resultDataFile.getCanonicalFile();
+                    responseDataFile = responseDataFile.getCanonicalFile();
                 }
                 catch (IOException ex)
                 {
 
                 }
 
-                https_client_1.result.put("result-data-file", resultDataFile.getAbsolutePath());
+                https_client_1.result.put("response-data-file", responseDataFile.getAbsolutePath());
             }
         }
 
@@ -946,8 +1001,9 @@ public class https_client_1
 
     private static https_client_1 https_client_1Instance;
 
-    public static File resultInfoFile;
-    public static Map<String, String> result;
+    public static File resultInfoFile = null;
+    public static Map<String, String> result = null;
+    public static Certificate[] resultCertificates = null;
 
     private static final String L10N_BUNDLE = "l10n.l10nHttpsClient1Console";
     private ResourceBundle l10nConsole;

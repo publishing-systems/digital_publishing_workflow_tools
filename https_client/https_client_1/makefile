@@ -29,9 +29,13 @@ https_client_1: https_client_1.class
 ProgramTerminationException.class: ProgramTerminationException.java
 	javac -encoding UTF-8 ProgramTerminationException.java
 
-https_client_1.class: https_client_1.java ProgramTerminationException.class
+Base64Coder.class: Base64Coder.java
+	javac -encoding UTF-8 Base64Coder.java
+
+https_client_1.class: https_client_1.java Base64Coder.class ProgramTerminationException.class
 	javac -encoding UTF-8 https_client_1.java
 
 clean:
 	rm -f https_client_1.class
+	rm -f Base64Coder.class
 	rm -f ProgramTerminationException.class
