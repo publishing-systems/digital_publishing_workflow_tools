@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2015  Stephan Kreutzer
+# Copyright (C) 2016  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./https_client ./workflows ./xml_xslt_transformator
+directories = ./setup
 
 
 

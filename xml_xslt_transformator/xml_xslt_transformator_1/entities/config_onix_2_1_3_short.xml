@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2016 Stephan Kreutzer
+
+This file is part of xml_xslt_transformator_1, a submodule of the
+digital_publishing_workflow_tools package.
+
+xml_xslt_transformator_1 is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3 or any later version,
+as published by the Free Software Foundation.
+
+xml_xslt_transformator_1 is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License 3 for more details.
+
+You should have received a copy of the GNU Affero General Public License 3
+along with xml_xslt_transformator_1. If not, see <http://www.gnu.org/licenses/>.
+-->
+<xml-xslt-transformator-1-entity-resolver-config>
+  <entity>
+    <resolve identifier="http://www.editeur.org/onix/2.1/short/onix-international.dtd" reference="./org.editeur/onix_2_1_3_short/onix-international.dtd"/>
+  </entity>
+  <entity>
+    <resolve identifier="short.elt" reference="./org.editeur/onix_2_1_3_short/short.elt"/>
+  </entity>
+  <entity>
+    <resolve identifier="onix-xhtml.elt" reference="./org.editeur/onix_2_1_3_short/onix-xhtml.elt"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Symbols for XHTML//EN" reference="./org.w3c/xhtml/xhtml-symbol.ent"/>
+    <resolve identifier="xhtml-symbol.ent" reference="./org.w3c/xhtml/xhtml-symbol.ent"/>
+    <resolve identifier="http://www.w3.org/TR/xhtml1/DTD/xhtml-symbol.ent" reference="./org.w3c/xhtml/xhtml-symbol.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Special for XHTML//EN" reference="./org.w3c/xhtml/xhtml-special.ent"/>
+    <resolve identifier="xhtml-special.ent" reference="./org.w3c/xhtml/xhtml-special.ent"/>
+    <resolve identifier="http://www.w3.org/TR/xhtml1/DTD/xhtml-special.ent" reference="./org.w3c/xhtml/xhtml-special.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Math Symbols: Arrow Relations for MathML 2.0//EN" reference="./org.iso/unicode/iso-amsa.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Math Symbols: Binary Operators for MathML 2.0//EN" reference="./org.iso/unicode/iso-amsb.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Math Symbols: Delimiters for MathML 2.0//EN" reference="./org.iso/unicode/iso-amsc.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Math Symbols: Negated Relations for MathML 2.0//EN" reference="./org.iso/unicode/iso-amsn.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Math Symbols: Ordinary for MathML 2.0//EN" reference="./org.iso/unicode/iso-amso.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Math Symbols: Relations for MathML 2.0//EN" reference="./org.iso/unicode/iso-amsr.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Greek Symbols for MathML 2.0//EN" reference="./org.iso/unicode/iso-grk3.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Math Alphabets: Fraktur for MathML 2.0//EN" reference="./org.iso/unicode/iso-mfrk.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Math Alphabets: Open Face for MathML 2.0//EN" reference="./org.iso/unicode/iso-mopf.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Math Alphabets: Script for MathML 2.0//EN" reference="./org.iso/unicode/iso-mscr.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES General Technical for MathML 2.0//EN" reference="./org.iso/unicode/iso-tech.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Box and Line Drawing for MathML 2.0//EN" reference="./org.iso/unicode/iso-box.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Russian Cyrillic for MathML 2.0//EN" reference="./org.iso/unicode/iso-cyr1.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Non-Russian Cyrillic for MathML 2.0//EN" reference="./org.iso/unicode/iso-cyr2.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Diacritical Marks for MathML 2.0//EN" reference="./org.iso/unicode/iso-dia.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Latin 1 for MathML 2.0//EN" reference="./org.iso/unicode/iso-lat1.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Added Latin 2 for MathML 2.0//EN" reference="./org.iso/unicode/iso-lat2.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Numeric and Special Graphic for MathML 2.0//EN" reference="./org.iso/unicode/iso-num.ent"/>
+  </entity>
+  <entity>
+    <resolve identifier="-//W3C//ENTITIES Publishing for MathML 2.0//EN" reference="./org.iso/unicode/iso-pub.ent"/>
+  </entity>
+</xml-xslt-transformator-1-entity-resolver-config>
