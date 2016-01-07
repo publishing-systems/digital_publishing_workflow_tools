@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2016 Stephan Kreutzer
+
+This file is part of onix_to_woocommerce_1 workflow, a submodule of the
+digital_publishing_workflow_tools package.
+
+onix_to_woocommerce_1 workflow is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3 or any later version,
+as published by the Free Software Foundation.
+
+onix_to_woocommerce_1 workflow is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License 3 for more details.
+
+You should have received a copy of the GNU Affero General Public License 3
+along with onix_to_woocommerce_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+-->
+<onix-to-woocommerce-1-workflow-jobfile>
+  <input>
+    <onix-file source="./input_1.xml"/>
+    <!--onix-file source="./input_2.xml"/-->
+  </input>
+  <settings>
+    <woocommerce-rest-api-products-url url="https://www.example.org/wc-api/v3/products"/>
+    <woocommerce-rest-api-public-key key=""/>
+    <woocommerce-rest-api-secret-key key=""/>
+    <!--
+      Only set this if certificates for other hosts should be accepted as valid for the host
+      specified here, which should be the same as the one configured within the request
+      URL above. This is for testing purposes only. If active in a production environment,
+      IT WOULD BREAK YOUR SECURITY!
+    -->
+    <!-- accept-host-for-certificate-mismatch host="debug.example.org"/ -->
+  </settings>
+  <output>
+    <response-directory destination="./output"/>
+  </output>
+</onix-to-woocommerce-1-workflow-jobfile>
