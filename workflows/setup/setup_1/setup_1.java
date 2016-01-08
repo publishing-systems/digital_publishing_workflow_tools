@@ -64,11 +64,13 @@ public class setup_1
         }
         catch (UnsupportedEncodingException ex)
         {
+            System.out.println(ex.getMessage());
             ex.printStackTrace();
             System.exit(-1);
         }
         catch (IOException ex)
         {
+            System.out.println(ex.getMessage());
             ex.printStackTrace();
             System.exit(-1);
         }
@@ -115,7 +117,16 @@ public class setup_1
 
         to += "org.editeur" + File.separator + "onix_2_1_3_short" + File.separator;
 
-        new File(to).mkdirs();
+        try
+        {
+            new File(programPath + to).mkdirs();
+        }
+        catch (SecurityException ex)
+        {
+            System.out.println(ex.getMessage());
+            ex.printStackTrace();
+            System.exit(-1);
+        }
 
         if (CopyFileBinary(new File(programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "resources" + File.separator + "org.editeur" + File.separator + "onix_2_1_3_short" + File.separator + "onix-international.dtd"), 
                             new File(programPath + to + "onix-international.dtd")) != 0)
@@ -178,7 +189,16 @@ public class setup_1
 
         to += "org.w3c" + File.separator + "xhtml" + File.separator;
 
-        new File(to).mkdirs();
+        try
+        {
+            new File(programPath + to).mkdirs();
+        }
+        catch (SecurityException ex)
+        {
+            System.out.println(ex.getMessage());
+            ex.printStackTrace();
+            System.exit(-1);
+        }
 
         if (CopyFileBinary(new File(programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "resources" + File.separator + "org.w3c" + File.separator + "xhtml" + File.separator + "xhtml-symbol.ent"), 
                             new File(programPath + to + "xhtml-symbol.ent")) != 0)
@@ -238,7 +258,16 @@ public class setup_1
 
         to += "org.iso" + File.separator + "unicode" + File.separator;
 
-        new File(to).mkdirs();
+        try
+        {
+            new File(programPath + to).mkdirs();
+        }
+        catch (SecurityException ex)
+        {
+            System.out.println(ex.getMessage());
+            ex.printStackTrace();
+            System.exit(-1);
+        }
 
         if (CopyFileBinary(new File(programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "resources" + File.separator + "org.iso" + File.separator + "unicode" + File.separator + "iso-amsa.ent"), 
                             new File(programPath + to + "iso-amsa.ent")) != 0)
@@ -424,11 +453,13 @@ public class setup_1
         catch (FileNotFoundException ex)
         {
             exception = true;
+            System.out.println(ex.getMessage());
             ex.printStackTrace();
         }
         catch (IOException ex)
         {
             exception = true;
+            System.out.println(ex.getMessage());
             ex.printStackTrace();
         }
         finally
@@ -444,6 +475,7 @@ public class setup_1
                     if (exception == false)
                     {
                         exception = true;
+                        System.out.println(ex.getMessage());
                         ex.printStackTrace();
                     }
                 }
@@ -460,6 +492,7 @@ public class setup_1
                     if (exception == false)
                     {
                         exception = true;
+                        System.out.println(ex.getMessage());
                         ex.printStackTrace();
                     }
                 }
