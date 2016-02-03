@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2016  Stephan Kreutzer
+# Copyright (C) 2016  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./file_discovery ./file_hasher ./https_client ./workflows ./xml_xslt_transformator
+directories = ./file_hasher_1
 
 
 
