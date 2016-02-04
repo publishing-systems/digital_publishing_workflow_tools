@@ -1,4 +1,4 @@
-# Copyright (C) 2015  Stephan Kreutzer
+# Copyright (C) 2015-2016  Stephan Kreutzer
 #
 # This file is part of https_client_1, a submodule of the
 # digital_publishing_workflow_tools package.
@@ -29,13 +29,21 @@ https_client_1: https_client_1.class
 ProgramTerminationException.class: ProgramTerminationException.java
 	javac -encoding UTF-8 ProgramTerminationException.java
 
+InfoMessage.class: InfoMessage.java
+	javac -encoding UTF-8 InfoMessage.java
+
+ResponseHeaderField.class: ResponseHeaderField.java
+	javac -encoding UTF-8 ResponseHeaderField.java
+
 Base64Coder.class: Base64Coder.java
 	javac -encoding UTF-8 Base64Coder.java
 
-https_client_1.class: https_client_1.java Base64Coder.class ProgramTerminationException.class
+https_client_1.class: https_client_1.java InfoMessage.class ResponseHeaderField.class Base64Coder.class ProgramTerminationException.class
 	javac -encoding UTF-8 https_client_1.java
 
 clean:
 	rm -f https_client_1.class
 	rm -f Base64Coder.class
+	rm -f ResponseHeaderField.class
+	rm -f InfoMessage.class
 	rm -f ProgramTerminationException.class

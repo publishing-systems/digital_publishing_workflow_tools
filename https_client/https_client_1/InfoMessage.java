@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2016 Stephan Kreutzer
+/* Copyright (C) 2016 Stephan Kreutzer
  *
  * This file is part of https_client_1, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -16,10 +16,10 @@
  * along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/https_client/https_client_1/ProgramTerminationException.java
- * @brief Handles error reporting and program termination for https_client_1.
+ * @file $/https_client/https_client_1/InfoMessage.java
+ * @brief For normal messages during https_client_1 execution.
  * @author Stephan Kreutzer
- * @since 2015-11-14
+ * @since 2016-01-31
  */
 
 
@@ -31,17 +31,17 @@ import java.util.Date;
 
 
 
-class ProgramTerminationException extends RuntimeException
+class InfoMessage
 {
-    public ProgramTerminationException(String id,
-                                       Exception cause,
-                                       String message,
-                                       String bundle,
-                                       Object ... arguments)
+    public InfoMessage(String id,
+                       Exception exception,
+                       String message,
+                       String bundle,
+                       Object ... arguments)
     {
-        super(message, cause);
-
         this.id = id;
+        this.exception = exception;
+        this.message = message;
         this.bundle = bundle;
         this.arguments = arguments;
 
@@ -54,6 +54,16 @@ class ProgramTerminationException extends RuntimeException
     public String getId()
     {
         return this.id;
+    }
+
+    public Exception getException()
+    {
+        return this.exception;
+    }
+
+    public String getMessage()
+    {
+        return this.message;
     }
 
     public String getBundle()
@@ -72,6 +82,8 @@ class ProgramTerminationException extends RuntimeException
     }
 
     protected String id;
+    protected Exception exception;
+    protected String message;
     protected String bundle;
     protected Object[] arguments;
     protected String timestamp;

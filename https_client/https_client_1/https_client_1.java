@@ -57,6 +57,8 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.security.cert.Certificate;
 import javax.net.ssl.SSLPeerUnverifiedException;
+import java.util.List;
+import java.util.ArrayList;
 
 
 
@@ -66,7 +68,6 @@ public class https_client_1
     {
         // Singleton to protect https_client_1.resultInfoFile from conflicting use.
 
-        https_client_1.result = new HashMap<String, String>();
         https_client_1.resultCertificates = null;
     }
 
@@ -91,8 +92,10 @@ public class https_client_1
                          "the project website http://www.publishing-systems.org.\n\n");
 
         https_client_1 client = https_client_1.getInstance();
-        client.result.clear();
-        client.resultCertificates = null;
+        client.getResults().clear();
+        client.getInfoMessages().clear();
+        client.setResultCertificates(null);
+        client.getResponseHeaderFields().clear();
 
         try
         {
@@ -117,11 +120,11 @@ public class https_client_1
                 writer.write("<https-client-1-result-information>\n");
                 writer.write("  <success>\n");
 
-                if (client.result != null)
+                if (client.getResults() != null)
                 {
-                    if (client.result.isEmpty() != true)
+                    if (client.getResults().isEmpty() != true)
                     {
-                        for (Map.Entry<String, String> entry : client.result.entrySet())
+                        for (Map.Entry<String, String> entry : client.getResults().entrySet())
                         {
                             // Ampersand needs to be the first, otherwise it would double-encode
                             // other entities.
@@ -135,11 +138,140 @@ public class https_client_1
                     }
                 }
 
-                if (client.resultCertificates != null)
+                if (client.getInfoMessages().size() > 0)
+                {
+                    writer.write("    <info-messages>\n");
+
+                    for (int i = 0, max = client.getInfoMessages().size(); i < max; i++)
+                    {
+                        InfoMessage infoMessage = client.getInfoMessages().get(i);
+
+                        writer.write("      <info-message number=\"" + i + "\">\n");
+                        writer.write("        <timestamp>" + infoMessage.getTimestamp() + "</timestamp>\n");
+
+                        String infoMessageText = infoMessage.getMessage();
+                        String infoMessageId = infoMessage.getId();
+                        String infoMessageBundle = infoMessage.getBundle();
+                        Object[] infoMessageArguments = infoMessage.getArguments();
+
+                        if (infoMessageBundle != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageBundle = infoMessageBundle.replaceAll("&", "&amp;");
+                            infoMessageBundle = infoMessageBundle.replaceAll("<", "&lt;");
+                            infoMessageBundle = infoMessageBundle.replaceAll(">", "&gt;");
+
+                            writer.write("        <id-bundle>" + infoMessageBundle + "</id-bundle>\n");
+                        }
+
+                        if (infoMessageId != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageId = infoMessageId.replaceAll("&", "&amp;");
+                            infoMessageId = infoMessageId.replaceAll("<", "&lt;");
+                            infoMessageId = infoMessageId.replaceAll(">", "&gt;");
+
+                            writer.write("        <id>" + infoMessageId + "</id>\n");
+                        }
+
+                        if (infoMessageText != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageText = infoMessageText.replaceAll("&", "&amp;");
+                            infoMessageText = infoMessageText.replaceAll("<", "&lt;");
+                            infoMessageText = infoMessageText.replaceAll(">", "&gt;");
+
+                            writer.write("        <message>" + infoMessageText + "</message>\n");
+                        }
+
+                        if (infoMessageArguments != null)
+                        {
+                            writer.write("        <arguments>\n");
+
+                            int argumentCount = infoMessageArguments.length;
+
+                            for (int j = 0; j < argumentCount; j++)
+                            {
+                                if (infoMessageArguments[j] == null)
+                                {
+                                    writer.write("          <argument number=\"" + j + "\">\n");
+                                    writer.write("            <class></class>\n");
+                                    writer.write("            <value>null</value>\n");
+                                    writer.write("          </argument>\n");
+
+                                    continue;
+                                }
+
+                                String className = infoMessageArguments[j].getClass().getName();
+
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                className = className.replaceAll("&", "&amp;");
+                                className = className.replaceAll("<", "&lt;");
+                                className = className.replaceAll(">", "&gt;");
+
+                                String value = infoMessageArguments[j].toString();
+
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                value = value.replaceAll("&", "&amp;");
+                                value = value.replaceAll("<", "&lt;");
+                                value = value.replaceAll(">", "&gt;");
+
+                                writer.write("          <argument number=\"" + j + "\">\n");
+                                writer.write("            <class>" + className + "</class>\n");
+                                writer.write("            <value>" + value + "</value>\n");
+                                writer.write("          </argument>\n");
+                            }
+
+                            writer.write("        </arguments>\n");
+                        }
+
+                        Exception exception = infoMessage.getException();
+
+                        if (exception != null)
+                        {
+                            writer.write("        <exception>\n");
+
+                            String className = exception.getClass().getName();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            className = className.replaceAll("&", "&amp;");
+                            className = className.replaceAll("<", "&lt;");
+                            className = className.replaceAll(">", "&gt;");
+
+                            writer.write("          <class>" + className + "</class>\n");
+
+                            StringWriter stringWriter = new StringWriter();
+                            PrintWriter printWriter = new PrintWriter(stringWriter);
+                            exception.printStackTrace(printWriter);
+                            String stackTrace = stringWriter.toString();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            stackTrace = stackTrace.replaceAll("&", "&amp;");
+                            stackTrace = stackTrace.replaceAll("<", "&lt;");
+                            stackTrace = stackTrace.replaceAll(">", "&gt;");
+
+                            writer.write("          <stack-trace>" + stackTrace + "</stack-trace>\n");
+                            writer.write("        </exception>\n");
+                        }
+
+                        writer.write("      </info-message>\n");
+                    }
+
+                    writer.write("    </info-messages>\n");
+                }
+
+                if (client.getResultCertificates() != null)
                 {
                     writer.write("    <certificates>\n");
 
-                    for (Certificate certificate : client.resultCertificates)
+                    for (Certificate certificate : client.getResultCertificates())
                     {
                         writer.write("      <certificate");
                         writer.write(" type=\"" + certificate.getType() + "\"");
@@ -151,6 +283,59 @@ public class https_client_1
                     }
 
                     writer.write("    </certificates>\n");
+                }
+
+                if (client.getResponseHeaderFields() != null)
+                {
+                    if (client.getResponseHeaderFields().isEmpty() != true)
+                    {
+                        writer.write("    <response-header-fields>\n");
+
+                        for (ResponseHeaderField field : client.responseHeaderFields)
+                        {
+                            String fieldNumber = Integer.toString(field.getNumber());
+                            String fieldName = field.getName();
+
+                            if (fieldName != null)
+                            {
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                fieldName = fieldName.replaceAll("&", "&amp;");
+                                fieldName = fieldName.replaceAll("<", "&lt;");
+                                fieldName = fieldName.replaceAll(">", "&gt;");
+                                fieldName = fieldName.replaceAll("\"", "&quot;");
+                                fieldName = fieldName.replaceAll("'", "&apos;");
+                            }
+
+                            String fieldValue = field.getValue();
+
+                            if (fieldValue != null)
+                            {
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                fieldValue = fieldValue.replaceAll("&", "&amp;");
+                                fieldValue = fieldValue.replaceAll("<", "&lt;");
+                                fieldValue = fieldValue.replaceAll(">", "&gt;");
+                                fieldValue = fieldValue.replaceAll("\"", "&quot;");
+                                fieldValue = fieldValue.replaceAll("'", "&apos;");
+                            }
+                            else
+                            {
+                                fieldValue = "";
+                            }
+
+                            writer.write("      <field number=\"" + fieldNumber + "\"");
+
+                            if (fieldName != null)
+                            {
+                                writer.write(" name=\"" + fieldName + "\"");
+                            }
+
+                            writer.write(">" + fieldValue + "</field>\n");
+                        }
+
+                        writer.write("    </response-header-fields>\n");
+                    }
                 }
 
                 writer.write("  </success>\n");
@@ -176,12 +361,19 @@ public class https_client_1
         }
 
         client.resultInfoFile = null;
-        client.result.clear();
-        client.resultCertificates = null;
+        client.getResults().clear();
+        client.getInfoMessages().clear();
+        client.setResultCertificates(null);
+        client.getResponseHeaderFields().clear();
     }
 
     public int request(String args[]) throws ProgramTerminationException
     {
+        this.getResults().clear();
+        this.getInfoMessages().clear();
+        this.setResultCertificates(null);
+        this.getResponseHeaderFields().clear();
+
         if (args.length < 2)
         {
             throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\thttps_client_1 " + getI10nString("messageParameterList") + "\n");
@@ -677,7 +869,7 @@ public class https_client_1
         {
             if (responseOmitCertificatesInfo == false)
             {
-                https_client_1.result.put("cipher-suite", connection.getCipherSuite());
+                this.getResults().put("cipher-suite", connection.getCipherSuite());
 
                 try
                 {
@@ -691,11 +883,27 @@ public class https_client_1
 
             try
             {
-                https_client_1.result.put("http-status-code", Integer.toString(connection.getResponseCode()));
+                this.getResults().put("http-status-code", Integer.toString(connection.getResponseCode()));
             }
             catch (IOException ex)
             {
                 throw constructTermination("messageErrorWhileReadingResponse", ex, null);
+            }
+
+            for (int i = 0; true; i++)
+            {
+                String fieldName = connection.getHeaderFieldKey(i);
+                String fieldValue = connection.getHeaderField(i);
+
+                if (fieldName != null ||
+                    fieldValue != null)
+                {
+                    this.responseHeaderFields.add(new ResponseHeaderField(i, fieldName, fieldValue));
+                }
+                else
+                {
+                    break;
+                }
             }
 
             boolean error = false;
@@ -792,11 +1000,43 @@ public class https_client_1
 
                 }
 
-                https_client_1.result.put("response-data-file", responseDataFile.getAbsolutePath());
+               this.getResults().put("response-data-file", responseDataFile.getAbsolutePath());
             }
         }
 
         return 0;
+    }
+
+    public InfoMessage constructInfoMessage(String id,
+                                            boolean outputToConsole,
+                                            Exception exception,
+                                            String message,
+                                            Object ... arguments)
+    {
+        if (message == null)
+        {
+            if (arguments == null)
+            {
+                message = "https_client_1: " + getI10nString(id);
+            }
+            else
+            {
+                message = "https_client_1: " + getI10nStringFormatted(id, arguments);
+            }
+        }
+
+        if (outputToConsole == true)
+        {
+            System.out.println(message);
+
+            if (exception != null)
+            {
+                System.out.println(exception.getMessage());
+                exception.printStackTrace();
+            }
+        }
+
+        return new InfoMessage(id, exception, message, L10N_BUNDLE, arguments);
     }
 
     public ProgramTerminationException constructTermination(String id, Exception cause, String message, Object ... arguments)
@@ -893,7 +1133,7 @@ public class https_client_1
                         if (arguments[i] == null)
                         {
                             writer.write("      <argument number=\"" + i + "\">\n");
-                            writer.write("        <class></className>\n");
+                            writer.write("        <class></class>\n");
                             writer.write("        <value>null</value>\n");
                             writer.write("      </argument>\n");
 
@@ -917,7 +1157,7 @@ public class https_client_1
                         value = value.replaceAll(">", "&gt;");
 
                         writer.write("      <argument number=\"" + i + "\">\n");
-                        writer.write("        <class>" + className + "</className>\n");
+                        writer.write("        <class>" + className + "</class>\n");
                         writer.write("        <value>" + value + "</value>\n");
                         writer.write("      </argument>\n");
                     }
@@ -954,6 +1194,135 @@ public class https_client_1
                     writer.write("    </exception>\n");
                 }
 
+                if (this.getInfoMessages().size() > 0)
+                {
+                    writer.write("    <info-messages>\n");
+
+                    for (int i = 0, max = this.getInfoMessages().size(); i < max; i++)
+                    {
+                        InfoMessage infoMessage = this.getInfoMessages().get(i);
+
+                        writer.write("      <info-message number=\"" + i + "\">\n");
+                        writer.write("        <timestamp>" + infoMessage.getTimestamp() + "</timestamp>\n");
+
+                        String infoMessageText = infoMessage.getMessage();
+                        String infoMessageId = infoMessage.getId();
+                        String infoMessageBundle = infoMessage.getBundle();
+                        Object[] infoMessageArguments = infoMessage.getArguments();
+
+                        if (infoMessageBundle != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageBundle = infoMessageBundle.replaceAll("&", "&amp;");
+                            infoMessageBundle = infoMessageBundle.replaceAll("<", "&lt;");
+                            infoMessageBundle = infoMessageBundle.replaceAll(">", "&gt;");
+
+                            writer.write("        <id-bundle>" + infoMessageBundle + "</id-bundle>\n");
+                        }
+
+                        if (infoMessageId != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageId = infoMessageId.replaceAll("&", "&amp;");
+                            infoMessageId = infoMessageId.replaceAll("<", "&lt;");
+                            infoMessageId = infoMessageId.replaceAll(">", "&gt;");
+
+                            writer.write("        <id>" + infoMessageId + "</id>\n");
+                        }
+
+                        if (infoMessageText != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageText = infoMessageText.replaceAll("&", "&amp;");
+                            infoMessageText = infoMessageText.replaceAll("<", "&lt;");
+                            infoMessageText = infoMessageText.replaceAll(">", "&gt;");
+
+                            writer.write("        <message>" + infoMessageText + "</message>\n");
+                        }
+
+                        if (infoMessageArguments != null)
+                        {
+                            writer.write("        <arguments>\n");
+
+                            int argumentCount = infoMessageArguments.length;
+
+                            for (int j = 0; j < argumentCount; j++)
+                            {
+                                if (infoMessageArguments[j] == null)
+                                {
+                                    writer.write("          <argument number=\"" + j + "\">\n");
+                                    writer.write("            <class></class>\n");
+                                    writer.write("            <value>null</value>\n");
+                                    writer.write("          </argument>\n");
+
+                                    continue;
+                                }
+
+                                String className = infoMessageArguments[j].getClass().getName();
+
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                className = className.replaceAll("&", "&amp;");
+                                className = className.replaceAll("<", "&lt;");
+                                className = className.replaceAll(">", "&gt;");
+
+                                String value = infoMessageArguments[j].toString();
+
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                value = value.replaceAll("&", "&amp;");
+                                value = value.replaceAll("<", "&lt;");
+                                value = value.replaceAll(">", "&gt;");
+
+                                writer.write("          <argument number=\"" + j + "\">\n");
+                                writer.write("            <class>" + className + "</class>\n");
+                                writer.write("            <value>" + value + "</value>\n");
+                                writer.write("          </argument>\n");
+                            }
+
+                            writer.write("        </arguments>\n");
+                        }
+
+                        Exception exception = infoMessage.getException();
+
+                        if (exception != null)
+                        {
+                            writer.write("        <exception>\n");
+
+                            String className = exception.getClass().getName();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            className = className.replaceAll("&", "&amp;");
+                            className = className.replaceAll("<", "&lt;");
+                            className = className.replaceAll(">", "&gt;");
+
+                            writer.write("          <class>" + className + "</class>\n");
+
+                            StringWriter stringWriter = new StringWriter();
+                            PrintWriter printWriter = new PrintWriter(stringWriter);
+                            exception.printStackTrace(printWriter);
+                            String stackTrace = stringWriter.toString();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            stackTrace = stackTrace.replaceAll("&", "&amp;");
+                            stackTrace = stackTrace.replaceAll("<", "&lt;");
+                            stackTrace = stackTrace.replaceAll(">", "&gt;");
+
+                            writer.write("          <stack-trace>" + stackTrace + "</stack-trace>\n");
+                            writer.write("        </exception>\n");
+                        }
+
+                        writer.write("      </info-message>\n");
+                    }
+
+                    writer.write("    </info-messages>\n");
+                }
+
                 writer.write("  </failure>\n");
                 writer.write("</https-client-1-result-information>\n");
                 writer.flush();
@@ -977,6 +1346,31 @@ public class https_client_1
 
         System.exit(-1);
         return -1;
+    }
+
+    public Map<String, String> getResults()
+    {
+        return this.results;
+    }
+
+    public List<InfoMessage> getInfoMessages()
+    {
+        return this.infoMessages;
+    }
+
+    public Certificate[] getResultCertificates()
+    {
+        return this.resultCertificates;
+    }
+
+    public void setResultCertificates(Certificate[] resultCertificates)
+    {
+        this.resultCertificates = resultCertificates;
+    }
+
+    public List<ResponseHeaderField> getResponseHeaderFields()
+    {
+        return this.responseHeaderFields;
     }
 
     public Locale getLocale()
@@ -1016,8 +1410,10 @@ public class https_client_1
     private static https_client_1 https_client_1Instance;
 
     public static File resultInfoFile = null;
-    public static Map<String, String> result = null;
-    public static Certificate[] resultCertificates = null;
+    protected static Map<String, String> results = new HashMap<String, String>();
+    protected static List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
+    protected static Certificate[] resultCertificates = null;
+    protected static List<ResponseHeaderField> responseHeaderFields = new ArrayList<ResponseHeaderField>();
 
     private static final String L10N_BUNDLE = "l10n.l10nHttpsClient1Console";
     private ResourceBundle l10nConsole;

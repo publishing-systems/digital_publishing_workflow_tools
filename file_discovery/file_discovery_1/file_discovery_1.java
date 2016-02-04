@@ -183,7 +183,7 @@ public class file_discovery_1
                                 if (infoMessageArguments[j] == null)
                                 {
                                     writer.write("          <argument number=\"" + j + "\">\n");
-                                    writer.write("            <class></className>\n");
+                                    writer.write("            <class></class>\n");
                                     writer.write("            <value>null</value>\n");
                                     writer.write("          </argument>\n");
 
@@ -207,7 +207,7 @@ public class file_discovery_1
                                 value = value.replaceAll(">", "&gt;");
 
                                 writer.write("          <argument number=\"" + j + "\">\n");
-                                writer.write("            <class>" + className + "</className>\n");
+                                writer.write("            <class>" + className + "</class>\n");
                                 writer.write("            <value>" + value + "</value>\n");
                                 writer.write("          </argument>\n");
                             }
@@ -250,7 +250,6 @@ public class file_discovery_1
                     }
 
                     writer.write("    </info-messages>\n");
-                    writer.write("  </success>\n");
                 }
 
                 writer.write("  </success>\n");
@@ -795,7 +794,7 @@ public class file_discovery_1
                         if (arguments[i] == null)
                         {
                             writer.write("      <argument number=\"" + i + "\">\n");
-                            writer.write("        <class></className>\n");
+                            writer.write("        <class></class>\n");
                             writer.write("        <value>null</value>\n");
                             writer.write("      </argument>\n");
 
@@ -819,7 +818,7 @@ public class file_discovery_1
                         value = value.replaceAll(">", "&gt;");
 
                         writer.write("      <argument number=\"" + i + "\">\n");
-                        writer.write("        <class>" + className + "</className>\n");
+                        writer.write("        <class>" + className + "</class>\n");
                         writer.write("        <value>" + value + "</value>\n");
                         writer.write("      </argument>\n");
                     }
@@ -854,6 +853,134 @@ public class file_discovery_1
 
                     writer.write("      <stack-trace>" + stackTrace + "</stack-trace>\n");
                     writer.write("    </exception>\n");
+                }
+
+                if (this.getInfoMessages().size() > 0)
+                {
+                    writer.write("    <info-messages>\n");
+
+                    for (int i = 0, max = this.getInfoMessages().size(); i < max; i++)
+                    {
+                        InfoMessage infoMessage = this.getInfoMessages().get(i);
+
+                        writer.write("      <info-message number=\"" + i + "\">\n");
+
+                        String infoMessageText = infoMessage.getMessage();
+                        String infoMessageId = infoMessage.getId();
+                        String infoMessageBundle = infoMessage.getBundle();
+                        Object[] infoMessageArguments = infoMessage.getArguments();
+
+                        if (infoMessageBundle != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageBundle = infoMessageBundle.replaceAll("&", "&amp;");
+                            infoMessageBundle = infoMessageBundle.replaceAll("<", "&lt;");
+                            infoMessageBundle = infoMessageBundle.replaceAll(">", "&gt;");
+
+                            writer.write("        <id-bundle>" + infoMessageBundle + "</id-bundle>\n");
+                        }
+
+                        if (infoMessageId != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageId = infoMessageId.replaceAll("&", "&amp;");
+                            infoMessageId = infoMessageId.replaceAll("<", "&lt;");
+                            infoMessageId = infoMessageId.replaceAll(">", "&gt;");
+
+                            writer.write("        <id>" + infoMessageId + "</id>\n");
+                        }
+
+                        if (infoMessageText != null)
+                        {
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            infoMessageText = infoMessageText.replaceAll("&", "&amp;");
+                            infoMessageText = infoMessageText.replaceAll("<", "&lt;");
+                            infoMessageText = infoMessageText.replaceAll(">", "&gt;");
+
+                            writer.write("        <message>" + infoMessageText + "</message>\n");
+                        }
+
+                        if (infoMessageArguments != null)
+                        {
+                            writer.write("        <arguments>\n");
+
+                            int argumentCount = infoMessageArguments.length;
+
+                            for (int j = 0; j < argumentCount; j++)
+                            {
+                                if (infoMessageArguments[j] == null)
+                                {
+                                    writer.write("          <argument number=\"" + j + "\">\n");
+                                    writer.write("            <class></class>\n");
+                                    writer.write("            <value>null</value>\n");
+                                    writer.write("          </argument>\n");
+
+                                    continue;
+                                }
+
+                                String className = infoMessageArguments[j].getClass().getName();
+
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                className = className.replaceAll("&", "&amp;");
+                                className = className.replaceAll("<", "&lt;");
+                                className = className.replaceAll(">", "&gt;");
+
+                                String value = infoMessageArguments[j].toString();
+
+                                // Ampersand needs to be the first, otherwise it would double-encode
+                                // other entities.
+                                value = value.replaceAll("&", "&amp;");
+                                value = value.replaceAll("<", "&lt;");
+                                value = value.replaceAll(">", "&gt;");
+
+                                writer.write("          <argument number=\"" + j + "\">\n");
+                                writer.write("            <class>" + className + "</class>\n");
+                                writer.write("            <value>" + value + "</value>\n");
+                                writer.write("          </argument>\n");
+                            }
+
+                            writer.write("        </arguments>\n");
+                        }
+
+                        Exception exception = infoMessage.getException();
+
+                        if (exception != null)
+                        {
+                            writer.write("        <exception>\n");
+
+                            String className = exception.getClass().getName();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            className = className.replaceAll("&", "&amp;");
+                            className = className.replaceAll("<", "&lt;");
+                            className = className.replaceAll(">", "&gt;");
+
+                            writer.write("          <class>" + className + "</class>\n");
+
+                            StringWriter stringWriter = new StringWriter();
+                            PrintWriter printWriter = new PrintWriter(stringWriter);
+                            exception.printStackTrace(printWriter);
+                            String stackTrace = stringWriter.toString();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            stackTrace = stackTrace.replaceAll("&", "&amp;");
+                            stackTrace = stackTrace.replaceAll("<", "&lt;");
+                            stackTrace = stackTrace.replaceAll(">", "&gt;");
+
+                            writer.write("          <stack-trace>" + stackTrace + "</stack-trace>\n");
+                            writer.write("        </exception>\n");
+                        }
+
+                        writer.write("      </info-message>\n");
+                    }
+
+                    writer.write("    </info-messages>\n");
                 }
 
                 writer.write("  </failure>\n");
