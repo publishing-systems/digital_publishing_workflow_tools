@@ -1058,6 +1058,7 @@ public class https_client_1
 
     public int handleTermination(ProgramTerminationException ex)
     {
+        String timestamp = ex.getTimestamp();
         String message = ex.getMessage();
         String id = ex.getId();
         String bundle = ex.getBundle();
@@ -1088,6 +1089,7 @@ public class https_client_1
                 writer.write("<!-- This file was created by https_client_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
                 writer.write("<https-client-1-result-information>\n");
                 writer.write("  <failure>\n");
+                writer.write("    <timestamp>" + timestamp + "</timestamp>\n");
 
                 if (bundle != null)
                 {

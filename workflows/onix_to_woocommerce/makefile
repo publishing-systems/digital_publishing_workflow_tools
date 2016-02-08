@@ -16,7 +16,7 @@
 
 
 
-directories = ./onix_to_woocommerce_1
+directories = ./onix_to_woocommerce_1 ./onix_to_woocommerce_2
 
 
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016 Stephan Kreutzer
+/* Copyright (C) 2015-2016 Stephan Kreutzer
  *
  * This file is part of onix_to_woocommerce_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -24,6 +24,13 @@
 
 
 
+import java.util.TimeZone;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
+
 class ProgramTerminationException extends RuntimeException
 {
     public ProgramTerminationException(String id,
@@ -38,6 +45,11 @@ class ProgramTerminationException extends RuntimeException
         this.bundle = bundle;
         this.arguments = arguments;
         this.normalTermination = false;
+
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        dateFormat.setTimeZone(timeZone);
+        this.timestamp = dateFormat.format(new Date());
     }
 
     public String getId()
@@ -55,6 +67,11 @@ class ProgramTerminationException extends RuntimeException
         return this.arguments;
     }
 
+    public String getTimestamp()
+    {
+        return this.timestamp;
+    }
+
     public boolean isNormalTermination()
     {
         return this.normalTermination;
@@ -68,5 +85,6 @@ class ProgramTerminationException extends RuntimeException
     protected String id;
     protected String bundle;
     protected Object[] arguments;
+    protected String timestamp;
     protected boolean normalTermination;
 }

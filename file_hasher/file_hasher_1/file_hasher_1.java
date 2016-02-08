@@ -396,6 +396,11 @@ public class file_hasher_1
 
                         File inputFile = new File(filePath);
 
+                        if (inputFile.isAbsolute() != true)
+                        {
+                            inputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + filePath);
+                        }
+
                         try
                         {
                             inputFile = inputFile.getCanonicalFile();
@@ -452,7 +457,7 @@ public class file_hasher_1
                             throw constructTermination("messageJobFileHashAlgorithmNotSupported", null, null, jobFile.getAbsolutePath(), hashAlgorithm);
                         }
                     }
-                    if (tagName.equals("result-file") == true)
+                    else if (tagName.equals("result-file") == true)
                     {
                         StartElement resultFileElement = event.asStartElement();
                         Attribute pathAttribute = resultFileElement.getAttributeByName(new QName("path"));
@@ -470,6 +475,11 @@ public class file_hasher_1
                         }
 
                         resultFile = new File(resultFilePath);
+
+                        if (resultFile.isAbsolute() != true)
+                        {
+                            resultFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + resultFilePath);
+                        }
 
                         try
                         {

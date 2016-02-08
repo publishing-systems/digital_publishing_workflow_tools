@@ -1,25 +1,25 @@
 /* Copyright (C) 2015-2016 Stephan Kreutzer
  *
- * This file is part of https_client_1, a submodule of the
+ * This file is part of onix_to_woocommerce_2 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * https_client_1 is free software: you can redistribute it and/or modify
+ * onix_to_woocommerce_2 workflow is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * https_client_1 is distributed in the hope that it will be useful,
+ * onix_to_woocommerce_2 workflow is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
+ * along with onix_to_woocommerce_2 workflow. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/https_client/https_client_1/ProgramTerminationException.java
- * @brief Handles error reporting and program termination for https_client_1.
+ * @file $/workflows/onix_to_woocommerce/onix_to_woocommerce_2/ProgramTerminationException.java
+ * @brief Handles error reporting and program termination for onix_to_woocommerce_2 workflow.
  * @author Stephan Kreutzer
- * @since 2015-11-14
+ * @since 2016-01-02
  */
 
 

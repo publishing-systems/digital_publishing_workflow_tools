@@ -121,6 +121,7 @@ public class onix_to_woocommerce_1
                         InfoMessage infoMessage = client.getInfoMessages().get(i);
 
                         writer.write("      <info-message number=\"" + i + "\">\n");
+                        writer.write("        <timestamp>" + infoMessage.getTimestamp() + "</timestamp>\n");
 
                         String infoMessageText = infoMessage.getMessage();
                         String infoMessageId = infoMessage.getId();
@@ -171,7 +172,7 @@ public class onix_to_woocommerce_1
                                 if (infoMessageArguments[j] == null)
                                 {
                                     writer.write("          <argument number=\"" + j + "\">\n");
-                                    writer.write("            <class></className>\n");
+                                    writer.write("            <class></class>\n");
                                     writer.write("            <value>null</value>\n");
                                     writer.write("          </argument>\n");
 
@@ -195,7 +196,7 @@ public class onix_to_woocommerce_1
                                 value = value.replaceAll(">", "&gt;");
 
                                 writer.write("          <argument number=\"" + j + "\">\n");
-                                writer.write("            <class>" + className + "</className>\n");
+                                writer.write("            <class>" + className + "</class>\n");
                                 writer.write("            <value>" + value + "</value>\n");
                                 writer.write("          </argument>\n");
                             }
@@ -275,6 +276,38 @@ public class onix_to_woocommerce_1
             throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tonix_to_woocommerce_1 " + getI10nString("messageParameterList") + "\n");
         }
 
+        File resultInfoFile = new File(args[1]);
+
+        try
+        {
+            resultInfoFile = resultInfoFile.getCanonicalFile();
+        }
+        catch (SecurityException ex)
+        {
+            throw constructTermination("messageResultInfoFileCantGetCanonicalPath", ex, null, resultInfoFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageResultInfoFileCantGetCanonicalPath", ex, null, resultInfoFile.getAbsolutePath());
+        }
+
+        if (resultInfoFile.exists() == true)
+        {
+            if (resultInfoFile.isFile() == true)
+            {
+                if (resultInfoFile.canWrite() != true)
+                {
+                    throw constructTermination("messageResultInfoFileIsntWritable", null, null, resultInfoFile.getAbsolutePath());
+                }
+            }
+            else
+            {
+                throw constructTermination("messageResultInfoPathIsntAFile", null, null, resultInfoFile.getAbsolutePath());
+            }
+        }
+
+        onix_to_woocommerce_1.resultInfoFile = resultInfoFile;
+
 
         String programPath = onix_to_woocommerce_1.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
@@ -319,36 +352,6 @@ public class onix_to_woocommerce_1
                 throw constructTermination("messageTempDirectoryCantCreate", null, null, tempDirectory.getAbsolutePath());
             }
         }
-
-        File resultInfoFile = new File(args[1]);
-
-        try
-        {
-            resultInfoFile = resultInfoFile.getCanonicalFile();
-        }
-        catch (SecurityException ex)
-        {
-            throw constructTermination("messageResultInfoFileCantGetCanonicalPath", ex, null, resultInfoFile.getAbsolutePath());
-        }
-        catch (IOException ex)
-        {
-            throw constructTermination("messageResultInfoFileCantGetCanonicalPath", ex, null, resultInfoFile.getAbsolutePath());
-        }
-
-        if (resultInfoFile.exists() == true)
-        {
-            if (resultInfoFile.isDirectory() == true)
-            {
-                throw constructTermination("messageResultInfoPathIsADirectory", null, null, resultInfoFile.getAbsolutePath());
-            }
-
-            if (resultInfoFile.canWrite() != true)
-            {
-                throw constructTermination("messageResultInfoFileIsntWritable", null, null, resultInfoFile.getAbsolutePath());
-            }
-        }
-
-        onix_to_woocommerce_1.resultInfoFile = resultInfoFile;
 
         File jobFile = new File(args[0]);
 
@@ -1362,6 +1365,8 @@ public class onix_to_woocommerce_1
                     writer.write("  <success>\n");
                 }
 
+                writer.write("    <timestamp>" + ex.getTimestamp() + "</timestamp>\n");
+
                 if (bundle != null)
                 {
                     // Ampersand needs to be the first, otherwise it would double-encode
@@ -1406,7 +1411,7 @@ public class onix_to_woocommerce_1
                         if (arguments[i] == null)
                         {
                             writer.write("      <argument number=\"" + i + "\">\n");
-                            writer.write("        <class></className>\n");
+                            writer.write("        <class></class>\n");
                             writer.write("        <value>null</value>\n");
                             writer.write("      </argument>\n");
 
@@ -1430,7 +1435,7 @@ public class onix_to_woocommerce_1
                         value = value.replaceAll(">", "&gt;");
 
                         writer.write("      <argument number=\"" + i + "\">\n");
-                        writer.write("        <class>" + className + "</className>\n");
+                        writer.write("        <class>" + className + "</class>\n");
                         writer.write("        <value>" + value + "</value>\n");
                         writer.write("      </argument>\n");
                     }
@@ -1476,6 +1481,7 @@ public class onix_to_woocommerce_1
                         InfoMessage infoMessage = this.getInfoMessages().get(i);
 
                         writer.write("      <info-message>\n");
+                        writer.write("        <timestamp>" + infoMessage.getTimestamp() + "</timestamp>\n");
 
                         String infoMessageText = infoMessage.getMessage();
                         String infoMessageId = ex.getId();
@@ -1526,7 +1532,7 @@ public class onix_to_woocommerce_1
                                 if (infoMessageArguments[j] == null)
                                 {
                                     writer.write("          <argument number=\"" + j + "\">\n");
-                                    writer.write("            <class></className>\n");
+                                    writer.write("            <class></class>\n");
                                     writer.write("            <value>null</value>\n");
                                     writer.write("          </argument>\n");
 
@@ -1550,7 +1556,7 @@ public class onix_to_woocommerce_1
                                 value = value.replaceAll(">", "&gt;");
 
                                 writer.write("          <argument number=\"" + j + "\">\n");
-                                writer.write("            <class>" + className + "</className>\n");
+                                writer.write("            <class>" + className + "</class>\n");
                                 writer.write("            <value>" + value + "</value>\n");
                                 writer.write("          </argument>\n");
                             }

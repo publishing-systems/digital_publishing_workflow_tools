@@ -394,6 +394,11 @@ public class file_discovery_1
 
                         File inputDirectory = new File(directoryPath);
 
+                        if (inputDirectory.isAbsolute() != true)
+                        {
+                            inputDirectory = new File(jobFile.getAbsoluteFile().getParent() + File.separator + directoryPath);
+                        }
+
                         try
                         {
                             inputDirectory = inputDirectory.getCanonicalFile();
@@ -476,7 +481,7 @@ public class file_discovery_1
                             throw constructTermination("messageJobFileUnknownSetting", null, null, jobFile.getAbsolutePath(), "include-files", setting);
                         }
                     }
-                    if (tagName.equals("result-file") == true)
+                    else if (tagName.equals("result-file") == true)
                     {
                         StartElement resultFileElement = event.asStartElement();
                         Attribute pathAttribute = resultFileElement.getAttributeByName(new QName("path"));
@@ -494,6 +499,11 @@ public class file_discovery_1
                         }
 
                         resultFile = new File(resultFilePath);
+
+                        if (resultFile.isAbsolute() != true)
+                        {
+                            resultFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + resultFilePath);
+                        }
 
                         try
                         {
@@ -647,12 +657,21 @@ public class file_discovery_1
                 writer.write("    <entry path=\"" + file.getAbsolutePath() + "\" type=\"directory\"/>\n");
             }
 
-            for (File child : file.listFiles())
+            File[] children = file.listFiles();
+
+            if (children != null)
             {
-                if (this.discoverFileRecursively(child, includeDirectories, includeFiles, writer) != 0)
+                for (File child : file.listFiles())
                 {
-                    return -1;
+                    if (this.discoverFileRecursively(child, includeDirectories, includeFiles, writer) != 0)
+                    {
+                        return -1;
+                    }
                 }
+            }
+            else
+            {
+                throw constructTermination("messageUnableToDetermineChildren", null, null, file.getAbsolutePath());
             }
         }
         else
