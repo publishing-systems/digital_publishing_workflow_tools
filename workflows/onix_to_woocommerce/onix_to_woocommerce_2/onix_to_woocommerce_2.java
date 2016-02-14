@@ -446,19 +446,19 @@ public class onix_to_woocommerce_2
                             throw constructTermination("messageFileDiscovery1JobfileCantGetCanonicalPath", ex, null, new File(fileDiscovery1JobfilePath).getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
-                        if (fileDiscovery1Jobfile.exists() == true)
+                        if (fileDiscovery1Jobfile.exists() != true)
                         {
-                            if (fileDiscovery1Jobfile.isFile() == true)
-                            {
-                                if (fileDiscovery1Jobfile.canRead() != true)
-                                {
-                                    throw constructTermination("messageFileDiscovery1JobfileIsntReadable", null, null, fileDiscovery1Jobfile.getAbsolutePath());
-                                }
-                            }
-                            else
-                            {
-                                throw constructTermination("messageFileDiscovery1JobfilePathIsntAFile", null, null, fileDiscovery1Jobfile.getAbsolutePath());
-                            }
+                            throw constructTermination("messageFileDiscovery1JobfileDoesntExist", null, null, fileDiscovery1Jobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+
+                        if (fileDiscovery1Jobfile.isFile() != true)
+                        {
+                            throw constructTermination("messageFileDiscovery1JobfilePathIsntAFile", null, null, fileDiscovery1Jobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+
+                        if (fileDiscovery1Jobfile.canRead() != true)
+                        {
+                            throw constructTermination("messageFileDiscovery1JobfileIsntReadable", null, null, fileDiscovery1Jobfile.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
                     }
                     else if (tagName.equals("onix-to-woocommerce-1-workflow-jobfile") == true)
@@ -498,19 +498,19 @@ public class onix_to_woocommerce_2
                             throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileCantGetCanonicalPath", ex, null, new File(onixToWoocommerce1WorkflowJobfilePath).getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
-                        if (onixToWoocommerce1WorkflowJobfile.exists() == true)
+                        if (onixToWoocommerce1WorkflowJobfile.exists() != true)
                         {
-                            if (onixToWoocommerce1WorkflowJobfile.isFile() == true)
-                            {
-                                if (onixToWoocommerce1WorkflowJobfile.canRead() != true)
-                                {
-                                    throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileIsntReadable", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath());
-                                }
-                            }
-                            else
-                            {
-                                throw constructTermination("messageOnixToWoocommerce1WorkflowJobfilePathIsntAFile", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath());
-                            }
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileDoesntExist", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+
+                        if (onixToWoocommerce1WorkflowJobfile.isFile() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfilePathIsntAFile", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+
+                        if (onixToWoocommerce1WorkflowJobfile.canRead() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileIsntReadable", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
                     }
                 }
@@ -542,6 +542,9 @@ public class onix_to_woocommerce_2
 
 
         String wooCommerceRESTAPIProductsURL = null;
+        /**
+         * @todo Always delete all temporary files which contain authentication credentials.
+         */
         String wooCommerceRESTAPIPublicKey = null;
         String wooCommerceRESTAPISecretKey = null;
         String httpsAcceptHostForCertificateMismatch = null;
@@ -1510,6 +1513,8 @@ public class onix_to_woocommerce_2
             throw ex;
         }
 
+        List<ONIXFileInfo> uploadCandidates = new ArrayList<ONIXFileInfo>();
+
         {
             Iterator iterOnixFileInfo = onixFileInfos.entrySet().iterator();
 
@@ -1520,7 +1525,7 @@ public class onix_to_woocommerce_2
 
                 File httpsClient1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_https_client_1_product_existence_isbn_lookup_job_" + i + ".xml");
                 File httpsClient1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_https_client_1_product_existence_isbn_lookup_job_" + i + ".xml");
-                File productISBNLookupResultFile = new File(tempDirectory.getAbsolutePath() + File.separator + "result_product_existence_isbn_lookup_job_" + i + ".json");
+                File productISBNLookupJSONResultFile = new File(tempDirectory.getAbsolutePath() + File.separator + "result_product_existence_isbn_lookup_job_" + i + ".json");
 
                 if (httpsClient1JobFile.exists() == true)
                 {
@@ -1580,15 +1585,15 @@ public class onix_to_woocommerce_2
                     }
                 }
 
-                if (productISBNLookupResultFile.exists() == true)
+                if (productISBNLookupJSONResultFile.exists() == true)
                 {
-                    if (productISBNLookupResultFile.isFile() == true)
+                    if (productISBNLookupJSONResultFile.isFile() == true)
                     {
                         boolean deleteSuccessful = false;
 
                         try
                         {
-                            deleteSuccessful = productISBNLookupResultFile.delete();
+                            deleteSuccessful = productISBNLookupJSONResultFile.delete();
                         }
                         catch (SecurityException ex)
                         {
@@ -1597,15 +1602,15 @@ public class onix_to_woocommerce_2
 
                         if (deleteSuccessful != true)
                         {
-                            if (productISBNLookupResultFile.canWrite() != true)
+                            if (productISBNLookupJSONResultFile.canWrite() != true)
                             {
-                                throw constructTermination("messageHttpsClient1ResultFileForProductExistenceISBNLookupExistsButIsntWritable", null, null, productISBNLookupResultFile.getAbsolutePath());
+                                throw constructTermination("messageHttpsClient1ResultFileForProductExistenceISBNLookupExistsButIsntWritable", null, null, productISBNLookupJSONResultFile.getAbsolutePath());
                             }
                         }
                     }
                     else
                     {
-                        throw constructTermination("messageHttpsClient1ResultFileForProductExistenceISBNLookupJobPathExistsButIsntAFile", null, null, productISBNLookupResultFile.getAbsolutePath());
+                        throw constructTermination("messageHttpsClient1ResultFileForProductExistenceISBNLookupJobPathExistsButIsntAFile", null, null, productISBNLookupJSONResultFile.getAbsolutePath());
                     }
                 }
 
@@ -1636,7 +1641,7 @@ public class onix_to_woocommerce_2
                     }
 
                     writer.write("  </request>\n");
-                    writer.write("  <response destination=\"" + productISBNLookupResultFile.getAbsolutePath() + "\"/>\n");
+                    writer.write("  <response destination=\"" + productISBNLookupJSONResultFile.getAbsolutePath() + "\"/>\n");
                     writer.write("</https-client-1-jobfile>\n");
 
                     writer.flush();
@@ -1733,7 +1738,499 @@ public class onix_to_woocommerce_2
                 {
                     throw constructTermination("messageHttpsClient1CallForProductExistenceISBNLookupWasntSuccessful", null, null, i, onixFileInfo.getFile().getAbsolutePath(), httpsClient1JobFile.getAbsolutePath());
                 }
+
+
+                /*
+
+                Might be of use if the workflow has to distinguish between new products and product updates. If this block gets used, it still needs l10n.
+
+                File jsonToXml1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_json_to_xml_1_product_existence_isbn_lookup_job_" + i + ".xml");
+                File jsonToXml1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_json_to_xml_1_product_existence_isbn_lookup_job_" + i + ".xml");
+                File productISBNLookupXMLResultFile = new File(tempDirectory.getAbsolutePath() + File.separator + "result_product_existence_isbn_lookup_job_" + i + ".xml");
+
+                if (jsonToXml1JobFile.exists() == true)
+                {
+                    if (jsonToXml1JobFile.isFile() == true)
+                    {
+                        boolean deleteSuccessful = false;
+
+                        try
+                        {
+                            deleteSuccessful = jsonToXml1JobFile.delete();
+                        }
+                        catch (SecurityException ex)
+                        {
+
+                        }
+
+                        if (deleteSuccessful != true)
+                        {
+                            if (jsonToXml1JobFile.canWrite() != true)
+                            {
+                                throw constructTermination("messageJsonToXml1JobFileForProductExistenceISBNLookupExistsButIsntWritable", null, null, jsonToXml1JobFile.getAbsolutePath());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw constructTermination("messageJsonToXml1JobFileForProductExistenceISBNLookupJobPathExistsButIsntAFile", null, null, jsonToXml1JobFile.getAbsolutePath());
+                    }
+                }
+
+                if (jsonToXml1ResultInfoFile.exists() == true)
+                {
+                    if (jsonToXml1ResultInfoFile.isFile() == true)
+                    {
+                        boolean deleteSuccessful = false;
+
+                        try
+                        {
+                            deleteSuccessful = jsonToXml1ResultInfoFile.delete();
+                        }
+                        catch (SecurityException ex)
+                        {
+
+                        }
+
+                        if (deleteSuccessful != true)
+                        {
+                            if (jsonToXml1ResultInfoFile.canWrite() != true)
+                            {
+                                throw constructTermination("messageJsonToXml1ResultInfoFileForProductExistenceISBNLookupExistsButIsntWritable", null, null, jsonToXml1ResultInfoFile.getAbsolutePath());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw constructTermination("messageJsonToXml1ResultInfoPathForProductExistenceISBNLookupExistsButIsntAFile", null, null, jsonToXml1ResultInfoFile.getAbsolutePath());
+                    }
+                }
+
+                if (productISBNLookupXMLResultFile.exists() == true)
+                {
+                    if (productISBNLookupXMLResultFile.isFile() == true)
+                    {
+                        boolean deleteSuccessful = false;
+
+                        try
+                        {
+                            deleteSuccessful = productISBNLookupXMLResultFile.delete();
+                        }
+                        catch (SecurityException ex)
+                        {
+
+                        }
+
+                        if (deleteSuccessful != true)
+                        {
+                            if (productISBNLookupXMLResultFile.canWrite() != true)
+                            {
+                                throw constructTermination("messageJsonToXml1ResultFileForProductExistenceISBNLookupExistsButIsntWritable", null, null, productISBNLookupXMLResultFile.getAbsolutePath());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw constructTermination("messageJsonToXml1ResultFileForProductExistenceISBNLookupJobPathExistsButIsntAFile", null, null, productISBNLookupXMLResultFile.getAbsolutePath());
+                    }
+                }
+
+                try
+                {
+                    BufferedWriter writer = new BufferedWriter(
+                                            new OutputStreamWriter(
+                                            new FileOutputStream(jsonToXml1JobFile),
+                                            "UTF-8"));
+
+                    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                    writer.write("<!-- This file was created by onix_to_woocommerce_2 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                    writer.write("<json-to-xml-1-jobfile>\n");
+                    writer.write("  <json-input-file path=\"" + productISBNLookupJSONResultFile.getAbsolutePath() + "\"/>\n");
+                    writer.write("  <xml-output-file path=\"" + productISBNLookupXMLResultFile.getAbsolutePath() + "\"/>\n");
+                    writer.write("</json-to-xml-1-jobfile>\n");
+
+                    writer.flush();
+                    writer.close();
+                }
+                catch (FileNotFoundException ex)
+                {
+                    throw constructTermination("messageJsonToXml1JobFileForProductExistenceISBNLookupWritingError", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1JobFile.getAbsolutePath());
+                }
+                catch (UnsupportedEncodingException ex)
+                {
+                    throw constructTermination("messageJsonToXml1JobFileForProductExistenceISBNLookupWritingError", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1JobFile.getAbsolutePath());
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageJsonToXml1JobFileForProductExistenceISBNLookupWritingError", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1JobFile.getAbsolutePath());
+                }
+
+                builder = new ProcessBuilder("java", "json_to_xml_1", jsonToXml1JobFile.getAbsolutePath(), jsonToXml1ResultInfoFile.getAbsolutePath());
+                builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "json_to_xml" + File.separator + "json_to_xml_1"));
+                builder.redirectErrorStream(true);
+
+                try
+                {
+                    Process process = builder.start();
+                    Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+
+                    while (scanner.hasNext() == true)
+                    {
+                        System.out.println(scanner.next());
+                    }
+
+                    scanner.close();
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageJsonToXml1ForProductExistenceISBNLookupErrorWhileReadingOutput", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1JobFile.getAbsolutePath());
+                }
+
+                if (jsonToXml1ResultInfoFile.exists() != true)
+                {
+                    throw constructTermination("messageJsonToXml1ResultInfoFileForProductExistenceISBNLookupDoesntExistButShould", null, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1ResultInfoFile.getAbsolutePath());
+                }
+
+                if (jsonToXml1ResultInfoFile.isFile() != true)
+                {
+                    throw constructTermination("messageJsonToXml1ResultInfoPathForProductExistenceISBNLookupExistsButIsntAFile", null, null, jsonToXml1ResultInfoFile.getAbsolutePath());
+                }
+
+                if (jsonToXml1ResultInfoFile.canRead() != true)
+                {
+                    throw constructTermination("messageJsonToXml1ResultInfoFileForProductExistenceISBNLookupIsntReadable", null, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1ResultInfoFile.getAbsolutePath());
+                }
+
+                wasSuccess = false;
+
+                try
+                {
+                    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                    InputStream in = new FileInputStream(jsonToXml1ResultInfoFile);
+                    XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+                    while (eventReader.hasNext() == true)
+                    {
+                        XMLEvent event = eventReader.nextEvent();
+
+                        if (event.isStartElement() == true)
+                        {
+                            String tagName = event.asStartElement().getName().getLocalPart();
+
+                            if (tagName.equals("success") == true)
+                            {
+                                wasSuccess = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (XMLStreamException ex)
+                {
+                    throw constructTermination("messageJsonToXml1ResultInfoFileForProductExistenceISBNLookupErrorWhileReading", null, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1ResultInfoFile.getAbsolutePath());
+                }
+                catch (SecurityException ex)
+                {
+                    throw constructTermination("messageJsonToXml1ResultInfoFileForProductExistenceISBNLookupErrorWhileReading", null, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1ResultInfoFile.getAbsolutePath());
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageJsonToXml1ResultInfoFileForProductExistenceISBNLookupErrorWhileReading", null, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1ResultInfoFile.getAbsolutePath());
+                }
+
+                if (wasSuccess != true)
+                {
+                    throw constructTermination("messageJsonToXml1CallForProductExistenceISBNLookupWasntSuccessful", null, null, i, onixFileInfo.getFile().getAbsolutePath(), jsonToXml1JobFile.getAbsolutePath());
+                }
+                */
+
+                String jsonFirstLine = null;
+
+                try
+                {
+                    BufferedReader reader = new BufferedReader(
+                                            new FileReader(productISBNLookupJSONResultFile));
+
+                    jsonFirstLine = reader.readLine();
+                    reader.close();
+                }
+                catch (FileNotFoundException ex)
+                {
+                    throw constructTermination("messageHttpsClient1ResultJSONFileForProductExistenceISBNLookupErrorWhileReading", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), productISBNLookupJSONResultFile.getAbsolutePath());
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageHttpsClient1ResultJSONFileForProductExistenceISBNLookupErrorWhileReading", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), productISBNLookupJSONResultFile.getAbsolutePath());
+                }
+
+                if (jsonFirstLine.equals("{\"products\":[]}") != true)
+                {
+                    this.infoMessages.add(constructInfoMessage("messageProductSeemsToExistAlready", true, null, null, i, onixFileInfo.getFile().getAbsolutePath(), productISBNLookupJSONResultFile.getAbsolutePath()));
+                    continue;
+                }
+
+                uploadCandidates.add(new ONIXFileInfo( onixFileInfo.getFile(), onixFileInfo.getISBN()));
             }
+        }
+
+        if (uploadCandidates.isEmpty() == true)
+        {
+            ProgramTerminationException ex = constructTermination("messageNoNewONIXInputFilesToUpload", null, null);
+            ex.setNormalTermination(true);
+            throw ex;
+        }
+
+        {
+            File onixToWoocommerce1WorkflowJobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_onix_to_woocommerce_1_workflow.xml");
+            File onixToWoocommerce1WorkflowResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_onix_to_woocommerce_1_workflow.xml");
+            File onixToWoocommerce1WorkflowResultDirectory = new File(tempDirectory.getAbsolutePath() + File.separator + "result");
+
+            if (onixToWoocommerce1WorkflowJobFile.exists() == true)
+            {
+                if (onixToWoocommerce1WorkflowJobFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = onixToWoocommerce1WorkflowJobFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (onixToWoocommerce1WorkflowJobFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileExistsButIsntWritable", null, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageOnixToWoocommerce1WorkflowJobPathExistsButIsntAFile", null, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+                }
+            }
+
+            if (onixToWoocommerce1WorkflowResultInfoFile.exists() == true)
+            {
+                if (onixToWoocommerce1WorkflowResultInfoFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = onixToWoocommerce1WorkflowResultInfoFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (onixToWoocommerce1WorkflowResultInfoFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoFileExistsButIsntWritable", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoPathExistsButIsntAFile", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+                }
+            }
+
+            if (onixToWoocommerce1WorkflowResultDirectory.exists() == true)
+            {
+                deleteFilesRecursively(onixToWoocommerce1WorkflowResultDirectory);
+            }
+
+            try
+            {
+                onixToWoocommerce1WorkflowResultDirectory.mkdirs();
+            }
+            catch (SecurityException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultDirectoryCantCreate", null, null, onixToWoocommerce1WorkflowResultDirectory.getAbsolutePath());
+            }
+
+            try
+            {
+                BufferedWriter writer = new BufferedWriter(
+                                        new OutputStreamWriter(
+                                        new FileOutputStream(onixToWoocommerce1WorkflowJobFile),
+                                        "UTF-8"));
+
+                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                writer.write("<!-- This file was created by onix_to_woocommerce_2 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<onix-to-woocommerce-1-workflow-jobfile>\n");
+                writer.write("  <input>\n");
+
+                for (ONIXFileInfo info : uploadCandidates)
+                {
+                    writer.write("    <onix-file source=\"" + info.getFile().getAbsolutePath() + "\"/>\n");
+                }
+
+                writer.write("  </input>\n");
+                writer.write("  <settings>\n");
+                writer.write("    <woocommerce-rest-api-products-url url=\"" + wooCommerceRESTAPIProductsURL + "\"/>\n");
+                writer.write("    <woocommerce-rest-api-public-key key=\"" + wooCommerceRESTAPIPublicKey + "\"/>\n");
+                writer.write("    <woocommerce-rest-api-secret-key key=\"" + wooCommerceRESTAPISecretKey + "\"/>\n");
+
+                if (httpsAcceptHostForCertificateMismatch != null)
+                {
+                    writer.write("    <!--\n");
+                    writer.write("      This setting for accepting any server certificate for\n");
+                    writer.write("      the host configured here BREAKS YOUR SECURITY!\n");
+                    writer.write("    -->\n");
+                    writer.write("    <accept-host-for-certificate-mismatch host=\"" + httpsAcceptHostForCertificateMismatch + "\"/>\n");
+                }
+
+                writer.write("  </settings>\n");
+                writer.write("  <output>\n");
+                writer.write("    <response-directory destination=\"" + onixToWoocommerce1WorkflowResultDirectory.getAbsolutePath() + "\"/>\n");
+                writer.write("  </output>\n");
+                writer.write("</onix-to-woocommerce-1-workflow-jobfile>\n");
+
+                writer.flush();
+                writer.close();
+            }
+            catch (FileNotFoundException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileWritingError", ex, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileWritingError", ex, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileWritingError", ex, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+            }
+
+            ProcessBuilder builder = new ProcessBuilder("java", "onix_to_woocommerce_1", onixToWoocommerce1WorkflowJobFile.getAbsolutePath(), onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            builder.directory(new File(programPath + File.separator + ".." + File.separator + "onix_to_woocommerce_1"));
+            builder.redirectErrorStream(true);
+
+            try
+            {
+                Process process = builder.start();
+                Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+
+                while (scanner.hasNext() == true)
+                {
+                    System.out.println(scanner.next());
+                }
+
+                scanner.close();
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowErrorWhileReadingOutput", ex, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+            }
+
+            if (onixToWoocommerce1WorkflowResultInfoFile.exists() != true)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoFileDoesntExistButShould", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            }
+
+            if (onixToWoocommerce1WorkflowResultInfoFile.isFile() != true)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoPathExistsButIsntAFile", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            }
+
+            if (onixToWoocommerce1WorkflowResultInfoFile.canRead() != true)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoFileIsntReadable", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            }
+
+            boolean wasSuccess = false;
+
+            try
+            {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                InputStream in = new FileInputStream(onixToWoocommerce1WorkflowResultInfoFile);
+                XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+                while (eventReader.hasNext() == true)
+                {
+                    XMLEvent event = eventReader.nextEvent();
+
+                    if (event.isStartElement() == true)
+                    {
+                        String tagName = event.asStartElement().getName().getLocalPart();
+
+                        if (tagName.equals("success") == true)
+                        {
+                            wasSuccess = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (XMLStreamException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoFileErrorWhileReading", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            }
+            catch (SecurityException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoFileErrorWhileReading", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowResultInfoFileErrorWhileReading", null, null, onixToWoocommerce1WorkflowResultInfoFile.getAbsolutePath());
+            }
+
+            if (wasSuccess != true)
+            {
+                throw constructTermination("messageOnixToWoocommerce1WorkflowCallWasntSuccessful", null, null, onixToWoocommerce1WorkflowJobFile.getAbsolutePath());
+            }
+        }
+
+        return 0;
+    }
+
+    public int deleteFilesRecursively(File file)
+    {
+        try
+        {
+            file = file.getCanonicalFile();
+        }
+        catch (SecurityException ex)
+        {
+            throw constructTermination("messageDeleteFileCantGetCanonicalPath", ex, null, file.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageDeleteFileCantGetCanonicalPath", ex, null, file.getAbsolutePath());
+        }
+
+        if (file.isDirectory() == true)
+        {
+            File[] children = file.listFiles();
+
+            if (children != null)
+            {
+                for (File child : file.listFiles())
+                {
+                    if (this.deleteFilesRecursively(child) != 0)
+                    {
+                        return -1;
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageDeleteFileUnableToDetermineChildren", null, null, file.getAbsolutePath());
+            }
+        }
+
+        if (file.delete() != true)
+        {
+            throw constructTermination("messageDeleteFileError", null, null, file.getAbsolutePath());
         }
 
         return 0;
@@ -2113,7 +2610,7 @@ public class onix_to_woocommerce_2
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nOnixToWoocommerce2Console";
+    private static final String L10N_BUNDLE = "l10n.l10nOnixToWoocommerce2WorkflowConsole";
     private ResourceBundle l10nConsole;
 }
 

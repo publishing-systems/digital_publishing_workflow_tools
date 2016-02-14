@@ -1647,7 +1647,7 @@ public class onix_to_woocommerce_1
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nOnixToWoocommerce1Console";
+    private static final String L10N_BUNDLE = "l10n.l10nOnixToWoocommerce1WorkflowConsole";
     private ResourceBundle l10nConsole;
 }
 
