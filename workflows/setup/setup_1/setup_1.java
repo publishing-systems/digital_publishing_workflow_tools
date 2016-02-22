@@ -77,10 +77,13 @@ public class setup_1
 
 
         CopyEntitiesONIX_2_1_3_Short(programPath, ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1" + File.separator + "entities");
+        CopyEntitiesONIX_2_1_3_Short(programPath, ".." + File.separator + ".." + File.separator + ".." + File.separator + "onix_prepare_for_json" + File.separator + "onix_prepare_for_json_1" + File.separator + "entities");
 
         CopyEntitiesXHTML(programPath, ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1" + File.separator + "entities");
+        CopyEntitiesXHTML(programPath, ".." + File.separator + ".." + File.separator + ".." + File.separator + "onix_prepare_for_json" + File.separator + "onix_prepare_for_json_1" + File.separator + "entities");
 
         CopyEntitiesUnicode(programPath, ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1" + File.separator + "entities");
+        CopyEntitiesUnicode(programPath, ".." + File.separator + ".." + File.separator + ".." + File.separator + "onix_prepare_for_json" + File.separator + "onix_prepare_for_json_1" + File.separator + "entities");
 
         return 0;
     }
