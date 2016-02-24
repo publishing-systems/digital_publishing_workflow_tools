@@ -778,6 +778,238 @@ public class onix_to_woocommerce_1
 
         for (int i = 0; i < max; i++)
         {
+            File onixPrepareForJson1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_onix_prepare_for_json_1.xml");
+
+            if (onixPrepareForJson1JobFile.exists() == true)
+            {
+                if (onixPrepareForJson1JobFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = onixPrepareForJson1JobFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (onixPrepareForJson1JobFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageOnixPrepareForJson1JobFileExistsButIsntWritable", null, null, onixPrepareForJson1JobFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageOnixPrepareForJson1JobPathExistsButIsntAFile", null, null, onixPrepareForJson1JobFile.getAbsolutePath());
+                }
+            }
+            
+            File onixPrepareForJson1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_onix_prepare_for_json_1.xml");
+
+            if (onixPrepareForJson1ResultInfoFile.exists() == true)
+            {
+                if (onixPrepareForJson1ResultInfoFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = onixPrepareForJson1ResultInfoFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (onixPrepareForJson1ResultInfoFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageOnixPrepareForJson1ResultInfoFileExistsButIsntWritable", null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageOnixPrepareForJson1ResultInfoPathExistsButIsntAFile", null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath());
+                }
+            }
+            
+            File onixInputPreparedFile = new File(tempDirectory.getAbsolutePath() + File.separator + "input_prepared_" + i + ".xml");
+
+            if (onixInputPreparedFile.exists() == true)
+            {
+                if (onixInputPreparedFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = onixInputPreparedFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (onixInputPreparedFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageOnixInputPreparedFileExistsButIsntWritable", null, null, onixInputPreparedFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageOnixInputPreparedPathExistsButIsntAFile", null, null, onixInputPreparedFile.getAbsolutePath());
+                }
+            }
+            
+            try
+            {
+                BufferedWriter writer = new BufferedWriter(
+                                        new OutputStreamWriter(
+                                        new FileOutputStream(onixPrepareForJson1JobFile),
+                                        "UTF-8"));
+
+                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                writer.write("<!-- This file was created by onix_to_woocommerce_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<onix-prepare-for-json-1-jobfile>\n");
+                writer.write("  <input-file path=\"" + inputONIXFiles.get(i).getAbsolutePath() + "\"/>\n");
+                writer.write("  <output-file path=\"" + onixInputPreparedFile.getAbsolutePath() + "\"/>\n");
+                writer.write("</onix-prepare-for-json-1-jobfile>\n");
+
+                writer.flush();
+                writer.close();
+            }
+            catch (FileNotFoundException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1JobFileWritingError", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1JobFile.getAbsolutePath()));
+                continue;
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1JobFileWritingError", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1JobFile.getAbsolutePath()));
+                continue;
+            }
+            catch (IOException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1JobFileWritingError", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1JobFile.getAbsolutePath()));
+                continue;
+            }
+
+
+            ProcessBuilder builder = new ProcessBuilder("java", "onix_prepare_for_json_1", onixPrepareForJson1JobFile.getAbsolutePath(), onixPrepareForJson1ResultInfoFile.getAbsolutePath());
+            builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "onix_prepare_for_json" + File.separator + "onix_prepare_for_json_1"));
+            builder.redirectErrorStream(true);
+
+            try
+            {
+                Process process = builder.start();
+                Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+
+                while (scanner.hasNext() == true)
+                {
+                    System.out.println(scanner.next());
+                }
+
+                scanner.close();
+            }
+            catch (IOException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ErrorWhileReadingOutput", true, ex, null, inputONIXFiles.get(i).getAbsolutePath()));
+                continue;
+            }
+
+            if (onixPrepareForJson1ResultInfoFile.exists() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoFileDoesntExistButShould", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                continue;
+            }
+
+            if (onixPrepareForJson1ResultInfoFile.isFile() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoPathExistsButIsntAFile", true, null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                continue;
+            }
+
+            if (onixPrepareForJson1ResultInfoFile.canRead() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoFileIsntReadable", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                continue;
+            }
+
+            boolean wasSuccess = false;
+
+            try
+            {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                InputStream in = new FileInputStream(onixPrepareForJson1ResultInfoFile);
+                XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+                while (eventReader.hasNext() == true)
+                {
+                    XMLEvent event = eventReader.nextEvent();
+
+                    if (event.isStartElement() == true)
+                    {
+                        String tagName = event.asStartElement().getName().getLocalPart();
+
+                        if (tagName.equals("success") == true)
+                        {
+                            wasSuccess = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (XMLStreamException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                continue;
+            }
+            catch (SecurityException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                continue;
+            }
+            catch (IOException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                continue;
+            }
+
+            if (wasSuccess != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1CallWasntSuccessful", true, null, null, inputONIXFiles.get(i).getAbsolutePath()));
+                continue;
+            }
+
+            if (onixInputPreparedFile.exists() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixInputPreparedFileDoesntExistButShould", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixInputPreparedFile.getAbsolutePath()));
+                continue;
+            }
+
+            if (onixInputPreparedFile.isFile() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixInputPreparedPathExistsButIsntAFile", true, null, null, onixInputPreparedFile.getAbsolutePath()));
+                continue;
+            }
+
+            if (onixInputPreparedFile.canRead() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageOnixInputPreparedFileIsntReadable", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), onixInputPreparedFile.getAbsolutePath()));
+                continue;
+            }
+
+        
             File xmlXsltTransformator1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_xml_xslt_transformator_1.xml");
 
             if (xmlXsltTransformator1JobFile.exists() == true)
@@ -884,7 +1116,7 @@ public class onix_to_woocommerce_1
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 writer.write("<!-- This file was created by onix_to_woocommerce_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
                 writer.write("<xml-xslt-transformator-1-jobfile>\n");
-                writer.write("  <job input-file=\"" + inputONIXFiles.get(i).getAbsolutePath() + "\" entities-resolver-config-file=\"" + programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1" + File.separator + "entities" + File.separator + "config_onix_2_1_3_short.xml\" stylesheet-file=\"" + programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "onix_to_woocommerce" + File.separator + "onix_to_woocommerce_1" + File.separator + "onix_to_woocommerce_1.xsl\" output-file=\"" + requestJSONFile.getAbsolutePath() + "\"/>\n");
+                writer.write("  <job input-file=\"" + onixInputPreparedFile.getAbsolutePath() + "\" entities-resolver-config-file=\"" + programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1" + File.separator + "entities" + File.separator + "config_onix_2_1_3_short.xml\" stylesheet-file=\"" + programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "onix_to_woocommerce" + File.separator + "onix_to_woocommerce_1" + File.separator + "onix_to_woocommerce_1.xsl\" output-file=\"" + requestJSONFile.getAbsolutePath() + "\"/>\n");
                 writer.write("</xml-xslt-transformator-1-jobfile>\n");
 
                 writer.flush();
@@ -906,7 +1138,7 @@ public class onix_to_woocommerce_1
                 continue;
             }
 
-            ProcessBuilder builder = new ProcessBuilder("java", "xml_xslt_transformator_1", xmlXsltTransformator1JobFile.getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+            builder = new ProcessBuilder("java", "xml_xslt_transformator_1", xmlXsltTransformator1JobFile.getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
             builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1"));
             builder.redirectErrorStream(true);
 
@@ -946,7 +1178,7 @@ public class onix_to_woocommerce_1
                 continue;
             }
 
-            boolean wasSuccess = false;
+            wasSuccess = false;
 
             try
             {
