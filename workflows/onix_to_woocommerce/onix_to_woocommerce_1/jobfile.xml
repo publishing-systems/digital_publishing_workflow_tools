@@ -33,6 +33,7 @@ along with onix_to_woocommerce_1 workflow. If not, see <http://www.gnu.org/licen
       IT WOULD BREAK YOUR SECURITY!
     -->
     <!-- accept-host-for-certificate-mismatch host="debug.example.org"/ -->
+    <wordpress-media-library-file-uploader-1-workflow-job-file path="./../../wordpress_media_library_file_uploader/wordpress_media_library_file_uploader_1/jobfile.xml"/>
   </settings>
   <output>
     <response-directory destination="./output"/>

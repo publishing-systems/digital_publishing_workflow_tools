@@ -1,19 +1,19 @@
-/* Copyright (C) 2003-2010  Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland
+/* Copyright (C) 2003-2016  Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland
  *
- * This file is part of https_client_1, a submodule of the
+ * This file is part of onix_to_woocommerce_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * https_client_1 is free software: you can redistribute it and/or modify
+ * onix_to_woocommerce_1 workflow is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * https_client_1 is distributed in the hope that it will be useful,
+ * onix_to_woocommerce_1 workflow is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
+ * along with onix_to_woocommerce_1 workflow. If not, see <http://www.gnu.org/licenses/>.
  */
 // www.source-code.biz, www.inventec.ch/chdh
 // Project home page: www.source-code.biz/base64coder/java
@@ -102,7 +102,9 @@ public static char[] encode (byte[] in) {
 /**
 * Encodes a byte array into Base64 format.
 * No blanks or line breaks are inserted in the output.
-* @param in    An array containing the data bytes to be encoded.
+* @param in    An array containing the data bytes to be encoded. To use
+*              this on a stream of consecutive byte arrays, make sure that
+*              iLen is a multiple of 3 except for the last call of this method.
 * @param iLen  Number of bytes to process in <code>in</code>.
 * @return      A character array containing the Base64 encoded data.
 */

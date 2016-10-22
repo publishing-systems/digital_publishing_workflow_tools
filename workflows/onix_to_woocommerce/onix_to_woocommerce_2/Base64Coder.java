@@ -102,7 +102,9 @@ public static char[] encode (byte[] in) {
 /**
 * Encodes a byte array into Base64 format.
 * No blanks or line breaks are inserted in the output.
-* @param in    An array containing the data bytes to be encoded.
+* @param in    An array containing the data bytes to be encoded. To use
+*              this on a stream of consecutive byte arrays, make sure that
+*              iLen is a multiple of 3 except for the last call of this method.
 * @param iLen  Number of bytes to process in <code>in</code>.
 * @return      A character array containing the Base64 encoded data.
 */

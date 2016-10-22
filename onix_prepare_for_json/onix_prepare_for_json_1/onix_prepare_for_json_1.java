@@ -48,47 +48,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.events.Comment;
 import javax.xml.stream.events.DTD;
 
-/*
-import javax.xml.stream.XMLInputFactory;
-import java.io.FileInputStream;
-import javax.xml.stream.XMLEventReader;
-import java.io.InputStream;
-import javax.xml.stream.events.XMLEvent;
-
-
-import javax.xml.namespace.QName;
-
-import javax.xml.stream.events.Attribute;
-import java.io.FileNotFoundException;
-
-
-
-import java.text.Normalizer;
-
-
-import java.io.UnsupportedEncodingException;
-
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.FileOutputStream;
-
-import java.io.IOException;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.SAXParser;
-import org.xml.sax.XMLReader;
-import javax.xml.transform.sax.SAXSource;
-import org.xml.sax.InputSource;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-*/
 
 
 public class onix_prepare_for_json_1
@@ -826,18 +785,7 @@ public class onix_prepare_for_json_1
 
                             for (int i = 0; i < count; i++)
                             {
-                                if (text.charAt(i) == '\n')
-                                {
-                                    writer.write("\\n");
-                                }
-                                else if (text.charAt(i) == '\r')
-                                {
-                                    writer.write("\\r");
-                                }
-                                else
-                                {
-                                    writer.write(text.charAt(i));
-                                }
+                                jsonStringEscapeChar(text.charAt(i), writer);
                             }
                         }
 
@@ -973,6 +921,34 @@ public class onix_prepare_for_json_1
         }
 
         return 0;
+    }
+
+    public void jsonStringEscapeChar(char input, BufferedWriter writer) throws IOException
+    {
+        if (input == '"')
+        {
+            writer.write("\\\"");
+        }
+        else if (input == '\\')
+        {
+            writer.write("\\\\");
+        }
+        else if (input == '/')
+        {
+            writer.write("\\/");
+        }
+        else if (input == '\n')
+        {
+            writer.write("\\n");
+        }
+        else if (input == '\r')
+        {
+            writer.write("\\r");
+        }
+        else
+        {
+            writer.write(input);
+        }
     }
 
     public int CopyFileBinary(File from, File to)

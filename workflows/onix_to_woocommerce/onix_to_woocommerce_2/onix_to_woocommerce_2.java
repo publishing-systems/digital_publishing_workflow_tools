@@ -54,7 +54,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Iterator; 
+import java.util.Iterator;
 
 
 
@@ -393,7 +393,7 @@ public class onix_to_woocommerce_2
 
 
         File fileDiscovery1Jobfile = null;
-        File onixToWoocommerce1WorkflowJobfile = null;
+        File onixToWoocommerce1WorkflowJobfileInput = null;
 
         try
         {
@@ -471,46 +471,46 @@ public class onix_to_woocommerce_2
                             throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        String onixToWoocommerce1WorkflowJobfilePath = pathAttribute.getValue();
+                        String onixToWoocommerce1WorkflowJobfileInputPath = pathAttribute.getValue();
 
-                        if (onixToWoocommerce1WorkflowJobfilePath.isEmpty() == true)
+                        if (onixToWoocommerce1WorkflowJobfileInputPath.isEmpty() == true)
                         {
                             throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        onixToWoocommerce1WorkflowJobfile = new File(onixToWoocommerce1WorkflowJobfilePath);
+                        onixToWoocommerce1WorkflowJobfileInput = new File(onixToWoocommerce1WorkflowJobfileInputPath);
 
-                        if (onixToWoocommerce1WorkflowJobfile.isAbsolute() != true)
+                        if (onixToWoocommerce1WorkflowJobfileInput.isAbsolute() != true)
                         {
-                            onixToWoocommerce1WorkflowJobfile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + onixToWoocommerce1WorkflowJobfilePath);
+                            onixToWoocommerce1WorkflowJobfileInput = new File(jobFile.getAbsoluteFile().getParent() + File.separator + onixToWoocommerce1WorkflowJobfileInputPath);
                         }
 
                         try
                         {
-                            onixToWoocommerce1WorkflowJobfile = onixToWoocommerce1WorkflowJobfile.getCanonicalFile();
+                            onixToWoocommerce1WorkflowJobfileInput = onixToWoocommerce1WorkflowJobfileInput.getCanonicalFile();
                         }
                         catch (SecurityException ex)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileCantGetCanonicalPath", ex, null, new File(onixToWoocommerce1WorkflowJobfilePath).getAbsolutePath(), jobFile.getAbsolutePath());
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileInputCantGetCanonicalPath", ex, null, new File(onixToWoocommerce1WorkflowJobfileInputPath).getAbsolutePath(), jobFile.getAbsolutePath());
                         }
                         catch (IOException ex)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileCantGetCanonicalPath", ex, null, new File(onixToWoocommerce1WorkflowJobfilePath).getAbsolutePath(), jobFile.getAbsolutePath());
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileInputCantGetCanonicalPath", ex, null, new File(onixToWoocommerce1WorkflowJobfileInputPath).getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
-                        if (onixToWoocommerce1WorkflowJobfile.exists() != true)
+                        if (onixToWoocommerce1WorkflowJobfileInput.exists() != true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileDoesntExist", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileInputDoesntExist", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
-                        if (onixToWoocommerce1WorkflowJobfile.isFile() != true)
+                        if (onixToWoocommerce1WorkflowJobfileInput.isFile() != true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfilePathIsntAFile", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileInputPathIsntAFile", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
-                        if (onixToWoocommerce1WorkflowJobfile.canRead() != true)
+                        if (onixToWoocommerce1WorkflowJobfileInput.canRead() != true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileIsntReadable", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), jobFile.getAbsolutePath());
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileInputIsntReadable", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
                     }
                 }
@@ -535,9 +535,9 @@ public class onix_to_woocommerce_2
             throw constructTermination("messageJobFileNoFileDiscovery1Jobfile", null, null, jobFile.getAbsolutePath());
         }
 
-        if (onixToWoocommerce1WorkflowJobfile == null)
+        if (onixToWoocommerce1WorkflowJobfileInput == null)
         {
-            throw constructTermination("messageJobFileNoOnixToWoocommerce1WorkflowJobfile", null, null, jobFile.getAbsolutePath());
+            throw constructTermination("messageJobFileNoOnixToWoocommerce1WorkflowJobfileInput", null, null, jobFile.getAbsolutePath());
         }
 
 
@@ -548,13 +548,14 @@ public class onix_to_woocommerce_2
         String wooCommerceRESTAPIPublicKey = null;
         String wooCommerceRESTAPISecretKey = null;
         String httpsAcceptHostForCertificateMismatch = null;
+        File wordpressMediaLibraryFileUploader1WorkflowJobFileInput = null;
 
         try
         {
             boolean inSettings = false;
 
             XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-            InputStream in = new FileInputStream(onixToWoocommerce1WorkflowJobfile);
+            InputStream in = new FileInputStream(onixToWoocommerce1WorkflowJobfileInput);
             XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 
             while (eventReader.hasNext() == true)
@@ -569,7 +570,7 @@ public class onix_to_woocommerce_2
                     {
                         if (inSettings == true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileTagNested", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, tagName);
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputTagNested", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, tagName);
                         }
 
                         inSettings = true;
@@ -582,24 +583,24 @@ public class onix_to_woocommerce_2
 
                         if (urlAttribute == null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "url");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "url");
                         }
 
                         if (wooCommerceRESTAPIProductsURL != null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "url");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "url");
                         }
 
                         wooCommerceRESTAPIProductsURL = urlAttribute.getValue();
 
                         if (wooCommerceRESTAPIProductsURL.isEmpty() == true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "url");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "url");
                         }
 
                         if (wooCommerceRESTAPIProductsURL.startsWith("https://") != true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileWooCommerceRESTAPIProductsURLIsntHTTPS", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "url", "https://");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputWooCommerceRESTAPIProductsURLIsntHTTPS", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "url", "https://");
                         }
                     }
                     else if (tagName.equals("woocommerce-rest-api-public-key") == true &&
@@ -610,19 +611,19 @@ public class onix_to_woocommerce_2
 
                         if (keyAttribute == null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "key");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "key");
                         }
 
                         if (wooCommerceRESTAPIPublicKey != null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "key");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "key");
                         }
 
                         wooCommerceRESTAPIPublicKey = keyAttribute.getValue();
 
                         if (wooCommerceRESTAPIPublicKey.isEmpty() == true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "key");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "key");
                         }
                     }
                     else if (tagName.equals("woocommerce-rest-api-secret-key") == true &&
@@ -633,19 +634,19 @@ public class onix_to_woocommerce_2
 
                         if (keyAttribute == null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "key");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "key");
                         }
 
                         if (wooCommerceRESTAPISecretKey != null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "key");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "key");
                         }
 
                         wooCommerceRESTAPISecretKey = keyAttribute.getValue();
 
                         if (wooCommerceRESTAPISecretKey.isEmpty() == true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "key");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "key");
                         }
                     }
                     else if (tagName.equals("accept-host-for-certificate-mismatch") == true &&
@@ -656,19 +657,71 @@ public class onix_to_woocommerce_2
 
                         if (hostAttribute == null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "host");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "host");
                         }
 
                         if (httpsAcceptHostForCertificateMismatch != null)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "host");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "host");
                         }
 
                         httpsAcceptHostForCertificateMismatch = hostAttribute.getValue();
 
                         if (httpsAcceptHostForCertificateMismatch.isEmpty() == true)
                         {
-                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), tagName, "host");
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputAttributeValueIsEmpty", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "host");
+                        }
+                    }
+                    else if (tagName.equals("wordpress-media-library-file-uploader-1-workflow-job-file") == true &&
+                             inSettings == true)
+                    {
+                        StartElement wordpressMediaLibraryFileUploader1WorkflowJobFileElement = event.asStartElement();
+                        Attribute pathAttribute = wordpressMediaLibraryFileUploader1WorkflowJobFileElement.getAttributeByName(new QName("path"));
+
+                        if (pathAttribute == null)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputEntryIsMissingAnAttribute", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "path");
+                        }
+
+                        if (wordpressMediaLibraryFileUploader1WorkflowJobFileInput != null)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputSettingConfiguredMoreThanOnce", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), tagName, "path");
+                        }
+
+                        String wordpressMediaLibraryFileUploader1WorkflowJobFileInputPath = pathAttribute.getValue();
+                        wordpressMediaLibraryFileUploader1WorkflowJobFileInput = new File(wordpressMediaLibraryFileUploader1WorkflowJobFileInputPath);
+
+                        if (wordpressMediaLibraryFileUploader1WorkflowJobFileInput.isAbsolute() != true)
+                        {
+                            wordpressMediaLibraryFileUploader1WorkflowJobFileInput = new File(onixToWoocommerce1WorkflowJobfileInput.getAbsoluteFile().getParent() + File.separator + wordpressMediaLibraryFileUploader1WorkflowJobFileInputPath);
+                        }
+
+                        try
+                        {
+                            wordpressMediaLibraryFileUploader1WorkflowJobFileInput = wordpressMediaLibraryFileUploader1WorkflowJobFileInput.getCanonicalFile();
+                        }
+                        catch (SecurityException ex)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileWordpressMediaLibraryFileUploader1WorkflowJobFileCantGetCanonicalPath", ex, null, new File(wordpressMediaLibraryFileUploader1WorkflowJobFileInputPath).getAbsolutePath(), onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
+                        }
+                        catch (IOException ex)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileWordpressMediaLibraryFileUploader1WorkflowJobFileCantGetCanonicalPath", ex, null, new File(wordpressMediaLibraryFileUploader1WorkflowJobFileInputPath).getAbsolutePath(), onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
+                        }
+
+                        if (wordpressMediaLibraryFileUploader1WorkflowJobFileInput.exists() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileWordpressMediaLibraryFileUploader1WorkflowJobFileDoesntExist", null, null, wordpressMediaLibraryFileUploader1WorkflowJobFileInput.getAbsolutePath(), onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
+                        }
+
+                        if (wordpressMediaLibraryFileUploader1WorkflowJobFileInput.isFile() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileWordpressMediaLibraryFileUploader1WorkflowJobPathExistsButIsntAFile", null, null, wordpressMediaLibraryFileUploader1WorkflowJobFileInput.getAbsolutePath(), onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
+                        }
+
+                        if (wordpressMediaLibraryFileUploader1WorkflowJobFileInput.canRead() != true)
+                        {
+                            throw constructTermination("messageOnixToWoocommerce1WorkflowJobfileWordpressMediaLibraryFileUploader1WorkflowJobFileIsntReadable", null, null, wordpressMediaLibraryFileUploader1WorkflowJobFileInput.getAbsolutePath(), onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
                         }
                     }
                 }
@@ -686,30 +739,35 @@ public class onix_to_woocommerce_2
         }
         catch (XMLStreamException ex)
         {
-            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileErrorWhileReading", ex, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath());
+            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputErrorWhileReading", ex, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
         }
         catch (SecurityException ex)
         {
-            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileErrorWhileReading", ex, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath());
+            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputErrorWhileReading", ex, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
         }
         catch (IOException ex)
         {
-            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileErrorWhileReading", ex, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath());
+            throw constructTermination("messageOnixToWoocommerce1WorkflowJobFileInputErrorWhileReading", ex, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath());
         }
 
         if (wooCommerceRESTAPIProductsURL == null)
         {
-            throw constructTermination("messageeWooCommerceRESTAPIProductsURLIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), "woocommerce-rest-api-products-url", "url");
+            throw constructTermination("messageeWooCommerceRESTAPIProductsURLIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), "woocommerce-rest-api-products-url", "url");
         }
 
         if (wooCommerceRESTAPIPublicKey == null)
         {
-            throw constructTermination("messageWooCommerceRESTAPIPublicKeyIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), "woocommerce-rest-api-public-key", "key");
+            throw constructTermination("messageWooCommerceRESTAPIPublicKeyIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), "woocommerce-rest-api-public-key", "key");
         }
 
         if (wooCommerceRESTAPISecretKey == null)
         {
-            throw constructTermination("messageWooCommerceRESTAPISecretKeyIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfile.getAbsolutePath(), "woocommerce-rest-api-secret-key", "key");
+            throw constructTermination("messageWooCommerceRESTAPISecretKeyIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), "woocommerce-rest-api-secret-key", "key");
+        }
+
+        if (wordpressMediaLibraryFileUploader1WorkflowJobFileInput == null)
+        {
+            throw constructTermination("messageWordpressMediaLibraryFileUploader1WorkflowJobFileIsntConfigured", null, null, onixToWoocommerce1WorkflowJobfileInput.getAbsolutePath(), "wordpress-media-library-file-uploader-1-workflow-job-file", "path");
         }
 
         // Ampersand needs to be the first, otherwise it would double-encode
@@ -2089,6 +2147,7 @@ public class onix_to_woocommerce_2
                     writer.write("    <accept-host-for-certificate-mismatch host=\"" + httpsAcceptHostForCertificateMismatch + "\"/>\n");
                 }
 
+                writer.write("    <wordpress-media-library-file-uploader-1-workflow-job-file path=\"" + wordpressMediaLibraryFileUploader1WorkflowJobFileInput.getAbsolutePath() + "\"/>\n");
                 writer.write("  </settings>\n");
                 writer.write("  <output>\n");
                 writer.write("    <response-directory destination=\"" + onixToWoocommerce1WorkflowResultDirectory.getAbsolutePath() + "\"/>\n");

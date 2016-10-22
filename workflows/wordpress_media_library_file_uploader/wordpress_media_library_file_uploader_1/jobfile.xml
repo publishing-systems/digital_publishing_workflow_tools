@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2016  Stephan Kreutzer
+
+This file is part of wordpress_media_library_file_uploader_1 workflow, a submodule of the
+digital_publishing_workflow_tools package.
+
+wordpress_media_library_file_uploader_1 workflow is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3 or any later version,
+as published by the Free Software Foundation.
+
+wordpress_media_library_file_uploader_1 workflow is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License 3 for more details.
+
+You should have received a copy of the GNU Affero General Public License 3
+along with wordpress_media_library_file_uploader_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+-->
+<wordpress-media-library-file-uploader-1-workflow-job>
+  <input-files>
+    <input-file path="./input.file" name="input.file" type="text/plain" overwrite="false"/>
+  </input-files>
+  <wordpress-xmlrpc-url>https://www.example.org/wordpress/xmlrpc.php</wordpress-xmlrpc-url>
+  <wordpress-user-name value="user"/>
+  <wordpress-user-password value="password"/>
+  <!--
+    Only set this if certificates for other hosts should be accepted as valid for the host
+    specified here, which should be the same as the one configured within the request
+    URL above. This is for testing purposes only. If active in a production environment,
+    IT WOULD BREAK YOUR SECURITY!
+  -->
+  <!--https-accept-host-for-certificate-mismatch>debug.example.org</https-accept-host-for-certificate-mismatch-->
+  <!-- Optional. -->
+  <!--http-header-field-authorization></http-header-field-authorization-->
+</wordpress-media-library-file-uploader-1-workflow-job>

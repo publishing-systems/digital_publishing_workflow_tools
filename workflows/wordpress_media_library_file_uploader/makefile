@@ -16,7 +16,7 @@
 
 
 
-directories = ./onix_to_woocommerce ./setup ./wordpress_media_library_file_uploader
+directories = ./wordpress_media_library_file_uploader_1
 
 
 

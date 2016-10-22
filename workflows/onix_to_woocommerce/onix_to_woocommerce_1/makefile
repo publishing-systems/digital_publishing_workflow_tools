@@ -35,12 +35,16 @@ ProgramTerminationException.class: ProgramTerminationException.java
 Base64Coder.class: Base64Coder.java
 	javac -encoding UTF-8 Base64Coder.java
 
-onix_to_woocommerce_1.class: onix_to_woocommerce_1.java InfoMessage.class ProgramTerminationException.class Base64Coder.class
+UploadFileMapping.class: UploadFileMapping.java
+	javac -encoding UTF-8 UploadFileMapping.java
+
+onix_to_woocommerce_1.class: onix_to_woocommerce_1.java InfoMessage.class ProgramTerminationException.class Base64Coder.class UploadFileMapping.java
 	javac -encoding UTF-8 onix_to_woocommerce_1.java
 
 clean:
 	rm -f onix_to_woocommerce_1.class
 	rm -f Base64Coder.class
+	rm -f UploadFileMapping.class
 	rm -f ProgramTerminationException.class
 	rm -f InfoMessage.class
 
