@@ -1,28 +1,27 @@
 /* Copyright (C) 2015-2016 Stephan Kreutzer
  *
- * This file is part of https_client_1, a submodule of the
+ * This file is part of http_client_1, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * https_client_1 is free software: you can redistribute it and/or modify
+ * http_client_1 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * https_client_1 is distributed in the hope that it will be useful,
+ * http_client_1 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
+ * along with http_client_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/https_client/https_client_1/https_client_1.java
- * @brief A HTTPS client.
+ * @file $/http_client/http_client_1/http_client_1.java
  * @author Stephan Kreutzer
- * @since 2015-12-30
+ * @since 2015-04-20
  */
 
-
+ 
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -46,7 +45,7 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.Map;
@@ -55,35 +54,16 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
-import java.security.cert.Certificate;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import java.util.List;
 import java.util.ArrayList;
 
 
 
-public class https_client_1
+public class http_client_1
 {
-    protected https_client_1()
-    {
-        // Singleton to protect https_client_1.resultInfoFile from conflicting use.
-
-        https_client_1.resultCertificates = null;
-    }
-
-    public static https_client_1 getInstance()
-    {
-        if (https_client_1.https_client_1Instance == null)
-        {
-            https_client_1.https_client_1Instance = new https_client_1();
-        }
-
-        return https_client_1.https_client_1Instance;
-    }
-
     public static void main(String args[])
     {
-        System.out.print("https_client_1 Copyright (C) 2015-2016 Stephan Kreutzer\n" +
+        System.out.print("http_client_1 Copyright (C) 2015-2016 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -91,11 +71,7 @@ public class https_client_1
                          "https://github.com/publishing-systems/digital_publishing_workflow_tools/ and\n" +
                          "the project website http://www.publishing-systems.org.\n\n");
 
-        https_client_1 client = https_client_1.getInstance();
-        client.getResults().clear();
-        client.getInfoMessages().clear();
-        client.setResultCertificates(null);
-        client.getResponseHeaderFields().clear();
+        http_client_1 client = new http_client_1();
 
         try
         {
@@ -116,8 +92,8 @@ public class https_client_1
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by https_client_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<https-client-1-result-information>\n");
+                writer.write("<!-- This file was created by http_client_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see http://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<http-client-1-result-information>\n");
                 writer.write("  <success>\n");
 
                 if (client.getResults() != null)
@@ -267,24 +243,6 @@ public class https_client_1
                     writer.write("    </info-messages>\n");
                 }
 
-                if (client.getResultCertificates() != null)
-                {
-                    writer.write("    <certificates>\n");
-
-                    for (Certificate certificate : client.getResultCertificates())
-                    {
-                        writer.write("      <certificate");
-                        writer.write(" type=\"" + certificate.getType() + "\"");
-                        writer.write(" hash=\"" + certificate.hashCode() + "\"");
-                        writer.write(" public-key-algorithm=\"" + certificate.getPublicKey().getAlgorithm() + "\"");
-                        writer.write(" public-key-format=\"" + certificate.getPublicKey().getFormat() + "\">");
-                        writer.write(Base64Coder.encode(certificate.getPublicKey().getEncoded()));
-                        writer.write("</certificate>\n");
-                    }
-
-                    writer.write("    </certificates>\n");
-                }
-
                 if (client.getResponseHeaderFields() != null)
                 {
                     if (client.getResponseHeaderFields().isEmpty() != true)
@@ -339,7 +297,7 @@ public class https_client_1
                 }
 
                 writer.write("  </success>\n");
-                writer.write("</https-client-1-result-information>\n");
+                writer.write("</http-client-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -359,26 +317,14 @@ public class https_client_1
                 System.exit(-1);
             }
         }
-
-        client.resultInfoFile = null;
-        client.getResults().clear();
-        client.getInfoMessages().clear();
-        client.setResultCertificates(null);
-        client.getResponseHeaderFields().clear();
     }
 
     public int request(String args[]) throws ProgramTerminationException
     {
-        this.getResults().clear();
-        this.getInfoMessages().clear();
-        this.setResultCertificates(null);
-        this.getResponseHeaderFields().clear();
-
         if (args.length < 2)
         {
-            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\thttps_client_1 " + getI10nString("messageParameterList") + "\n");
+            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\thttp_client_1 " + getI10nString("messageParameterList") + "\n");
         }
-
 
         File resultInfoFile = new File(args[1]);
 
@@ -402,7 +348,7 @@ public class https_client_1
                 if (resultInfoFile.canWrite() != true)
                 {
                     throw constructTermination("messageResultInfoFileIsntWritable", null, null, resultInfoFile.getAbsolutePath());
-                }
+                } 
             }
             else
             {
@@ -410,7 +356,7 @@ public class https_client_1
             }
         }
 
-        https_client_1.resultInfoFile = resultInfoFile;
+        http_client_1.resultInfoFile = resultInfoFile;
 
         File jobFile = new File(args[0]);
 
@@ -442,16 +388,14 @@ public class https_client_1
             throw constructTermination("messageJobFileIsntReadable", null, null, jobFile.getAbsolutePath());
         }
 
-        System.out.println("https_client_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
+        System.out.println("http_client_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
 
         String requestURL = null;
         String requestMethod = null;
         Map<String, String> requestHeaderFields = null;
         File requestDataSourceFile = null;
-        String requestAcceptHostForCertificateMismatch = null;
         File responseDataFile = null;
-        boolean responseOmitCertificatesInfo = false;
 
         try
         {
@@ -499,9 +443,9 @@ public class https_client_1
                             throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "request", "url");
                         }
 
-                        if (requestURL.startsWith("https://") != true)
+                        if (requestURL.startsWith("http://") != true)
                         {
-                            throw constructTermination("messageJobFileRequestURLIsntHTTPS", null, null, jobFile.getAbsolutePath(), "request", "url", "https://");
+                            throw constructTermination("messageJobFileRequestURLIsntHTTP", null, null, jobFile.getAbsolutePath(), "request", "url", "https://");
                         }
 
                         Attribute methodAttribute = requestElement.getAttributeByName(new QName("method"));
@@ -602,29 +546,6 @@ public class https_client_1
                             requestDataSourceFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + requestDataSource);
                         }
                     }
-                    else if (tagName.equals("accept-host-for-certificate-mismatch") == true &&
-                             inRequest == true)
-                    {
-                        StartElement acceptHostElement = event.asStartElement();
-                        Attribute hostAttribute = acceptHostElement.getAttributeByName(new QName("host"));
-
-                        if (hostAttribute == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), "accept-host-for-certificate-mismatch", "host");
-                        }
-
-                        if (requestAcceptHostForCertificateMismatch != null)
-                        {
-                            throw constructTermination("messageJobFileSettingConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), "accept-host-for-certificate-mismatch", "host");
-                        }
-
-                        requestAcceptHostForCertificateMismatch = hostAttribute.getValue();
-
-                        if (requestAcceptHostForCertificateMismatch.isEmpty() == true)
-                        {
-                            throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "accept-host-for-certificate-mismatch", "host");
-                        }
-                    }
                     else if (tagName.equals("response") == true)
                     {
                         StartElement responseElement = event.asStartElement();
@@ -652,16 +573,6 @@ public class https_client_1
                         if (responseDataFile.isAbsolute() != true)
                         {
                             responseDataFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + responseDataDestination);
-                        }
-
-                        Attribute omitCertificatesInfoAttribute = responseElement.getAttributeByName(new QName("omit-certificates-info"));
-
-                        if (omitCertificatesInfoAttribute != null)
-                        {
-                            if (omitCertificatesInfoAttribute.getValue().equals("true") == true)
-                            {
-                                responseOmitCertificatesInfo = true;
-                            }
                         }
                     }
                 }
@@ -731,32 +642,13 @@ public class https_client_1
         }
 
 
-        final String requestAcceptHostForCertificateMismatchFinal = requestAcceptHostForCertificateMismatch;
-
-        if (requestAcceptHostForCertificateMismatchFinal != null)
-        {
-            javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier(new javax.net.ssl.HostnameVerifier() {
-
-                public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession)
-                {
-                    if (hostname.equals(requestAcceptHostForCertificateMismatchFinal) == true)
-                    {
-                        return true;
-                    }
-
-                    return false;
-                }
-            });
-        }
-
-
-        HttpsURLConnection connection = null;
+        HttpURLConnection connection = null;
 
         try
         {
             URL url = new URL(requestURL);
 
-            connection = (HttpsURLConnection)url.openConnection();
+            connection = (HttpURLConnection)url.openConnection();
 
             connection.setDoOutput(true);
             connection.setInstanceFollowRedirects(false);
@@ -774,7 +666,7 @@ public class https_client_1
                 }
             }
 
-            connection.setRequestProperty("User-Agent", "https_client_1 of digital_publishing_workflow_tools (publishing-systems.org)");
+            connection.setRequestProperty("User-Agent", "http_client_1 of digital_publishing_workflow_tools (publishing-systems.org)");
 
             if (requestMethod.equalsIgnoreCase("TRACE") != true &&
                 requestDataSourceFile != null)
@@ -904,20 +796,6 @@ public class https_client_1
 
         if (connection != null)
         {
-            if (responseOmitCertificatesInfo == false)
-            {
-                this.getResults().put("cipher-suite", connection.getCipherSuite());
-
-                try
-                {
-                    https_client_1.resultCertificates = connection.getServerCertificates();
-                }
-                catch (SSLPeerUnverifiedException ex)
-                {
-                    throw constructTermination("messageResponseCantGetCertificates", ex, null);
-                }
-            }
-
             try
             {
                 this.getResults().put("http-status-code", Integer.toString(connection.getResponseCode()));
@@ -1087,11 +965,11 @@ public class https_client_1
         {
             if (arguments == null)
             {
-                message = "https_client_1: " + getI10nString(id);
+                message = "http_client_1: " + getI10nString(id);
             }
             else
             {
-                message = "https_client_1: " + getI10nStringFormatted(id, arguments);
+                message = "http_client_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -1115,11 +993,11 @@ public class https_client_1
         {
             if (arguments == null)
             {
-                message = "https_client_1: " + getI10nString(id);
+                message = "http_client_1: " + getI10nString(id);
             }
             else
             {
-                message = "https_client_1: " + getI10nStringFormatted(id, arguments);
+                message = "http_client_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -1146,18 +1024,18 @@ public class https_client_1
             innerException.printStackTrace();
         }
 
-        if (https_client_1.resultInfoFile != null)
+        if (http_client_1.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(https_client_1.resultInfoFile),
+                                        new FileOutputStream(http_client_1.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by https_client_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<https-client-1-result-information>\n");
+                writer.write("<!-- This file was created by http_client_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<http-client-1-result-information>\n");
                 writer.write("  <failure>\n");
                 writer.write("    <timestamp>" + timestamp + "</timestamp>\n");
 
@@ -1396,7 +1274,7 @@ public class https_client_1
                 }
 
                 writer.write("  </failure>\n");
-                writer.write("</https-client-1-result-information>\n");
+                writer.write("</http-client-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -1414,7 +1292,7 @@ public class https_client_1
             }
         }
 
-        https_client_1.resultInfoFile = null;
+        http_client_1.resultInfoFile = null;
 
         System.exit(-1);
         return -1;
@@ -1428,16 +1306,6 @@ public class https_client_1
     public List<InfoMessage> getInfoMessages()
     {
         return this.infoMessages;
-    }
-
-    public Certificate[] getResultCertificates()
-    {
-        return this.resultCertificates;
-    }
-
-    public void setResultCertificates(Certificate[] resultCertificates)
-    {
-        this.resultCertificates = resultCertificates;
     }
 
     public List<ResponseHeaderField> getResponseHeaderFields()
@@ -1479,14 +1347,11 @@ public class https_client_1
         return formatter.format(arguments);
     }
 
-    private static https_client_1 https_client_1Instance;
-
     public static File resultInfoFile = null;
     protected static Map<String, String> results = new HashMap<String, String>();
     protected static List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
-    protected static Certificate[] resultCertificates = null;
     protected static List<ResponseHeaderField> responseHeaderFields = new ArrayList<ResponseHeaderField>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nHttpsClient1Console";
+    private static final String L10N_BUNDLE = "l10n.l10nHttpClient1Console";
     private ResourceBundle l10nConsole;
 }

@@ -1,19 +1,19 @@
 /* Copyright (C) 2003-2016  Christian d'Heureuse, Inventec Informatik AG, Zurich, Switzerland
  *
- * This file is part of https_client_1, a submodule of the
+ * This file is part of wordpress_media_library_file_uploader_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * https_client_1 is free software: you can redistribute it and/or modify
+ * wordpress_media_library_file_uploader_1 workflow is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * https_client_1 is distributed in the hope that it will be useful,
+ * wordpress_media_library_file_uploader_1 workflow is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
+ * along with wordpress_media_library_file_uploader_1 workflow. If not, see <http://www.gnu.org/licenses/>.
  */
 // www.source-code.biz, www.inventec.ch/chdh
 // Project home page: www.source-code.biz/base64coder/java

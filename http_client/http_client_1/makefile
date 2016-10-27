@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2016  Stephan Kreutzer
+# Copyright (C) 2015-2016  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,18 +16,30 @@
 
 
 
-directories = ./file_discovery ./file_hasher ./http_client ./https_client ./json_to_xml ./onix_prepare_for_json ./workflows ./xml_xslt_transformator
+.PHONY: all http_client_1 clean
 
 
 
-.PHONY: all $(directories)
+all: http_client_1
+http_client_1: http_client_1.class
 
 
 
-all: $(directories)
+ProgramTerminationException.class: ProgramTerminationException.java
+	javac -encoding UTF-8 ProgramTerminationException.java
 
+InfoMessage.class: InfoMessage.java
+	javac -encoding UTF-8 InfoMessage.java
 
+ResponseHeaderField.class: ResponseHeaderField.java
+	javac -encoding UTF-8 ResponseHeaderField.java
 
-$(directories):
-	$(MAKE) --directory=$@
+http_client_1.class: http_client_1.java InfoMessage.class ResponseHeaderField.class ProgramTerminationException.class
+	javac -encoding UTF-8 http_client_1.java
+
+clean:
+	rm -f http_client_1.class
+	rm -f ResponseHeaderField.class
+	rm -f InfoMessage.class
+	rm -f ProgramTerminationException.class
 
