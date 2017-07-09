@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2016 Stephan Kreutzer
+/* Copyright (C) 2015-2017 Stephan Kreutzer
  *
  * This file is part of http_client_1, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -445,7 +445,7 @@ public class http_client_1
 
                         if (requestURL.startsWith("http://") != true)
                         {
-                            throw constructTermination("messageJobFileRequestURLIsntHTTP", null, null, jobFile.getAbsolutePath(), "request", "url", "https://");
+                            throw constructTermination("messageJobFileRequestURLIsntHTTP", null, null, jobFile.getAbsolutePath(), "request", "url", "http://");
                         }
 
                         Attribute methodAttribute = requestElement.getAttributeByName(new QName("method"));

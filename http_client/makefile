@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016  Stephan Kreutzer
+# Copyright (C) 2015-2017  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./http_client
+directories = ./http_client_1
 
 
 
