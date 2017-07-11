@@ -16,7 +16,7 @@
 
 
 
-directories = ./file_discovery ./file_hasher ./gui ./http_client ./https_client ./htx ./json_to_xml ./onix_prepare_for_json ./workflows ./xml_xslt_transformator
+directories = ./text_position_retriever
 
 
 

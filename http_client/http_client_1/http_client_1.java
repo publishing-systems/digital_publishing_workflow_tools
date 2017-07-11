@@ -63,7 +63,7 @@ public class http_client_1
 {
     public static void main(String args[])
     {
-        System.out.print("http_client_1 Copyright (C) 2015-2016 Stephan Kreutzer\n" +
+        System.out.print("http_client_1 Copyright (C) 2015-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
