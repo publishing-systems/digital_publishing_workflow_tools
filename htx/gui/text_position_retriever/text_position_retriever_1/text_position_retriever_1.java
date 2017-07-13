@@ -18,7 +18,7 @@
 /**
  * @file $/htx/gui/text_position_retriever/text_position_retriever_1/text_position_retriever_1.java
  * @brief Provides the position/count of a character within a text.
- * @todo Navigate with arrow keys, context menu (copy) for positionField, EOL handling.
+ * @todo Navigate with arrow keys, EOL handling.
  * @author Stephan Kreutzer
  * @since 2017-07-10
  */
@@ -51,8 +51,6 @@ import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Clipboard;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -265,8 +263,6 @@ public class text_position_retriever_1
 
     public int retrieve(String[] args)
     {
-        this.startPosition = 0;
-
         if (args.length < 2)
         {
             throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\ttext_position_retriever_1 " + getI10nString("messageParameterList") + "\n");
@@ -337,7 +333,7 @@ public class text_position_retriever_1
 
         File inputFile = null;
         int fontSize = 16;
-        text_position_retriever_1.positionFormatString = "{0,number,#}, {1,number,#}";
+        String positionFormatString = null;
 
         try
         {
@@ -409,7 +405,7 @@ public class text_position_retriever_1
                             throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "format");
                         }
 
-                        text_position_retriever_1.positionFormatString = attributeFormat.getValue();
+                        positionFormatString = attributeFormat.getValue();
                     }
                 }
             }
@@ -510,122 +506,32 @@ public class text_position_retriever_1
         gridbagConstraints.gridwidth = GridBagConstraints.REMAINDER;
         gridbagConstraints.fill = GridBagConstraints.BOTH;
 
-        text_position_retriever_1.positionField = new JTextField();
-        text_position_retriever_1.textArea = new JTextArea(inputText.toString());
+        JTextArea textArea = new JTextArea(inputText.toString());
+        JTextField positionField = new JTextField();
 
-        text_position_retriever_1.textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
-        text_position_retriever_1.textArea.setLineWrap(true);
-        text_position_retriever_1.textArea.setWrapStyleWord(true);
-        text_position_retriever_1.textArea.setEditable(false);
-        text_position_retriever_1.textArea.getCaret().setVisible(true);
-        text_position_retriever_1.textArea.getCaret().setSelectionVisible(true);
+        MouseEventListener mouseListener = new MouseEventListener(textArea, positionField, positionFormatString, getI10nString("windowTextPositionContextMenuCopy"));
+        KeyEventListener keyListener = new KeyEventListener(positionField);
 
-        /** @todo All copying to the clipboard, either by context menu or Ctrl + C, should be generalized as classes,
-          * so it can easily be used on positionField. */
-        text_position_retriever_1.contextMenu = new JPopupMenu();
-        JMenuItem copyItem = new JMenuItem(getI10nString("windowTextPositionContextMenuCopy"));
+        textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setEditable(false);
+        textArea.getCaret().setVisible(true);
+        textArea.getCaret().setSelectionVisible(true);
+        textArea.addMouseListener(mouseListener);
+        textArea.addKeyListener(keyListener);
 
-        copyItem.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent event)
-            {
-                StringSelection stringSelection = new StringSelection(text_position_retriever_1.positionField.getText());
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(stringSelection, null);
-            }
-        });
-
-        text_position_retriever_1.contextMenu.add(copyItem);
-
-        text_position_retriever_1.textArea.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent event)
-            {
-                // Recover the caret in case the context menu was shown.
-                text_position_retriever_1.textArea.getCaret().setVisible(true);
-                text_position_retriever_1.textArea.getCaret().setSelectionVisible(true);
-
-                if (!SwingUtilities.isRightMouseButton(event))
-                {
-                    int currentPosition = text_position_retriever_1.textArea.getCaretPosition();
-
-                    if (text_position_retriever_1.startPosition > currentPosition)
-                    {
-                        text_position_retriever_1.startPosition = currentPosition;
-                    }
-
-                    MessageFormat formatter = new MessageFormat("");
-                    formatter.applyPattern(text_position_retriever_1.positionFormatString);
-                    Object positions[] = { text_position_retriever_1.startPosition, currentPosition - text_position_retriever_1.startPosition };
-                    text_position_retriever_1.positionField.setText(formatter.format(positions));
-
-                    text_position_retriever_1.startPosition = currentPosition;
-                }
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent event)
-            {
-                if (!SwingUtilities.isRightMouseButton(event))
-                {
-                    int startPosition = text_position_retriever_1.textArea.getSelectionStart();
-                    int endPosition = text_position_retriever_1.textArea.getSelectionEnd();
-
-                    if (startPosition != endPosition)
-                    {
-                        MessageFormat formatter = new MessageFormat("");
-                        formatter.applyPattern(text_position_retriever_1.positionFormatString);
-                        Object positions[] = { startPosition, endPosition - startPosition };
-                        text_position_retriever_1.positionField.setText(formatter.format(positions));
-                    }
-
-                    text_position_retriever_1.startPosition = endPosition;
-                }
-                else
-                {
-                    text_position_retriever_1.contextMenu.show(event.getComponent(),
-                                                               event.getX(),
-                                                               event.getY()); 
-                }
-            }
-        });
-
-        text_position_retriever_1.textArea.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(KeyEvent event)
-            {
-                // Otherwise default Ctrl + C could win over the keyReleased() event.
-                event.consume();
-            }
-
-            @Override
-            public void keyReleased(KeyEvent event)
-            {
-                if (event.getKeyCode() == KeyEvent.VK_C && ((event.getModifiers() & KeyEvent.CTRL_MASK) != 0))
-                {
-                    StringSelection stringSelection = new StringSelection(text_position_retriever_1.positionField.getText());
-                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                    clipboard.setContents(stringSelection, null);
-                }
-            }
-
-            @Override
-            public void keyTyped(KeyEvent event)
-            {
-
-            }
-        });
-
-        JScrollPane scrollPane = new JScrollPane(text_position_retriever_1.textArea);
+        JScrollPane scrollPane = new JScrollPane(textArea);
 
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         mainPanel.add(scrollPane, gridbagConstraints);
 
-
-        text_position_retriever_1.positionField.setText(getI10nString("windowTextPositionInfoStart"));
-        text_position_retriever_1.positionField.setEditable(false);
+        positionField.setText(getI10nString("windowTextPositionInfoStart"));
+        positionField.setEditable(false);
+        positionField.addMouseListener(mouseListener);
+        positionField.addKeyListener(keyListener);
 
         gridbagConstraints = new GridBagConstraints();
         gridbagConstraints.anchor = GridBagConstraints.SOUTH;
@@ -633,7 +539,7 @@ public class text_position_retriever_1
         gridbagConstraints.weightx = 1.0;
         gridbagConstraints.gridwidth = GridBagConstraints.REMAINDER;
         gridbagConstraints.fill = GridBagConstraints.HORIZONTAL;
-        mainPanel.add(text_position_retriever_1.positionField, gridbagConstraints);
+        mainPanel.add(positionField, gridbagConstraints);
 
         getContentPane().add(mainPanel, BorderLayout.CENTER);
 
@@ -642,11 +548,6 @@ public class text_position_retriever_1
         setVisible(true);
 
         return 0;
-    }
-
-    public void actionPerformed(ActionEvent event)
-    {
-        Object source = event.getSource();
     }
 
     public InfoMessage constructInfoMessage(String id,
@@ -1017,23 +918,6 @@ public class text_position_retriever_1
         formatter.applyPattern(getI10nString(i10nStringName));
         return formatter.format(arguments);
     }
-
-    /** @todo As soon as action listeners are separate classes or OpenJDK 8 with member closure arrives, their objects
-      * could reference text_position_retriever_1, so this member doesn't need to be static any more. */
-    protected static JTextField positionField = null;
-    /** @todo As soon as action listeners are separate classes or OpenJDK 8 with member closure arrives, their objects
-      * could reference text_position_retriever_1, so this member doesn't need to be static any more. */
-    protected static JTextArea textArea = null;
-    /** @todo As soon as action listeners are separate classes or OpenJDK 8 with member closure arrives, their objects
-      * could reference text_position_retriever_1, so this member doesn't need to be static any more. */
-    protected static JPopupMenu contextMenu = null;
-
-    /** @todo As soon as action listeners are separate classes, their objects could reference text_position_retriever_1,
-      * so this member doesn't need to be static any more. */
-    static protected int startPosition = 0;
-    /** @todo As soon as the action listener is a separate class, its object could take the format string as an argument,
-      * so this member doesn't need to be static any more, doesn't need to exist at all. */
-    static String positionFormatString = "{0}, {1}";
 
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();

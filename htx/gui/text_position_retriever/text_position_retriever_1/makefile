@@ -26,7 +26,7 @@ text_position_retriever_1: text_position_retriever_1.class
 
 
 
-text_position_retriever_1.class: text_position_retriever_1.java InfoMessage.class ProgramTerminationException.class
+text_position_retriever_1.class: text_position_retriever_1.java InfoMessage.class ProgramTerminationException.class KeyEventListener.class MouseEventListener.class
 	javac -encoding UTF-8 text_position_retriever_1.java
 
 InfoMessage.class: InfoMessage.java
@@ -34,6 +34,12 @@ InfoMessage.class: InfoMessage.java
 
 ProgramTerminationException.class: ProgramTerminationException.java
 	javac -encoding UTF-8 ProgramTerminationException.java
+
+KeyEventListener.class: KeyEventListener.java
+	javac -encoding UTF-8 KeyEventListener.java
+
+MouseEventListener.class: MouseEventListener.java
+	javac -encoding UTF-8 MouseEventListener.java
 
 clean:
 	rm -f ./*.class
