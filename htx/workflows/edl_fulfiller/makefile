@@ -16,7 +16,7 @@
 
 
 
-directories = ./edl_fulfiller ./text_position_retriever
+directories = ./edl_fulfiller_1
 
 
 
