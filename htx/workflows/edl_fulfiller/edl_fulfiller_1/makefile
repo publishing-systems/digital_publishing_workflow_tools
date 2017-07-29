@@ -26,14 +26,11 @@ edl_fulfiller_1: edl_fulfiller_1.class
 
 
 
-edl_fulfiller_1.class: edl_fulfiller_1.java InfoMessage.class ProgramTerminationException.class RetrievedResourceInfo.class SpanInfo.class
+edl_fulfiller_1.class: edl_fulfiller_1.java InfoMessage.class ProgramTerminationException.class RetrievedResourceInfo.class
 	javac -encoding UTF-8 edl_fulfiller_1.java
 
 RetrievedResourceInfo.class: RetrievedResourceInfo.java
 	javac -encoding UTF-8 RetrievedResourceInfo.java
-
-SpanInfo.class: SpanInfo.java
-	javac -encoding UTF-8 SpanInfo.java
 
 InfoMessage.class: InfoMessage.java
 	javac -encoding UTF-8 InfoMessage.java
@@ -46,4 +43,3 @@ clean:
 	rm -f ./InfoMessage.class
 	rm -f ./ProgramTerminationException.class
 	rm -f ./RetrievedResourceInfo.class
-	rm -f ./SpanInfo.class

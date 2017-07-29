@@ -18,6 +18,9 @@ You should have received a copy of the GNU Affero General Public License 3
 along with edl_fulfiller_1 workflow. If not, see <http://www.gnu.org/licenses/>.
 -->
 <edl-fulfiller-1-workflow-jobfile>
-  <span identifier="https://example.org/resource_1.txt" start="7" length="25"/>
-  <link identifier="https://example.org/resource_2.txt"/>
+  <resources>
+    <resource identifier="https://example.org/resource_1.txt"/>
+    <resource identifier="file:///home/user/resource_2.txt"/>
+  </resources>
+  <output-directory path="./output"/>
 </edl-fulfiller-1-workflow-jobfile>

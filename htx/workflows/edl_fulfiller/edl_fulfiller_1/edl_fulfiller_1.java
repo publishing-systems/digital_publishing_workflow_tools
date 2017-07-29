@@ -40,8 +40,6 @@ import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.Map;
-import java.util.LinkedHashMap;
 import javax.xml.stream.XMLInputFactory;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -411,8 +409,8 @@ public class edl_fulfiller_1
         System.out.println("edl_fulfiller_1 workflow: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
 
-        Map<String, List<SpanInfo>> inputSpans = new LinkedHashMap<String, List<SpanInfo>>();
-        List<String> inputLinks = new ArrayList<String>();
+        List<String> requestedResources = new ArrayList<String>();
+        File outputDirectory = null;
 
         try
         {
@@ -428,86 +426,62 @@ public class edl_fulfiller_1
                 {
                     String tagName = event.asStartElement().getName().getLocalPart();
 
-                    /** @todo Shortcut: doesn't have its own, reasonable jobfile format, but accepts
-                      * output from $/htx/edl_to_xml/edl_to_xml_1/edl_to_xml_1. */
-                    if (tagName.equals("span") == true)
+                    if (tagName.equals("resource") == true)
                     {
                         Attribute attributeIdentifier = event.asStartElement().getAttributeByName(new QName("identifier"));
-                        Attribute attributeStart = event.asStartElement().getAttributeByName(new QName("start"));
-                        Attribute attributeLength = event.asStartElement().getAttributeByName(new QName("length"));
 
                         if (attributeIdentifier == null)
                         {
                             throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "identifier");
                         }
 
-                        if (attributeStart == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "start");
-                        }
-
-                        if (attributeLength == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "length");
-                        }
-
                         String identifier = attributeIdentifier.getValue();
 
-                        if (inputSpans.containsKey(identifier) != true)
+                        if (requestedResources.contains(identifier) != true)
                         {
-                            inputSpans.put(identifier, new ArrayList<SpanInfo>());
+                            requestedResources.add(identifier);
                         }
-
-                        String startString = attributeStart.getValue();
-                        int start = 0;
-
-                        try
-                        {
-                            start = Integer.parseInt(startString);
-                        }
-                        catch (NumberFormatException ex)
-                        {
-                            throw constructTermination("messageJobFileInvalidInteger", ex, null, start);
-                        }
-
-                        if (start < 0)
-                        {
-                            throw constructTermination("messageJobFileInvalidIntegerGreaterEqualZeroExpected", null, null, start);
-                        }
-
-                        String lengthString = attributeLength.getValue();
-                        int length = 0;
-
-                        try
-                        {
-                            length = Integer.parseInt(lengthString);
-                        }
-                        catch (NumberFormatException ex)
-                        {
-                            throw constructTermination("messageJobFileInvalidInteger", ex, null, length);
-                        }
-
-                        if (length <= 0)
-                        {
-                            throw constructTermination("messageJobFileInvalidIntegerGreaterZeroExpected", null, null, length);
-                        }
-
-                        inputSpans.get(identifier).add(new SpanInfo(identifier, start, length));
                     }
-                    else if (tagName.equals("link") == true)
+                    else if (tagName.equals("output-directory") == true)
                     {
-                        Attribute attributeIdentifier = event.asStartElement().getAttributeByName(new QName("identifier"));
+                        Attribute attributePath = event.asStartElement().getAttributeByName(new QName("path"));
 
-                        if (attributeIdentifier == null)
+                        if (attributePath == null)
                         {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "identifier");
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        String identifier = attributeIdentifier.getValue();
+                        outputDirectory = new File(attributePath.getValue());
 
-                        if (inputLinks.contains(identifier) != true)
+                        if (outputDirectory.isAbsolute() != true)
                         {
-                            inputLinks.add(identifier);
+                            outputDirectory = new File(jobFile.getAbsoluteFile().getParent() + File.separator + attributePath.getValue());
+                        }
+
+                        if (outputDirectory.exists() == true)
+                        {
+                            if (outputDirectory.isDirectory() == true)
+                            {
+                                if (outputDirectory.canWrite() != true)
+                                {
+                                    throw constructTermination("messageOutputDirectoryIsntWritable", null, null, outputDirectory.getAbsolutePath());
+                                }
+                            }
+                            else
+                            {
+                                throw constructTermination("messageOutputPathIsntADirectory", null, null, outputDirectory.getAbsolutePath());
+                            }
+                        }
+                        else
+                        {
+                            try
+                            {
+                                outputDirectory.mkdirs();
+                            }
+                            catch (SecurityException ex)
+                            {
+                                throw constructTermination("messageOutputDirectoryCantCreate", null, null, outputDirectory.getAbsolutePath());
+                            }
                         }
                     }
                 }
@@ -526,36 +500,30 @@ public class edl_fulfiller_1
             throw constructTermination("messageJobFileErrorWhileReading", ex, null, jobFile.getAbsolutePath());
         }
 
-        if (inputSpans.isEmpty() == true)
+        if (requestedResources.isEmpty() == true)
         {
-            this.infoMessages.add(constructInfoMessage("messageNoInputSpan", true, null, null, jobFile.getAbsolutePath()));
+            this.infoMessages.add(constructInfoMessage("messageNoRequestedResources", true, null, null, jobFile.getAbsolutePath()));
             return 0;
+        }
+
+        if (outputDirectory == null)
+        {
+            throw constructTermination("messageJobFileNoOutputDirectory", null, null, jobFile.getAbsolutePath());
         }
 
         int resourceIndex = 0;
 
-        /** @todo Consider HTTP range requests: https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests */
         /** @todo Time delay between retrieval attempts if targeting the same server. */
 
-        for (Map.Entry<String, List<SpanInfo>> entry : inputSpans.entrySet())
+        for (int i = 0, max = requestedResources.size(); i < max; i++)
         {
-            List<SpanInfo> infoList = entry.getValue();
-            String identifier = entry.getKey();
-
-            attemptRetrieval(identifier, resourceIndex, programPath, tempDirectory, jobFile.getAbsoluteFile().getParent());
-            ++resourceIndex;
-        }
-
-        for (int i = 0, max = inputLinks.size(); i < max; i++)
-        {
-            attemptRetrieval(inputLinks.get(i), resourceIndex, programPath, tempDirectory, jobFile.getAbsoluteFile().getParent());
-            ++resourceIndex;
+            attemptRetrieval(requestedResources.get(i), i, programPath, tempDirectory, outputDirectory, jobFile.getAbsoluteFile().getParent());
         }
 
         return 0;
     }
 
-    public int attemptRetrieval(String identifier, int resourceIndex, String programPath, File tempDirectory, String jobFileDirectory)
+    public int attemptRetrieval(String identifier, int resourceIndex, String programPath, File tempDirectory, File outputDirectory, String jobFileDirectory)
     {
         int pos = identifier.indexOf("://");
 
@@ -569,6 +537,8 @@ public class edl_fulfiller_1
         if (protocol.equals("http") == true ||
             protocol.equals("https") == true)
         {
+            /** @todo Consider HTTP range requests: https://developer.mozilla.org/en-US/docs/Web/HTTP/Range_requests */
+
             String url = identifier;
 
             // Ampersand needs to be the first, otherwise it would double-encode
@@ -583,7 +553,7 @@ public class edl_fulfiller_1
 
             File jobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_" + protocol + "_client_1_" + resourceIndex + ".xml");
             File resultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_" + protocol + "_client_1_" + resourceIndex + ".xml");
-            File resourceFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resource_" + resourceIndex + ".txt");
+            File resourceFile = new File(outputDirectory.getAbsolutePath() + File.separator + "resource_" + resourceIndex + ".txt");
 
             if (jobFile.exists() == true)
             {
