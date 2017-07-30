@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Stephan Kreutzer
+# Copyright (C) 2016-2017 Stephan Kreutzer
 #
 # This file is part of onix_to_woocommerce_1 workflow, a submodule of the
 # digital_publishing_workflow_tools package.
@@ -32,18 +32,22 @@ InfoMessage.class: InfoMessage.java
 ProgramTerminationException.class: ProgramTerminationException.java
 	javac -encoding UTF-8 ProgramTerminationException.java
 
+MediaLink.class: MediaLink.java
+	javac -encoding UTF-8 MediaLink.java
+
 Base64Coder.class: Base64Coder.java
 	javac -encoding UTF-8 Base64Coder.java
 
 UploadFileMapping.class: UploadFileMapping.java
 	javac -encoding UTF-8 UploadFileMapping.java
 
-onix_to_woocommerce_1.class: onix_to_woocommerce_1.java InfoMessage.class ProgramTerminationException.class Base64Coder.class UploadFileMapping.java
+onix_to_woocommerce_1.class: onix_to_woocommerce_1.java InfoMessage.class ProgramTerminationException.class MediaLink.class Base64Coder.class UploadFileMapping.java
 	javac -encoding UTF-8 onix_to_woocommerce_1.java
 
 clean:
 	rm -f onix_to_woocommerce_1.class
 	rm -f Base64Coder.class
+	rm -f MediaLink.class
 	rm -f UploadFileMapping.class
 	rm -f ProgramTerminationException.class
 	rm -f InfoMessage.class

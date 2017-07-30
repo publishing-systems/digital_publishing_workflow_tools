@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2016  Stephan Kreutzer
+/* Copyright (C) 2014-2017  Stephan Kreutzer
  *
  * This file is part of wordpress_media_library_file_uploader_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -18,6 +18,7 @@
 /**
  * @file $/workflows/wordpress_media_library_file_uploader/wordpress_media_library_file_uploader_1/wordpress_media_library_file_uploader_1.java
  * @brief Uploads files to the WordPress Media Library via the XMLRPC API.
+ * @todo Make sure that xmlRpcDataFile gets also deleted in case of continue or termination exception.
  * @author Stephan Kreutzer
  * @since 2016-02-29
  */
@@ -46,6 +47,7 @@ import java.io.FileInputStream;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.XMLStreamException;
+import java.util.Stack;
 
 
 
@@ -53,7 +55,7 @@ public class wordpress_media_library_file_uploader_1
 {
     public static void main(String args[])
     {
-        System.out.print("wordpress_media_library_file_uploader_1 workflow Copyright (C) 2014-2016 Stephan Kreutzer\n" +
+        System.out.print("wordpress_media_library_file_uploader_1 workflow Copyright (C) 2014-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -88,6 +90,21 @@ public class wordpress_media_library_file_uploader_1
                 writer.write("<!-- This file was created by wordpress_media_library_file_uploader_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
                 writer.write("<wordpress-media-library-file-uploader-1-workflow-result-information>\n");
                 writer.write("  <success>\n");
+
+                if (uploader.GetMediaLinks().size() > 0)
+                {
+                    writer.write("    <media-links>\n");
+
+                    for (int i = 0, max = uploader.GetMediaLinks().size(); i < max; i++)
+                    {
+                        ResultMediaLink mediaLink = uploader.GetMediaLinks().get(i);
+                        String link = mediaLink.GetResultLink().replaceAll("&", "&amp;");
+
+                        writer.write("      <media-link input-file=\"" + mediaLink.GetInputFile() + "\" input-name=\"" + mediaLink.GetInputName() + "\" link=\"" + link + "\"/>\n");
+                    }
+
+                    writer.write("    </media-links>\n");
+                }
 
                 if (uploader.getInfoMessages().size() > 0)
                 {
@@ -247,6 +264,7 @@ public class wordpress_media_library_file_uploader_1
     public int upload(String args[]) throws ProgramTerminationException
     {
         this.getInfoMessages().clear();
+        this.GetMediaLinks().clear();
 
         if (args.length < 2)
         {
@@ -749,6 +767,19 @@ public class wordpress_media_library_file_uploader_1
                 continue;
             }
 
+            try
+            {
+                boolean deleteSuccessful = xmlRpcDataFile.delete();
+
+                if (deleteSuccessful == false)
+                {
+                    this.infoMessages.add(constructInfoMessage("messageXmlRpcDataFileCouldntDeleteAPIKeysExposed", true, null, null, xmlRpcDataFile.getAbsolutePath()));
+                }
+            }
+            catch (SecurityException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageXmlRpcDataFileCouldntDeleteAPIKeysExposed", true, ex, null, xmlRpcDataFile.getAbsolutePath()));
+            }
 
             if (httpsClient1ResultInfoFile.exists() != true)
             {
@@ -811,6 +842,137 @@ public class wordpress_media_library_file_uploader_1
             if (wasSuccess != true)
             {
                 this.infoMessages.add(constructInfoMessage("messageHttpsClient1CallWasntSuccessful", true, null, null, i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+
+            if (responseFile.exists() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponseFileDoesntExist", true, null, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+
+            if (responseFile.isFile() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponsePathExistsButIsntAFile", true, null, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+
+            if (responseFile.canRead() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponseFileIsntReadable", true, null, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+
+            Stack<String> elementStack = new Stack<String>();
+            StringBuilder sbResultName = null;
+            StringBuilder sbResultValue = null;
+            boolean mediaLinkFound = false;
+
+            try
+            {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                InputStream in = new FileInputStream(responseFile);
+                XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+                while (eventReader.hasNext() == true)
+                {
+                    XMLEvent event = eventReader.nextEvent();
+
+                    if (event.isStartElement() == true)
+                    {
+                        String tagName = event.asStartElement().getName().getLocalPart();
+
+                        elementStack.push(tagName);
+                    }
+                    else if (event.isCharacters() == true)
+                    {
+                        StringBuilder sbPath = new StringBuilder();
+
+                        for(String element : elementStack)
+                        {
+                            sbPath.append("/");
+                            sbPath.append(element);
+                        }
+
+                        if (sbPath.toString().startsWith("/methodResponse/params/param/value/struct/member/name") == true)
+                        {
+                            if (sbResultName == null)
+                            {
+                                sbResultName = new StringBuilder();
+                            }
+
+                            sbResultName.append(event.asCharacters().getData());
+                        }
+                        else if (sbPath.toString().startsWith("/methodResponse/params/param/value/struct/member/value") == true)
+                        {
+                            if (sbResultValue == null)
+                            {
+                                sbResultValue = new StringBuilder();
+                            }
+
+                            sbResultValue.append(event.asCharacters().getData());
+                        }
+                    }
+                    else if (event.isEndElement() == true)
+                    {
+                        StringBuilder sbPath = new StringBuilder();
+
+                        for(String element : elementStack)
+                        {
+                            sbPath.append("/");
+                            sbPath.append(element);
+                        }
+
+                        String memberPath = "/methodResponse/params/param/value/struct/member";
+
+                        if (sbPath.toString().equals(memberPath) == true)
+                        {
+                            if (sbResultName != null &&
+                                sbResultValue != null)
+                            {
+                                if (sbResultName.toString().equals("url") == true)
+                                {
+                                    this.mediaLinks.add(new ResultMediaLink(inputFileInfo.getInputFile().getAbsolutePath(),
+                                                                            inputFileInfo.getName(),
+                                                                            sbResultValue.toString()));
+
+                                    mediaLinkFound = true;
+                                    break;
+                                }
+                            }
+                            else if (sbResultName == null)
+                            {
+                                this.infoMessages.add(constructInfoMessage("messageResponseFileMemberIsMissingItsName", true, null, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath(), memberPath));
+                                break;
+                            }
+
+                            sbResultName = null;
+                            sbResultValue = null;
+                        }
+
+                        elementStack.pop();
+                    }
+                }
+            }
+            catch (XMLStreamException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponseFileErrorWhileReading", true, ex, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+            catch (SecurityException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponseFileErrorWhileReading", true, ex, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+            catch (IOException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponseFileErrorWhileReading", true, ex, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
+                continue;
+            }
+
+            if (mediaLinkFound != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageResponseFileNoMediaLink", true, null, null, responseFile.getAbsolutePath(), i, inputFileInfo.getInputFile().getAbsolutePath()));
                 continue;
             }
         }
@@ -1153,6 +1315,11 @@ public class wordpress_media_library_file_uploader_1
         return this.infoMessages;
     }
 
+    public List<ResultMediaLink> GetMediaLinks()
+    {
+        return this.mediaLinks;
+    }
+
     public Locale getLocale()
     {
         return Locale.getDefault();
@@ -1189,6 +1356,7 @@ public class wordpress_media_library_file_uploader_1
 
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
+    protected List<ResultMediaLink> mediaLinks = new ArrayList<ResultMediaLink>();
 
     private static final String L10N_BUNDLE = "l10n.l10nWordpressMediaLibraryFileUploader1WorkflowConsole";
     private ResourceBundle l10nConsole;

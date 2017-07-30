@@ -1,4 +1,4 @@
-/* Copyright (C) 2016  Stephan Kreutzer
+/* Copyright (C) 2016-2017  Stephan Kreutzer
  *
  * This file is part of onix_to_woocommerce_2 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -19,6 +19,7 @@
  * @file $/workflows/onix_to_woocommerce/onix_to_woocommerce_2/onix_to_woocommerce_2.java
  * @brief Workflow to automatically find and upload/update products from ONIX input files,
  *     found in directories.
+ * @todo Make sure that httpsClient1JobFile gets also deleted in case of continue or termination exception.
  * @author Stephan Kreutzer
  * @since 2016-02-05
  */
@@ -77,7 +78,7 @@ public class onix_to_woocommerce_2
 
     public static void main(String args[])
     {
-        System.out.print("onix_to_woocommerce_2 workflow Copyright (C) 2016 Stephan Kreutzer\n" +
+        System.out.print("onix_to_woocommerce_2 workflow Copyright (C) 2016-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -1740,6 +1741,20 @@ public class onix_to_woocommerce_2
                     throw constructTermination("messageHttpsClient1ForProductExistenceISBNLookupErrorWhileReadingOutput", ex, null, i, onixFileInfo.getFile().getAbsolutePath(), httpsClient1JobFile.getAbsolutePath());
                 }
 
+                try
+                {
+                    boolean deleteSuccessful = httpsClient1JobFile.delete();
+
+                    if (deleteSuccessful == false)
+                    {
+                        this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileCouldntDeleteAPIKeysExposed", true, null, null, httpsClient1JobFile.getAbsolutePath()));
+                    }
+                }
+                catch (SecurityException ex)
+                {
+                    this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileCouldntDeleteAPIKeysExposed", true, ex, null, httpsClient1JobFile.getAbsolutePath()));
+                }
+
                 if (httpsClient1ResultInfoFile.exists() != true)
                 {
                     throw constructTermination("messageHttpsClient1ResultInfoFileForProductExistenceISBNLookupDoesntExistButShould", null, null, i, onixFileInfo.getFile().getAbsolutePath(), httpsClient1ResultInfoFile.getAbsolutePath());
@@ -1774,7 +1789,10 @@ public class onix_to_woocommerce_2
                             if (tagName.equals("success") == true)
                             {
                                 wasSuccess = true;
-                                break;
+                            }
+                            else if (tagName.equals("response-header-fields") == true)
+                            {
+                                /** @todo field number="0" HTTP/1.1 401 Unauthorized /field */
                             }
                         }
                     }

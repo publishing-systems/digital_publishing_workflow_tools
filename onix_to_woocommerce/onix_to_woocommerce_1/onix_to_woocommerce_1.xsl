@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (C) 2016 Stephan Kreutzer
+Copyright (C) 2016-2017 Stephan Kreutzer
 
 This file is part of onix_to_woocommerce_1, a submodule of the
 digital_publishing_workflow_tools package.
@@ -68,7 +68,7 @@ along with onix_to_woocommerce_1. If not, see <http://www.gnu.org/licenses/>.
             <xsl:apply-templates select="/ONIXmessage/product/mediafile[./f114/text() = '04' and ./f116/text() = '06']"/>
           <xsl:text>],</xsl:text>
           <xsl:if test="/ONIXmessage/product/mediafile[./f114/text() = '04' and ./f116/text() = '06']">
-            <xsl:text>"featured_src":"https:\/\/example.com\/wp-content\/uploads\/</xsl:text>
+            <xsl:text>"featured_src":"wordpress-media-library-file-uploader-1-workflow-media-link-</xsl:text>
             <xsl:value-of select="/ONIXmessage/product/mediafile[./f114/text() = '04' and ./f116/text() = '06'][1]/f117//text()"/>
             <xsl:text>",</xsl:text>
           </xsl:if>
@@ -95,7 +95,7 @@ along with onix_to_woocommerce_1. If not, see <http://www.gnu.org/licenses/>.
       <xsl:text>,</xsl:text>
     </xsl:if>
     <xsl:text>{</xsl:text>
-      <xsl:text>"src":"https:\/\/example.com\/wp-content\/uploads\/</xsl:text>
+      <xsl:text>"src":"wordpress-media-library-file-uploader-1-workflow-media-link-</xsl:text>
         <xsl:value-of select="./f117//text()"/>
         <xsl:text>",</xsl:text>
       <xsl:text>"title":"</xsl:text>

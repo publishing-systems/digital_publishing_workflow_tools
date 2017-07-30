@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (C) 2016  Stephan Kreutzer
+Copyright (C) 2016-2017  Stephan Kreutzer
 
 This file is part of wordpress_media_library_file_uploader_1 workflow, a submodule of the
 digital_publishing_workflow_tools package.
@@ -19,6 +19,7 @@ along with wordpress_media_library_file_uploader_1 workflow. If not, see <http:/
 -->
 <wordpress-media-library-file-uploader-1-workflow-job>
   <input-files>
+    <!-- Note: Attribute "overwrite" has no effect, see https://core.trac.wordpress.org/ticket/17604. -->
     <input-file path="./input.file" name="input.file" type="text/plain" overwrite="false"/>
   </input-files>
   <wordpress-xmlrpc-url>https://www.example.org/wordpress/xmlrpc.php</wordpress-xmlrpc-url>

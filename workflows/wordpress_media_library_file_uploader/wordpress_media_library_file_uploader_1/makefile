@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Stephan Kreutzer
+# Copyright (C) 2016-2017  Stephan Kreutzer
 #
 # This file is part of wordpress_media_library_file_uploader_1 workflow, a submodule of the
 # digital_publishing_workflow_tools package.
@@ -41,7 +41,10 @@ JobFileProcessor.class: JobFileProcessor.java
 Base64Coder.class: Base64Coder.java
 	javac -encoding UTF-8 Base64Coder.java
 
-wordpress_media_library_file_uploader_1.class: wordpress_media_library_file_uploader_1.java JobFileProcessor.class Base64Coder.class InputFileInfo.class InfoMessage.class ProgramTerminationException.class
+ResultMediaLink.class: ResultMediaLink.java
+	javac -encoding UTF-8 ResultMediaLink.java
+
+wordpress_media_library_file_uploader_1.class: wordpress_media_library_file_uploader_1.java JobFileProcessor.class Base64Coder.class ResultMediaLink.class InputFileInfo.class InfoMessage.class ProgramTerminationException.class
 	javac -encoding UTF-8 wordpress_media_library_file_uploader_1.java
 
 clean:
@@ -49,6 +52,7 @@ clean:
 	rm -f Base64Coder.class
 	rm -f JobFileProcessor.class
 	rm -f InputFileInfo.class
+	rm -f ResultMediaLink.class
 	rm -f ProgramTerminationException.class
 	rm -f InfoMessage.class
 

@@ -1,4 +1,4 @@
-/* Copyright (C) 2016  Stephan Kreutzer
+/* Copyright (C) 2016-2017  Stephan Kreutzer
  *
  * This file is part of onix_to_woocommerce_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -18,7 +18,14 @@
 /**
  * @file $/workflows/onix_to_woocommerce/onix_to_woocommerce_1/onix_to_woocommerce_1.java
  * @brief Workflow to automatically send the data of an ONIX file to WooCommerce,
- *     a WordPress plugin, via its "ReST" API (based on JSON).
+ *     a WordPress plugin, via its REST API (takes JSON as hypermedia format).
+ * @details While looping over ONIX input files, exceptions instead of info messages + continue
+ *     are only thrown if there's a problem with the formats as produced by the
+ *     digital_publishing_workflow_tools package, as it can be expected that the processing
+ *     for the next ONIX input file won't be successful either, so those situations are
+ *     probably non-continuable.
+ * @todo Make sure that httpsClient1JobFile and wordpressMediaLibraryFileUploader1WorkflowJobFile
+ *     gets also deleted in case of continue or termination exception.
  * @author Stephan Kreutzer
  * @since 2016-01-02
  */
@@ -50,6 +57,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.net.URLDecoder;
 import java.util.Scanner;
+import java.util.Map;
+import java.util.HashMap;
 
 
 
@@ -966,6 +975,7 @@ public class onix_to_woocommerce_1
 
         int successCount = 0;
         int max = inputONIXFiles.size();
+        Map<Integer, List<MediaLink>> mediaLinks = new HashMap<Integer, List<MediaLink>>();
 
         for (int i = 0; i < max; i++)
         {
@@ -1167,17 +1177,17 @@ public class onix_to_woocommerce_1
             }
             catch (XMLStreamException ex)
             {
-                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
             catch (SecurityException ex)
             {
-                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
             catch (IOException ex)
             {
-                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
 
@@ -1265,36 +1275,36 @@ public class onix_to_woocommerce_1
                             }
                             catch (SecurityException ex)
                             {
-                                this.infoMessages.add(constructInfoMessage("messageUploadFileCantGetCanonicalPath", true, ex, null, uploadFile, uploadListFile.getAbsolutePath()));
+                                this.infoMessages.add(constructInfoMessage("messageUploadFileCantGetCanonicalPath", true, ex, null, uploadFile.getAbsolutePath(), uploadListFile.getAbsolutePath()));
                                 abort = true;
                                 break;
                             }
                             catch (IOException ex)
                             {
-                                this.infoMessages.add(constructInfoMessage("messageUploadFileCantGetCanonicalPath", true, ex, null, uploadFile, uploadListFile.getAbsolutePath()));
+                                this.infoMessages.add(constructInfoMessage("messageUploadFileCantGetCanonicalPath", true, ex, null, uploadFile.getAbsolutePath(), uploadListFile.getAbsolutePath()));
                                 abort = true;
                                 break;
                             }
 
                             if (uploadFile.exists() != true)
                             {
-                                this.infoMessages.add(constructInfoMessage("messageUploadFileDoesntExist", true, null, null, uploadFile, uploadListFile.getAbsolutePath()));
+                                this.infoMessages.add(constructInfoMessage("messageUploadFileDoesntExist", true, null, null, uploadFile.getAbsolutePath(), uploadListFile.getAbsolutePath()));
                                 abort = true;
-                                continue;
+                                break;
                             }
 
                             if (uploadFile.isFile() != true)
                             {
-                                this.infoMessages.add(constructInfoMessage("messageUploadPathIsntAFile", true, null, null, uploadFile, uploadListFile.getAbsolutePath()));
+                                this.infoMessages.add(constructInfoMessage("messageUploadPathIsntAFile", true, null, null, uploadFile.getAbsolutePath(), uploadListFile.getAbsolutePath()));
                                 abort = true;
-                                continue;
+                                break;
                             }
 
                             if (uploadFile.canRead() != true)
                             {
-                                this.infoMessages.add(constructInfoMessage("messageUploadFileIsntReadable", true, null, null, uploadFile, uploadListFile.getAbsolutePath()));
+                                this.infoMessages.add(constructInfoMessage("messageUploadFileIsntReadable", true, null, null, uploadFile.getAbsolutePath(), uploadListFile.getAbsolutePath()));
                                 abort = true;
-                                continue;
+                                break;
                             }
 
                             /** @todo Check, if file is already in the list. */
@@ -1315,19 +1325,16 @@ public class onix_to_woocommerce_1
             catch (XMLStreamException ex)
             {
                 this.infoMessages.add(constructInfoMessage("messageUploadListFileErrorWhileReading", true, ex, null, uploadListFile.getAbsolutePath()));
-                abort = true;
                 continue;
             }
             catch (SecurityException ex)
             {
                 this.infoMessages.add(constructInfoMessage("messageUploadListFileErrorWhileReading", true, ex, null, uploadListFile.getAbsolutePath()));
-                abort = true;
                 continue;
             }
             catch (IOException ex)
             {
                 this.infoMessages.add(constructInfoMessage("messageUploadListFileErrorWhileReading", true, ex, null, uploadListFile.getAbsolutePath()));
-                abort = true;
                 continue;
             }
 
@@ -1363,14 +1370,14 @@ public class onix_to_woocommerce_1
                     {
                         if (wordpressMediaLibraryFileUploader1WorkflowJobFile.canWrite() != true)
                         {
-                            this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobFileExistsButIsntWritable", true, null, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath(), inputONIXFiles.get(i).getAbsolutePath()));
+                            this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1JobFileExistsButIsntWritable", true, null, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
                             continue;
                         }
                     }
                 }
                 else
                 {
-                    this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobPathExistsButIsntAFile", true, null, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath(), inputONIXFiles.get(i).getAbsolutePath()));
+                    this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1JobPathExistsButIsntAFile", true, null, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
                     continue;
                 }
             }
@@ -1394,14 +1401,14 @@ public class onix_to_woocommerce_1
                     {
                         if (wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.canWrite() != true)
                         {
-                            this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowResultInfoFileExistsButIsntWritable", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath(), inputONIXFiles.get(i).getAbsolutePath()));
+                            this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1ResultInfoFileExistsButIsntWritable", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath()));
                             continue;
                         }
                     }
                 }
                 else
                 {
-                    this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowResultInfoPathExistsButIsntAFile", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath(), inputONIXFiles.get(i).getAbsolutePath()));
+                    this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1ResultInfoPathExistsButIsntAFile", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath()));
                     continue;
                 }
             }
@@ -1445,24 +1452,24 @@ public class onix_to_woocommerce_1
                             }
                             else
                             {
-                                this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobFileUploadFileExtensionNotSupported", true, null, null, mapping.getSourceFile(), extension, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
+                                this.infoMessages.add(constructInfoMessage("messageUploadListFileFiletypeNotSupported", true, null, null, mapping.getSourceFile().getAbsolutePath(), extension, uploadListFile.getAbsolutePath()));
                                 continue;
                             }
                         }
                         else
                         {
-                            this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobFileUploadFileNoExtension", true, null, null, mapping.getSourceFile(), wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
+                            this.infoMessages.add(constructInfoMessage("messageUploadListFileNoExtension", true, null, null, mapping.getSourceFile().getAbsolutePath(), uploadListFile.getAbsolutePath()));
                             continue;
                         }
                     }
 
                     if (mimeType == null)
                     {
-                        this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobFileUploadFileNoMimetypeDetermined", true, null, null, mapping.getSourceFile(), wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
+                        this.infoMessages.add(constructInfoMessage("messageUploadListFileNoMimetypeDetermined", true, null, null, mapping.getSourceFile().getAbsolutePath(), uploadListFile.getAbsolutePath()));
                         continue;
                     }
 
-                    writer.write("    <input-file path=\"" + mapping.getSourceFile().getAbsolutePath() + "\" name=\"" + mapping.getDestinationName() + "\" type=\"" + mimeType + "\" overwrite=\"false\"/>\n");
+                    writer.write("    <input-file path=\"" + mapping.getSourceFile().getAbsolutePath() + "\" name=\"" + mapping.getDestinationName() + "\" type=\"" + mimeType + "\" overwrite=\"true\"/>\n");
                 }
 
                 writer.write("  </input-files>\n");
@@ -1527,9 +1534,23 @@ public class onix_to_woocommerce_1
                 continue;
             }
 
+            try
+            {
+                boolean deleteSuccessful = wordpressMediaLibraryFileUploader1WorkflowJobFile.delete();
+
+                if (deleteSuccessful == false)
+                {
+                    this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobFileCouldntDeleteAPIKeysExposed", true, null, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
+                }
+            }
+            catch (SecurityException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowJobFileCouldntDeleteAPIKeysExposed", true, ex, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
+            }
+
             if (wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.exists() != true)
             {
-                this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowResultInfoFileDoesntExistButShould", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowResultInfoFileDoesntExist", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath()));
                 continue;
             }
 
@@ -1545,6 +1566,7 @@ public class onix_to_woocommerce_1
                 continue;
             }
 
+            mediaLinks.put(i, new ArrayList<MediaLink>());
             wasSuccess = false;
 
             try
@@ -1564,7 +1586,24 @@ public class onix_to_woocommerce_1
                         if (tagName.equals("success") == true)
                         {
                             wasSuccess = true;
-                            break;
+                        }
+                        else if (tagName.equals("media-link") == true)
+                        {
+                            StartElement elementMediaLink = event.asStartElement();
+                            Attribute attributeInputName = elementMediaLink.getAttributeByName(new QName("input-name"));
+                            Attribute attributeLink = elementMediaLink.getAttributeByName(new QName("link"));
+
+                            if (attributeInputName == null)
+                            {
+                                throw constructTermination("messageWordpressMediaLibraryFileUploader1WorkflowResultInfoFileIsMissingAnAttribute", null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath(), tagName, "input-name");
+                            }
+
+                            if (attributeLink == null)
+                            {
+                                throw constructTermination("messageWordpressMediaLibraryFileUploader1WorkflowResultInfoFileIsMissingAnAttribute", null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath(), tagName, "link");
+                            }
+
+                            mediaLinks.get(i).add(new MediaLink(attributeInputName.getValue(), attributeLink.getValue()));
                         }
                     }
                 }
@@ -1587,7 +1626,7 @@ public class onix_to_woocommerce_1
 
             if (wasSuccess != true)
             {
-                this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowCallWasntSuccessful", true, null, null, wordpressMediaLibraryFileUploader1WorkflowJobFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageWordpressMediaLibraryFileUploader1WorkflowCallWasntSuccessful", true, null, null, wordpressMediaLibraryFileUploader1WorkflowResultInfoFile.getAbsolutePath()));
                 continue;
             }
         }
@@ -1615,13 +1654,15 @@ public class onix_to_woocommerce_1
                     {
                         if (onixPrepareForJson1JobFile.canWrite() != true)
                         {
-                            throw constructTermination("messageOnixPrepareForJson1JobFileExistsButIsntWritable", null, null, onixPrepareForJson1JobFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1JobFileExistsButIsntWritable", true, null, null, onixPrepareForJson1JobFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageOnixPrepareForJson1JobPathExistsButIsntAFile", null, null, onixPrepareForJson1JobFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1JobPathExistsButIsntAFile", true, null, null, onixPrepareForJson1JobFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -1646,13 +1687,15 @@ public class onix_to_woocommerce_1
                     {
                         if (onixPrepareForJson1ResultInfoFile.canWrite() != true)
                         {
-                            throw constructTermination("messageOnixPrepareForJson1ResultInfoFileExistsButIsntWritable", null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoFileExistsButIsntWritable", true, null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageOnixPrepareForJson1ResultInfoPathExistsButIsntAFile", null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageOnixPrepareForJson1ResultInfoPathExistsButIsntAFile", true, null, null, onixPrepareForJson1ResultInfoFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -1677,13 +1720,15 @@ public class onix_to_woocommerce_1
                     {
                         if (onixInputPreparedFile.canWrite() != true)
                         {
-                            throw constructTermination("messageOnixInputPreparedFileExistsButIsntWritable", null, null, onixInputPreparedFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageOnixInputPreparedFileExistsButIsntWritable", true, null, null, onixInputPreparedFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageOnixInputPreparedPathExistsButIsntAFile", null, null, onixInputPreparedFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageOnixInputPreparedPathExistsButIsntAFile", true, null, null, onixInputPreparedFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -1847,13 +1892,15 @@ public class onix_to_woocommerce_1
                     {
                         if (xmlXsltTransformator1JobFile.canWrite() != true)
                         {
-                            throw constructTermination("messageXmlXsltTransformator1JobFileExistsButIsntWritable", null, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1JobFileExistsButIsntWritable", true, null, null, xmlXsltTransformator1JobFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageXmlXsltTransformator1JobPathExistsButIsntAFile", null, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1JobPathExistsButIsntAFile", true, null, null, xmlXsltTransformator1JobFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -1911,13 +1958,15 @@ public class onix_to_woocommerce_1
                     {
                         if (xmlXsltTransformator1ResultInfoFile.canWrite() != true)
                         {
-                            throw constructTermination("messageXmlXsltTransformator1ResultInfoFileExistsButIsntWritable", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileExistsButIsntWritable", true, null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageXmlXsltTransformator1ResultInfoPathExistsButIsntAFile", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoPathExistsButIsntAFile", true, null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -2020,17 +2069,17 @@ public class onix_to_woocommerce_1
             }
             catch (XMLStreamException ex)
             {
-                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
             catch (SecurityException ex)
             {
-                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
             catch (IOException ex)
             {
-                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
+                this.infoMessages.add(constructInfoMessage("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
 
@@ -2058,6 +2107,124 @@ public class onix_to_woocommerce_1
                 continue;
             }
 
+            if (requestJSONFile.canWrite() != true)
+            {
+                this.infoMessages.add(constructInfoMessage("messageJSONRequestFileIsntWritable", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), requestJSONFile.getAbsolutePath()));
+                continue;
+            }
+
+            if (mediaLinks.containsKey(i) == true)
+            {
+                if (mediaLinks.get(i).size() > 0)
+                {
+                    File txtreplace1ReplacementDictionary = new File(tempDirectory + File.separator + "txtreplace1_replacement_dictionary.xml");
+
+                    if (txtreplace1ReplacementDictionary.exists() == true)
+                    {
+                        if (txtreplace1ReplacementDictionary.isFile() == true)
+                        {
+                            boolean deleteSuccessful = false;
+
+                            try
+                            {
+                                deleteSuccessful = txtreplace1ReplacementDictionary.delete();
+                            }
+                            catch (SecurityException ex)
+                            {
+
+                            }
+
+                            if (deleteSuccessful != true)
+                            {
+                                if (txtreplace1ReplacementDictionary.canWrite() != true)
+                                {
+                                    this.infoMessages.add(constructInfoMessage("messageTxtreplace1ReplacementDictionaryFileIsntWritable", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), txtreplace1ReplacementDictionary.getAbsolutePath()));
+                                    continue;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            this.infoMessages.add(constructInfoMessage("messageTxtreplace1ReplacementDictionaryPathIsntAFile", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), txtreplace1ReplacementDictionary.getAbsolutePath()));
+                            continue;
+                        }
+                    }
+
+                    try
+                    {
+                        BufferedWriter writer = new BufferedWriter(
+                                                new OutputStreamWriter(
+                                                new FileOutputStream(txtreplace1ReplacementDictionary),
+                                                "UTF-8"));
+
+                        writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                        writer.write("<!-- This file was created by onix_to_woocommerce_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                        writer.write("<txtreplace1-replacement-dictionary>\n");
+
+                        for (MediaLink mediaLink : mediaLinks.get(i))
+                        {
+                            String inputName = mediaLink.GetInputName();
+                            String link = mediaLink.GetLink();
+
+                            inputName = inputName.replaceAll("&", "&amp;");
+                            inputName = inputName.replaceAll("<", "&lt;");
+                            inputName = inputName.replaceAll(">", "&gt;");
+
+                            link = link.replaceAll("&", "&amp;");
+                            link = link.replaceAll("/", "\\/");
+
+                            writer.write("  <replace>\n");
+                            writer.write("    <pattern>wordpress-media-library-file-uploader-1-workflow-media-link-" + inputName + "</pattern>\n");
+                            writer.write("    <replacement>" + link + "</replacement>\n");
+                            writer.write("  </replace>\n");
+                        }
+
+                        writer.write("</txtreplace1-replacement-dictionary>\n");
+
+                        writer.flush();
+                        writer.close();
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        this.infoMessages.add(constructInfoMessage("messageTxtreplace1ReplacementDictionaryFileWritingError", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), txtreplace1ReplacementDictionary.getAbsolutePath()));
+                        continue;
+                    }
+                    catch (UnsupportedEncodingException ex)
+                    {
+                        this.infoMessages.add(constructInfoMessage("messageTxtreplace1ReplacementDictionaryFileWritingError", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), txtreplace1ReplacementDictionary.getAbsolutePath()));
+                        continue;
+                    }
+                    catch (IOException ex)
+                    {
+                        this.infoMessages.add(constructInfoMessage("messageTxtreplace1ReplacementDictionaryFileWritingError", true, ex, null, inputONIXFiles.get(i).getAbsolutePath(), txtreplace1ReplacementDictionary.getAbsolutePath()));
+                        continue;
+                    }
+
+                    builder = new ProcessBuilder("java", "txtreplace1", requestJSONFile.getAbsolutePath(), txtreplace1ReplacementDictionary.getAbsolutePath(), requestJSONFile.getAbsolutePath());
+                    builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "automated_digital_publishing" + File.separator + "txtreplace" + File.separator + "txtreplace1"));
+                    builder.redirectErrorStream(true);
+
+                    try
+                    {
+                        Process process = builder.start();
+                        Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+
+                        while (scanner.hasNext() == true)
+                        {
+                            System.out.println(scanner.next());
+                        }
+
+                        scanner.close();
+                    }
+                    catch (IOException ex)
+                    {
+                        this.infoMessages.add(constructInfoMessage("messageTxtreplace1ErrorWhileReadingOutput", true, ex, null, inputONIXFiles.get(i).getAbsolutePath()));
+                        continue;
+                    }
+                }
+            }
+
+
             File httpsClient1JobFile = new File(tempDirectory + File.separator + "jobfile_https_client_1.xml");
 
             if (httpsClient1JobFile.exists() == true)
@@ -2079,13 +2246,15 @@ public class onix_to_woocommerce_1
                     {
                         if (httpsClient1JobFile.canWrite() != true)
                         {
-                            throw constructTermination("messageHttpsClient1JobFileIsntWritable", null, null, httpsClient1JobFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileIsntWritable", true, null, null, httpsClient1JobFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageHttpsClient1JobPathIsntAFile", null, null, httpsClient1JobFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobPathIsntAFile", true, null, null, httpsClient1JobFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -2160,13 +2329,15 @@ public class onix_to_woocommerce_1
                     {
                         if (httpsClient1ResultInfoFile.canWrite() != true)
                         {
-                            throw constructTermination("messageHttpsClient1ResultInfoFileExistsButIsntWritable", null, null, httpsClient1ResultInfoFile.getAbsolutePath());
+                            this.infoMessages.add(constructInfoMessage("messageHttpsClient1ResultInfoFileExistsButIsntWritable", true, null, null, httpsClient1ResultInfoFile.getAbsolutePath()));
+                            continue;
                         }
                     }
                 }
                 else
                 {
-                    throw constructTermination("messageHttpsClient1ResultInfoPathExistsButIsntAFile", null, null, httpsClient1ResultInfoFile.getAbsolutePath());
+                    this.infoMessages.add(constructInfoMessage("messageHttpsClient1ResultInfoPathExistsButIsntAFile", true, null, null, httpsClient1ResultInfoFile.getAbsolutePath()));
+                    continue;
                 }
             }
 
@@ -2190,6 +2361,20 @@ public class onix_to_woocommerce_1
             {
                 this.infoMessages.add(constructInfoMessage("messageHttpsClient1ErrorWhileReadingOutput", true, ex, null, inputONIXFiles.get(i).getAbsolutePath()));
                 continue;
+            }
+
+            try
+            {
+                boolean deleteSuccessful = httpsClient1JobFile.delete();
+
+                if (deleteSuccessful == false)
+                {
+                    this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileCouldntDeleteAPIKeysExposed", true, null, null, httpsClient1JobFile.getAbsolutePath()));
+                }
+            }
+            catch (SecurityException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileCouldntDeleteAPIKeysExposed", true, ex, null, httpsClient1JobFile.getAbsolutePath()));
             }
 
             if (httpsClient1ResultInfoFile.exists() != true)
@@ -2259,61 +2444,6 @@ public class onix_to_woocommerce_1
                 this.infoMessages.add(constructInfoMessage("messageHttpsClient1CallWasntSuccessful", true, null, null, inputONIXFiles.get(i).getAbsolutePath(), httpsClient1ResultInfoFile.getAbsolutePath()));
                 continue;
             }
-
-            try
-            {
-                xmlXsltTransformator1JobFile.delete();
-            }
-            catch (SecurityException ex)
-            {
-
-            }
-
-            /*
-            try
-            {
-                requestJSONFile.delete();
-            }
-            catch (SecurityException ex)
-            {
-
-            }
-            */
-
-            try
-            {
-                xmlXsltTransformator1ResultInfoFile.delete();
-            }
-            catch (SecurityException ex)
-            {
-
-            }
-
-            try
-            {
-                boolean deleteSuccessful = httpsClient1JobFile.delete();
-
-                if (i + 1 == max &&
-                    deleteSuccessful == false)
-                {
-                    this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileCouldntDeleteAPIKeysExposed", true, null, null, httpsClient1ResultInfoFile.getAbsolutePath()));
-                }
-            }
-            catch (SecurityException ex)
-            {
-                this.infoMessages.add(constructInfoMessage("messageHttpsClient1JobFileCouldntDeleteAPIKeysExposed", true, ex, null, httpsClient1ResultInfoFile.getAbsolutePath()));
-            }
-
-            /*
-            try
-            {
-                httpsClient1ResultInfoFile.delete();
-            }
-            catch (SecurityException ex)
-            {
-
-            }
-            */
         }
 
         this.infoMessages.add(constructInfoMessage("messageResult", true, null, null, successCount, max));

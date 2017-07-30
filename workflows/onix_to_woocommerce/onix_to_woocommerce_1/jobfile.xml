@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (C) 2016 Stephan Kreutzer
+Copyright (C) 2016-2017 Stephan Kreutzer
 
 This file is part of onix_to_woocommerce_1 workflow, a submodule of the
 digital_publishing_workflow_tools package.
@@ -23,7 +23,7 @@ along with onix_to_woocommerce_1 workflow. If not, see <http://www.gnu.org/licen
     <!--onix-file source="./input_2.xml"/-->
   </input>
   <settings>
-    <woocommerce-rest-api-products-url url="https://www.example.org/wc-api/v3/products"/>
+    <woocommerce-rest-api-products-url url="https://www.example.org/wordpress/wc-api/v3/products"/>
     <woocommerce-rest-api-public-key key=""/>
     <woocommerce-rest-api-secret-key key=""/>
     <!--
