@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2015 Stephan Kreutzer
+/* Copyright (C) 2014-2017 Stephan Kreutzer
  *
  * This file is part of xml_xslt_transformator_1, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -83,7 +83,7 @@ public class xml_xslt_transformator_1
 
     public static void main(String args[])
     {
-        System.out.print("xml_xslt_transformator_1 Copyright (C) 2014-2015 Stephan Kreutzer\n" +
+        System.out.print("xml_xslt_transformator_1 Copyright (C) 2014-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -577,7 +577,7 @@ public class xml_xslt_transformator_1
                         if (arguments[i] == null)
                         {
                             writer.write("      <argument number=\"" + i + "\">\n");
-                            writer.write("        <class></className>\n");
+                            writer.write("        <class></class>\n");
                             writer.write("        <value>null</value>\n");
                             writer.write("      </argument>\n");
 
@@ -601,7 +601,7 @@ public class xml_xslt_transformator_1
                         value = value.replaceAll(">", "&gt;");
 
                         writer.write("      <argument number=\"" + i + "\">\n");
-                        writer.write("        <class>" + className + "</className>\n");
+                        writer.write("        <class>" + className + "</class>\n");
                         writer.write("        <value>" + value + "</value>\n");
                         writer.write("      </argument>\n");
                     }
