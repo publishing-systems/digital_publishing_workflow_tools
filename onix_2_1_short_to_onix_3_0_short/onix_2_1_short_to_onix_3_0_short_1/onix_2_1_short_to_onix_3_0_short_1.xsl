@@ -63,12 +63,10 @@ along with onix_2_1_short_to_onix_3_0_short_1. If not, see <http://www.gnu.org/l
         <a197><xsl:value-of select="./onix21:a197/text()"/></a197>
       </xsl:if>
       <xsl:apply-templates select="./onix21:productidentifier"/>
-      <xsl:apply-templates select="./onix21:workidentifier"/>
       <descriptivedetail>
         <x314>00</x314>
-        <xsl:if test="./onix21:b012">
-          <xsl:apply-templates select="./onix21:b012"/>
-        </xsl:if>
+        <xsl:apply-templates select="./onix21:b012"/>
+        <xsl:apply-templates select="./onix21:b333"/>
         <xsl:if test="./onix21:b211">
           <xsl:apply-templates select="./onix21:b211"/>
         </xsl:if>
@@ -134,8 +132,9 @@ along with onix_2_1_short_to_onix_3_0_short_1. If not, see <http://www.gnu.org/l
           <xsl:apply-templates select="./onix21:salesrights"/>
         </publishingdetail>
       </xsl:if>
-      <xsl:if test="./onix21:relatedproduct">
+      <xsl:if test="./onix21:workidentifier or ./onix21:relatedproduct">
         <relatedmaterial>
+          <xsl:apply-templates select="./onix21:workidentifier"/>
           <xsl:apply-templates select="./onix21:relatedproduct"/>
         </relatedmaterial>
       </xsl:if>
@@ -202,43 +201,46 @@ along with onix_2_1_short_to_onix_3_0_short_1. If not, see <http://www.gnu.org/l
   </xsl:template>
 
   <xsl:template match="/onix21:ONIXmessage/onix21:product/onix21:workidentifier">
-    <productidentifier>
-      <b221>
-        <xsl:choose>
-          <xsl:when test="./onix21:b201/text() = '01'">
-            <xsl:text>01</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '02'">
-            <xsl:text>02</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '06'">
-            <xsl:text>06</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '11'">
-            <xsl:text>incompatible</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '15'">
-            <xsl:text>15</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '18'">
-            <xsl:text>incompatible</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '32'">
-            <xsl:text>incompatible</xsl:text>
-          </xsl:when>
-          <xsl:when test="./onix21:b201/text() = '33'">
-            <xsl:text>incompatible</xsl:text>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>'</xsl:text><xsl:value-of select="./onix21:b201/text()"/><xsl:text>' unknown</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </b221>
-      <xsl:if test="./onix21:b201/text() = '01' and ./onix21:b233">
-        <b233><xsl:value-of select="./onix21:b233/text()"/></b233>
-      </xsl:if>
-      <b244><xsl:value-of select="./onix21:b244/text()"/></b244>
-    </productidentifier>
+    <relatedproduct>
+      <x455>01</x455>
+      <productidentifier>
+        <b221>
+          <xsl:choose>
+            <xsl:when test="./onix21:b201/text() = '01'">
+              <xsl:text>01</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '02'">
+              <xsl:text>02</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '06'">
+              <xsl:text>06</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '11'">
+              <xsl:text>incompatible</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '15'">
+              <xsl:text>15</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '18'">
+              <xsl:text>incompatible</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '32'">
+              <xsl:text>incompatible</xsl:text>
+            </xsl:when>
+            <xsl:when test="./onix21:b201/text() = '33'">
+              <xsl:text>incompatible</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>'</xsl:text><xsl:value-of select="./onix21:b201/text()"/><xsl:text>' unknown</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </b221>
+        <xsl:if test="./onix21:b201/text() = '01' and ./onix21:b233">
+          <b233><xsl:value-of select="./onix21:b233/text()"/></b233>
+        </xsl:if>
+        <b244><xsl:value-of select="./onix21:b244/text()"/></b244>
+      </productidentifier>
+    </relatedproduct>
   </xsl:template>
 
   <xsl:template match="/onix21:ONIXmessage/onix21:product/onix21:b012">
@@ -648,6 +650,12 @@ along with onix_2_1_short_to_onix_3_0_short_1. If not, see <http://www.gnu.org/l
         </xsl:otherwise>
       </xsl:choose>
     </b012>
+  </xsl:template>
+
+  <xsl:template match="/onix21:ONIXmessage/onix21:product/onix21:b333">
+    <b333>
+      <todo/>
+    </b333>
   </xsl:template>
 
   <xsl:template match="/onix21:ONIXmessage/onix21:product/onix21:b211">
@@ -1159,20 +1167,20 @@ along with onix_2_1_short_to_onix_3_0_short_1. If not, see <http://www.gnu.org/l
         </xsl:when>
         <xsl:otherwise>
           <xsl:choose>
-            <xsl:when test="./onix21:j414">
+            <xsl:when test="./onix21:j141">
               <j396>
                 <xsl:choose>
-                  <xsl:when test="./onix21:j414/text() = 'IP'">
+                  <xsl:when test="./onix21:j141/text() = 'IP'">
                     <xsl:text>21</xsl:text>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:text>'</xsl:text><xsl:value-of select="./onix21:j414/text()"/><xsl:text>' not supported</xsl:text>
+                    <xsl:text>'</xsl:text><xsl:value-of select="./onix21:j141/text()"/><xsl:text>' not supported</xsl:text>
                   </xsl:otherwise>
                 </xsl:choose>
               </j396>
             </xsl:when>
             <xsl:otherwise>
-              <j396-j414-missing/>
+              <j396-j141-missing/>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:otherwise>
