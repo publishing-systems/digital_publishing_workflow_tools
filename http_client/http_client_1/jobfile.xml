@@ -24,6 +24,13 @@ along with http_client_1. If not, see <http://www.gnu.org/licenses/>.
       <field name="charset" value="utf-8"/>
     </header>
     <data source="./input_data.xml"/>
+    <!--
+      Another option is inline body data (example for typical Content-Type
+      "application/x-www-form-urlencoded", note escaping for XML special
+      characters, and the exception "+" instead of "%20"):
+
+      <data>parameter1=some+data&amp;parameter2=some%2Dmore</data>
+    -->
   </request>
   <response destination="./output_data.xml"/>
 </http-client-1-jobfile>

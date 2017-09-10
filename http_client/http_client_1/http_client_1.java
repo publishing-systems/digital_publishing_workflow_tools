@@ -17,6 +17,7 @@
  */
 /**
  * @file $/http_client/http_client_1/http_client_1.java
+ * @brief A HTTP client.
  * @author Stephan Kreutzer
  * @since 2015-04-20
  */
@@ -56,6 +57,7 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.util.List;
 import java.util.ArrayList;
+import java.net.URLDecoder;
 
 
 
@@ -358,6 +360,50 @@ public class http_client_1
 
         http_client_1.resultInfoFile = resultInfoFile;
 
+        String programPath = http_client_1.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+
+        try
+        {
+            programPath = new File(programPath).getCanonicalPath() + File.separator;
+            programPath = URLDecoder.decode(programPath, "UTF-8");
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+            throw constructTermination("messageCantDetermineProgramPath", ex, null);
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageCantDetermineProgramPath", ex, null);
+        }
+
+        File tempDirectory = new File(programPath + "temp");
+
+        if (tempDirectory.exists() == true)
+        {
+            if (tempDirectory.isDirectory() == true)
+            {
+                if (tempDirectory.canWrite() != true)
+                {
+                    throw constructTermination("messageTempDirectoryIsntWritable", null, null, tempDirectory.getAbsolutePath());
+                }
+            }
+            else
+            {
+                throw constructTermination("messageTempPathIsntDirectory", null, null, tempDirectory.getAbsolutePath());
+            }
+        }
+        else
+        {
+            try
+            {
+                tempDirectory.mkdirs();
+            }
+            catch (SecurityException ex)
+            {
+                throw constructTermination("messageTempDirectoryCantCreate", null, null, tempDirectory.getAbsolutePath());
+            }
+        }
+
         File jobFile = new File(args[0]);
 
         try
@@ -395,6 +441,7 @@ public class http_client_1
         String requestMethod = null;
         Map<String, String> requestHeaderFields = null;
         File requestDataSourceFile = null;
+        boolean ownsRequestDataSourceFile = false;
         File responseDataFile = null;
 
         try
@@ -519,31 +566,117 @@ public class http_client_1
                     else if (tagName.equals("data") == true &&
                              inRequest == true)
                     {
-                        StartElement dataElement = event.asStartElement();
-                        Attribute sourceAttribute = dataElement.getAttributeByName(new QName("source"));
-
-                        if (sourceAttribute == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), "data", "source");
-                        }
-
                         if (requestDataSourceFile != null)
                         {
                             throw constructTermination("messageJobFileSettingConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), "data", "source");
                         }
 
-                        String requestDataSource = sourceAttribute.getValue();
+                        StartElement dataElement = event.asStartElement();
+                        Attribute sourceAttribute = dataElement.getAttributeByName(new QName("source"));
 
-                        if (requestDataSource.isEmpty() == true)
+                        if (sourceAttribute == null)
                         {
-                            throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "data", "source");
+                            try
+                            {
+                                BufferedWriter writer = null;
+
+                                while (eventReader.hasNext() == true)
+                                {
+                                    event = eventReader.nextEvent();
+
+                                    if (event.isCharacters() == true)
+                                    {
+                                        if (requestDataSourceFile == null)
+                                        {
+                                            requestDataSourceFile = new File(tempDirectory.getAbsolutePath() + File.separator + "body.dat");
+
+                                            if (requestDataSourceFile.exists() == true)
+                                            {
+                                                if (requestDataSourceFile.isFile() == true)
+                                                {
+                                                    boolean deleteSuccessful = false;
+
+                                                    try
+                                                    {
+                                                        deleteSuccessful = requestDataSourceFile.delete();
+                                                    }
+                                                    catch (SecurityException ex)
+                                                    {
+
+                                                    }
+
+                                                    if (deleteSuccessful != true)
+                                                    {
+                                                        if (requestDataSourceFile.canWrite() != true)
+                                                        {
+                                                            throw constructTermination("messageTemporaryRequestDataSourceFileExistsButIsntWritable", null, null, requestDataSourceFile.getAbsolutePath());
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    throw constructTermination("messageTemporaryRequestDataSourcePathExistsButIsntAFile", null, null, requestDataSourceFile.getAbsolutePath());
+                                                }
+                                            }
+
+                                            ownsRequestDataSourceFile = true;
+
+                                            writer = new BufferedWriter(
+                                                    new OutputStreamWriter(
+                                                    new FileOutputStream(requestDataSourceFile),
+                                                    "UTF-8"));
+                                        }
+
+                                        event.writeAsEncodedUnicode(writer);
+                                    }
+                                    else if (event.isEndElement() == true)
+                                    {
+                                        if (event.asEndElement().getName().getLocalPart().equals("data") == true)
+                                        {
+                                            if (requestDataSourceFile == null)
+                                            {
+                                                throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), "data", "source");
+                                            }
+
+                                            if (writer == null)
+                                            {
+
+                                            }
+
+                                            writer.close();
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            catch (FileNotFoundException ex)
+                            {
+                                throw constructTermination("messageTemporaryRequestDataSourceFileWritingError", ex, null, requestDataSourceFile.getAbsolutePath());
+                            }
+                            catch (UnsupportedEncodingException ex)
+                            {
+                                throw constructTermination("messageTemporaryRequestDataSourceFileWritingError", ex, null, requestDataSourceFile.getAbsolutePath());
+                            }
+                            catch (IOException ex)
+                            {
+                                throw constructTermination("messageTemporaryRequestDataSourceFileWritingError", ex, null, requestDataSourceFile.getAbsolutePath());
+                            }
                         }
-
-                        requestDataSourceFile = new File(requestDataSource);
-
-                        if (requestDataSourceFile.isAbsolute() != true)
+                        else
                         {
-                            requestDataSourceFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + requestDataSource);
+                            String requestDataSource = sourceAttribute.getValue();
+
+                            if (requestDataSource.isEmpty() == true)
+                            {
+                                throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), "data", "source");
+                            }
+
+                            requestDataSourceFile = new File(requestDataSource);
+
+                            if (requestDataSourceFile.isAbsolute() != true)
+                            {
+                                requestDataSourceFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + requestDataSource);
+                            }
                         }
                     }
                     else if (tagName.equals("response") == true)
@@ -949,6 +1082,19 @@ public class http_client_1
                 }
 
                this.getResults().put("response-data-file", responseDataFile.getAbsolutePath());
+            }
+        }
+
+        if (requestDataSourceFile != null &&
+            ownsRequestDataSourceFile == true)
+        {
+            try
+            {
+                requestDataSourceFile.delete();
+            }
+            catch (SecurityException ex)
+            {
+                throw constructTermination("messageTemporaryRequestDataSourceFileIsntDeletable", null, null, requestDataSourceFile.getAbsolutePath());
             }
         }
 

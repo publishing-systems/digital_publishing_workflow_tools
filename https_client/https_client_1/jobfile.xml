@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (C) 2015  Stephan Kreutzer
+Copyright (C) 2015-2017  Stephan Kreutzer
 
 This file is part of https_client_1, a submodule of the
 digital_publishing_workflow_tools package.
@@ -24,6 +24,14 @@ along with https_client_1. If not, see <http://www.gnu.org/licenses/>.
       <field name="charset" value="utf-8"/>
     </header>
     <data source="./input_data.xml"/>
+    <!--
+      Another option is inline body data (example for typical Content-Type
+      "application/x-www-form-urlencoded", note escaping for XML special
+      characters, and the exception "+" instead of "%20"):
+
+      <data>parameter1=some+data&amp;parameter2=some%2Dmore</data>
+    -->
+
     <!--
       Only set this if certificates for other hosts should be accepted as valid for the host
       specified here, which should be the same as the one configured within the request
