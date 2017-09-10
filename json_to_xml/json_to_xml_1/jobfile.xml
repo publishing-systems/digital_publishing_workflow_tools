@@ -20,4 +20,5 @@ along with json_to_xml_1. If not, see <http://www.gnu.org/licenses/>.
 <json-to-xml-1-jobfile>
   <json-input-file path="./input.json"/>
   <xml-output-file path="./output.xml"/>
+  <root-element name="nsprefix:root"/>
 </json-to-xml-1-jobfile>

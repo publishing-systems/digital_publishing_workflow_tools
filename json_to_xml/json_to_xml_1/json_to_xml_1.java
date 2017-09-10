@@ -1,4 +1,4 @@
-/* Copyright (C) 2016  Stephan Kreutzer
+/* Copyright (C) 2016-2017  Stephan Kreutzer
  *
  * This file is part of json_to_xml_1, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -79,7 +79,7 @@ public class json_to_xml_1
 
     public static void main(String args[])
     {
-        System.out.print("json_to_xml_1 workflow Copyright (C) 2016 Stephan Kreutzer\n" +
+        System.out.print("json_to_xml_1 workflow Copyright (C) 2016-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -351,6 +351,7 @@ public class json_to_xml_1
 
         File inputFile = null;
         File outputFile = null;
+        String rootElementName = null;
 
         try
         {
@@ -368,6 +369,11 @@ public class json_to_xml_1
 
                     if (tagName.equals("json-input-file") == true)
                     {
+                        if (inputFile != null)
+                        {
+                            throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
+                        }
+
                         StartElement inputFileElement = event.asStartElement();
                         Attribute pathAttribute = inputFileElement.getAttributeByName(new QName("path"));
 
@@ -412,7 +418,7 @@ public class json_to_xml_1
                         {
                             throw constructTermination("messageInputPathIsntAFile", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());  
                         }
-                        
+
                         if (inputFile.canRead() != true)
                         {
                             throw constructTermination("messageInputFileIsntReadable", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
@@ -420,6 +426,11 @@ public class json_to_xml_1
                     }
                     else if (tagName.equals("xml-output-file") == true)
                     {
+                        if (outputFile != null)
+                        {
+                            throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
+                        }
+
                         StartElement outputFileElement = event.asStartElement();
                         Attribute pathAttribute = outputFileElement.getAttributeByName(new QName("path"));
 
@@ -470,6 +481,27 @@ public class json_to_xml_1
                             }
                         }
                     }
+                    else if (tagName.equals("root-element") == true)
+                    {
+                        if (rootElementName != null)
+                        {
+                            throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
+                        }
+
+                        StartElement rootElementElement = event.asStartElement();
+                        Attribute nameAttribute = rootElementElement.getAttributeByName(new QName("name"));
+
+                        if (nameAttribute == null)
+                        {
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "name");
+                        }
+
+                        rootElementName = nameAttribute.getValue();
+
+                        /** @todo Check if rootElementName is a valid XML name +
+                          * method to specify attributes of the output root element
+                          * in the jobfile. */
+                    }
                 }
             }
         }
@@ -518,10 +550,21 @@ public class json_to_xml_1
                                     new OutputStreamWriter(
                                     new FileOutputStream(outputFile),
                                     "UTF-8"));
-                                    
+
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             writer.write("<!-- This file was created by json_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+
+            if (rootElementName != null)
+            {
+                writer.write("<" + rootElementName + ">");
+            }
+
             writer.write(stringBuilder.toString());
+
+            if (rootElementName != null)
+            {
+                writer.write("</" + rootElementName + ">");
+            }
 
             writer.flush();
             writer.close();
