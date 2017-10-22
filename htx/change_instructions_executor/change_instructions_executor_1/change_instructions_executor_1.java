@@ -1,25 +1,25 @@
 /* Copyright (C) 2016-2017 Stephan Kreutzer
  *
- * This file is part of edl_to_xml_1, a submodule of the
+ * This file is part of change_instructions_executor_1, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * edl_to_xml_1 is free software: you can redistribute it and/or modify
+ * change_instructions_executor_1 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * edl_to_xml_1 is distributed in the hope that it will be useful,
+ * change_instructions_executor_1 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with edl_to_xml_1. If not, see <http://www.gnu.org/licenses/>.
+ * along with change_instructions_executor_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/edl_to_xml/edl_to_xml_1/edl_to_xml_1.java
- * @brief Converts an EDL file to its XML equivalent.
+ * @file $/htx/change_instructions_executor/change_instructions_executor_1/change_instructions_executor_1.java
+ * @brief Executes a series of change instructions in order to reconstruct a specific text.
  * @author Stephan Kreutzer
- * @since 2017-07-12
+ * @since 2017-10-21
  */
 
 
@@ -47,16 +47,14 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.Attribute;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 
 
-public class edl_to_xml_1
+public class change_instructions_executor_1
 {
     public static void main(String args[])
     {
-        System.out.print("edl_to_xml_1 Copyright (C) 2016-2017 Stephan Kreutzer\n" +
+        System.out.print("change_instructions_executor_1 Copyright (C) 2016-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -64,38 +62,38 @@ public class edl_to_xml_1
                          "https://github.com/publishing-systems/digital_publishing_workflow_tools/ and\n" +
                          "the project website http://www.publishing-systems.org.\n\n");
 
-        edl_to_xml_1 converter = new edl_to_xml_1();
+        change_instructions_executor_1 executor = new change_instructions_executor_1();
 
         try
         {
-            converter.convert(args);
+            executor.execute(args);
         }
         catch (ProgramTerminationException ex)
         {
-            converter.handleTermination(ex);
+            executor.handleTermination(ex);
         }
 
-        if (converter.resultInfoFile != null)
+        if (executor.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(converter.resultInfoFile),
+                                        new FileOutputStream(executor.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-to-xml-1-result-information>\n");
+                writer.write("<!-- This file was created by change_instructions_executor_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<change-instructions-executor-1-result-information>\n");
                 writer.write("  <success>\n");
 
-                if (converter.getInfoMessages().size() > 0)
+                if (executor.getInfoMessages().size() > 0)
                 {
                     writer.write("    <info-messages>\n");
 
-                    for (int i = 0, max = converter.getInfoMessages().size(); i < max; i++)
+                    for (int i = 0, max = executor.getInfoMessages().size(); i < max; i++)
                     {
-                        InfoMessage infoMessage = converter.getInfoMessages().get(i);
+                        InfoMessage infoMessage = executor.getInfoMessages().get(i);
 
                         writer.write("      <info-message number=\"" + i + "\">\n");
                         writer.write("        <timestamp>" + infoMessage.getTimestamp() + "</timestamp>\n");
@@ -219,7 +217,7 @@ public class edl_to_xml_1
                 }
 
                 writer.write("  </success>\n");
-                writer.write("</edl-to-xml-1-result-information>\n");
+                writer.write("</change-instructions-executor-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -241,11 +239,11 @@ public class edl_to_xml_1
         }
     }
 
-    public int convert(String args[])
+    public int execute(String args[])
     {
         if (args.length < 2)
         {
-            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tedl_to_xml_1 " + getI10nString("messageParameterList") + "\n");
+            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tchange_instructions_executor_1 " + getI10nString("messageParameterList") + "\n");
         }
 
         File resultInfoFile = new File(args[1]);
@@ -278,7 +276,7 @@ public class edl_to_xml_1
             }
         }
 
-        edl_to_xml_1.resultInfoFile = resultInfoFile;
+        change_instructions_executor_1.resultInfoFile = resultInfoFile;
         File jobFile = new File(args[0]);
 
         try
@@ -309,7 +307,7 @@ public class edl_to_xml_1
             throw constructTermination("messageJobFileIsntReadable", null, null, jobFile.getAbsolutePath());
         }
 
-        System.out.println("edl_to_xml_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
+        System.out.println("change_instructions_executor_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
 
         File inputFile = null;
@@ -378,12 +376,6 @@ public class edl_to_xml_1
                         {
                             throw constructTermination("messageInputFileIsntReadable", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
-
-                        if (inputFile != null &&
-                            outputFile != null)
-                        {
-                            break;
-                        }
                     }
                     else if (tagName.equals("output-file") == true)
                     {
@@ -434,12 +426,6 @@ public class edl_to_xml_1
                                 throw constructTermination("messageOutputPathIsntAFile", null, null, outputFile.getAbsolutePath());
                             }
                         }
-
-                        if (inputFile != null &&
-                            outputFile != null)
-                        {
-                            break;
-                        }
                     }
                 }
             }
@@ -468,224 +454,159 @@ public class edl_to_xml_1
         }
 
 
-        this.tokens = new ArrayList<String>();
+        StringBuilder sbOutput = new StringBuilder();
+        long instruction = 1L;
 
         try
         {
-            BufferedReader reader = new BufferedReader(
-                                    new InputStreamReader(
-                                    new FileInputStream(inputFile),
-                                    "UTF-8"));
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            InputStream in = new FileInputStream(inputFile);
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
 
-            try
+            while (eventReader.hasNext() == true)
             {
-                int character = reader.read();
-                int lastCharacter = -1;
-                String buffer = new String();
+                XMLEvent event = eventReader.nextEvent();
 
-                while (character >= 0)
+                if (event.isStartElement() == true)
                 {
-                    if (Character.isHighSurrogate((char)character) == true)
-                    {
-                        throw constructTermination("messageTokenizerNoUTF16", null, null, inputFile.getAbsolutePath());
-                    }
+                    String tagName = event.asStartElement().getName().getLocalPart();
 
-                    if (character == ':' ||
-                        character == ',' ||
-                        character == '=' ||
-                        character == '/' ||
-                        character == '.' ||
-                        character == '-' ||
-                        character == '_' ||
-                        character == '~' ||
-                        character == '?' ||
-                        character == '&' ||
-                        character == '%')
+                    if (tagName.equals("add") == true)
                     {
-                        if (buffer.isEmpty() != true)
+                        StartElement elementAdd = event.asStartElement();
+                        Attribute attributePosition = elementAdd.getAttributeByName(new QName("position"));
+
+                        if (attributePosition == null)
                         {
-                            this.tokens.add(buffer);
-                            buffer = "";
+                            throw constructTermination("messageInputFileEntryIsMissingAnAttribute", null, null, inputFile.getAbsolutePath(), tagName, "position");
                         }
 
-                        this.tokens.add(new String() + (char)character);
-                        lastCharacter = character;
-                    }
-                    else if (character == '\n' ||
-                             character == '\r')
-                    {
-                        if (character == '\r')
+                        int position = Integer.parseInt(attributePosition.getValue());
+
+                        if (position < 0)
                         {
-                            character = '\n';
+                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.toString(), position);
                         }
 
-                        if (lastCharacter != character &&
-                            buffer.isEmpty() != true)
+                        if (position > sbOutput.length())
                         {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
-                        
-                        if (buffer.isEmpty() == true)
-                        {
-                            buffer += (char)character;
+                            throw constructTermination("messageInputFilePositionExceedsTextLength", null, null, inputFile.getAbsolutePath(), tagName, position, instruction, sbOutput.length());
                         }
 
-                        lastCharacter = character;
-                    }
-                    else if (character == ' ' ||
-                             character == '\t')
-                    {
-                        if (lastCharacter != character &&
-                            buffer.isEmpty() != true)
+                        while (eventReader.hasNext() == true)
                         {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
+                            event = eventReader.nextEvent();
 
-                        lastCharacter = character;
-                    }
-                    else if (character == '#')
-                    {
-                        lastCharacter = character;
-
-                        while (character >= 0)
-                        {
-                            if (character == '\n' ||
-                                character == '\r')
+                            if (event.isEndElement() == true)
                             {
-                                break;
+                                if (event.asEndElement().getName().getLocalPart().equals(tagName) == true)
+                                {
+                                    break;
+                                }
                             }
+                            else if (event.isCharacters() == true)
+                            {
+                                int length = sbOutput.length();
 
-                            character = reader.read();
+                                sbOutput.insert(position, event.asCharacters());
+
+                                if (length > sbOutput.length())
+                                {
+                                    position += sbOutput.length() - length;
+                                }
+                            }
                         }
+
+                        ++instruction;
                     }
-                    else if (isLetter(character))
+                    else if (tagName.equals("delete") == true)
                     {
-                        if (isLetter(lastCharacter) != true &&
-                            buffer.isEmpty() != true)
+                        StartElement elementDelete = event.asStartElement();
+                        Attribute attributePosition = elementDelete.getAttributeByName(new QName("position"));
+                        Attribute attributeCount = elementDelete.getAttributeByName(new QName("count"));
+
+                        if (attributePosition == null)
                         {
-                            this.tokens.add(buffer);
-                            buffer = "";
+                            throw constructTermination("messageInputFileEntryIsMissingAnAttribute", null, null, inputFile.getAbsolutePath(), tagName, "position");
                         }
 
-                        buffer += (char)character;
-                        lastCharacter = character;
-                    }
-                    else if (Character.isDigit(character))
-                    {
-                        if (Character.isDigit(lastCharacter) != true &&
-                            buffer.isEmpty() != true)
+                        if (attributeCount == null)
                         {
-                            this.tokens.add(buffer);
-                            buffer = "";
+                            throw constructTermination("messageInputFileEntryIsMissingAnAttribute", null, null, inputFile.getAbsolutePath(), tagName, "count");
                         }
 
-                        buffer += (char)character;
-                        lastCharacter = character;
-                    }
-                    else
-                    {
-                        throw constructTermination("messageTokenizerInvalidCharacter", null, null, (char)character, String.format("0x%X", (int)character));
-                    }
+                        int position = Integer.parseInt(attributePosition.getValue());
+                        int length = sbOutput.length();
 
-                    character = reader.read();
-                }
+                        if (position < 0)
+                        {
+                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.toString(), position);
+                        }
 
-                if (buffer.isEmpty() != true)
-                {
-                    this.tokens.add(buffer);
+                        if (position > length)
+                        {
+                            throw constructTermination("messageInputFilePositionExceedsTextLength", null, null, inputFile.getAbsolutePath(), tagName, position, instruction, length);
+                        }
+
+                        int count = Integer.parseInt(attributeCount.getValue());
+
+                        if ((count * -1) <= 0)
+                        {
+                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.toString(), count);
+                        }
+
+                        if ((length - (count * -1)) < 0)
+                        {
+                            throw constructTermination("messageInputFileCountUndercutsTextBegin", null, null, inputFile.getAbsolutePath(), tagName, position, count, instruction, (length - (count * -1)) * -1);
+                        }
+
+                        sbOutput.delete(position - (count * -1), position);
+
+                        ++instruction;
+                    }
                 }
             }
-            finally
-            {
-                reader.close();
-            }
         }
-        catch (FileNotFoundException ex)
+        catch (XMLStreamException ex)
         {
-            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
+            throw constructTermination("messageInputFileErrorWhileReading", ex, null, inputFile.getAbsolutePath());
         }
-        catch (UnsupportedEncodingException ex)
+        catch (SecurityException ex)
         {
-            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
+            throw constructTermination("messageInputFileErrorWhileReading", ex, null, inputFile.getAbsolutePath());
         }
         catch (IOException ex)
         {
-            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
+            throw constructTermination("messageInputFileErrorWhileReading", ex, null, inputFile.getAbsolutePath());
         }
 
-        /*
-        for (int i = 0; i < this.tokens.size(); i++)
+
+        try
         {
-            System.out.println(i + ": \"" + this.tokens.get(i) + "\"");
+            BufferedWriter writer = new BufferedWriter(
+                                    new OutputStreamWriter(
+                                    new FileOutputStream(outputFile),
+                                    "UTF-8"));
+
+            writer.write(sbOutput.toString());
+
+            writer.flush();
+            writer.close();
         }
-        */
-
-        EdlParser parser = new EdlParser(this.tokens, getInfoMessages());
-        StringBuilder sbOutput = parser.parse();
-
-        if (sbOutput != null)
+        catch (FileNotFoundException ex)
         {
-            if (sbOutput.length() > 0)
-            {
-                try
-                {
-                    BufferedWriter outputWriter = new BufferedWriter(
-                                                new OutputStreamWriter(
-                                                new FileOutputStream(outputFile),
-                                                "UTF-8"));
-
-                    try
-                    {
-                        outputWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                        outputWriter.append("<!-- This file was created by edl_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                        outputWriter.append("<edl-xml version=\"0.1.0\">");
-                        outputWriter.append(sbOutput.toString());
-                        outputWriter.append("</edl-xml>\n");
-                    }
-                    finally
-                    {
-                        outputWriter.close();
-                    }
-                }
-                catch (FileNotFoundException ex)
-                {
-                    throw constructTermination("messageParserErrorWhileParsing", ex, null);
-                }
-                catch (UnsupportedEncodingException ex)
-                {
-                    throw constructTermination("messageParserErrorWhileParsing", ex, null);
-                }
-                catch (IOException ex)
-                {
-                    throw constructTermination("messageParserErrorWhileParsing", ex, null);
-                }
-            }
+            throw constructTermination("messageOutputFileErrorWhileWriting", ex, null, outputFile.getAbsolutePath());
         }
-        else
+        catch (UnsupportedEncodingException ex)
         {
-            throw constructTermination("messageParserFailed", null, null, inputFile.getAbsolutePath());
+            throw constructTermination("messageOutputFileErrorWhileWriting", ex, null, outputFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageOutputFileErrorWhileWriting", ex, null, outputFile.getAbsolutePath());
         }
 
         return 0;
-    }
-
-    public boolean isLetter(int character)
-    {
-        return Character.isLetter(character) ||
-               // SAMARITAN LETTER
-               (character >= 0x0800 &&
-                character <= 0x0815) ||
-               // MALAYALAM LETTER
-               (character >= 0x0D7A &&
-                character <= 0x0D7F) ||
-               // COPTIC CAPITAL/SMALL LETTER
-               (character >= 0x2C80 &&
-                character <= 0x2CB1) ||
-               // TIFINAGH LETTER
-               (character >= 0x2D30 &&
-                character <= 0x2D65);
     }
 
     public InfoMessage constructInfoMessage(String id,
@@ -698,11 +619,11 @@ public class edl_to_xml_1
         {
             if (arguments == null)
             {
-                message = "edl_to_xml_1: " + getI10nString(id);
+                message = "change_instructions_executor_1: " + getI10nString(id);
             }
             else
             {
-                message = "edl_to_xml_1: " + getI10nStringFormatted(id, arguments);
+                message = "change_instructions_executor_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -726,11 +647,11 @@ public class edl_to_xml_1
         {
             if (arguments == null)
             {
-                message = "edl_to_xml_1: " + getI10nString(id);
+                message = "change_instructions_executor_1: " + getI10nString(id);
             }
             else
             {
-                message = "edl_to_xml_1: " + getI10nStringFormatted(id, arguments);
+                message = "change_instructions_executor_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -758,18 +679,18 @@ public class edl_to_xml_1
             innerException.printStackTrace();
         }
 
-        if (edl_to_xml_1.resultInfoFile != null)
+        if (change_instructions_executor_1.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(edl_to_xml_1.resultInfoFile),
+                                        new FileOutputStream(change_instructions_executor_1.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-to-xml-1-result-information>\n");
+                writer.write("<!-- This file was created by change_instructions_executor_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<change-instructions-executor-1-result-information>\n");
 
                 if (normalTermination == false)
                 {
@@ -994,7 +915,7 @@ public class edl_to_xml_1
                     writer.write("  </success>\n");
                 }
 
-                writer.write("</edl-to-xml-1-result-information>\n");
+                writer.write("</change-instructions-executor-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -1012,7 +933,7 @@ public class edl_to_xml_1
             }
         }
 
-        edl_to_xml_1.resultInfoFile = null;
+        change_instructions_executor_1.resultInfoFile = null;
 
         System.exit(-1);
         return -1;
@@ -1057,11 +978,9 @@ public class edl_to_xml_1
         return formatter.format(arguments);
     }
 
-    protected ArrayList<String> tokens = null;
-
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nEdlToXml1Console";
+    private static final String L10N_BUNDLE = "l10n.l10nChangeInstructionsExecutor1Console";
     private ResourceBundle l10nConsole;
 }

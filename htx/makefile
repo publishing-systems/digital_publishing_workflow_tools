@@ -16,7 +16,7 @@
 
 
 
-directories = ./edl_to_xml ./gui ./workflows
+directories = ./change_instructions_executor ./edl_to_xml ./gui ./workflows
 
 
 

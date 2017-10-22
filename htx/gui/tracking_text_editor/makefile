@@ -16,7 +16,7 @@
 
 
 
-directories = ./text_position_retriever ./tracking_text_editor
+directories = ./tracking_text_editor_1
 
 
 

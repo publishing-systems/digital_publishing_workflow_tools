@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2017  Stephan Kreutzer
+# Copyright (C) 2017  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./text_position_retriever ./tracking_text_editor
+directories = ./change_instructions_executor_1
 
 
 

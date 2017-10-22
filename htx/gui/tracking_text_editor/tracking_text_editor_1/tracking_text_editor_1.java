@@ -1,31 +1,30 @@
-/* Copyright (C) 2016-2017 Stephan Kreutzer
+/* Copyright (C) 2014-2017 Stephan Kreutzer
  *
- * This file is part of edl_to_xml_1, a submodule of the
+ * This file is part of tracking_text_editor_1, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * edl_to_xml_1 is free software: you can redistribute it and/or modify
+ * tracking_text_editor_1 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * edl_to_xml_1 is distributed in the hope that it will be useful,
+ * tracking_text_editor_1 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with edl_to_xml_1. If not, see <http://www.gnu.org/licenses/>.
+ * along with tracking_text_editor_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/edl_to_xml/edl_to_xml_1/edl_to_xml_1.java
- * @brief Converts an EDL file to its XML equivalent.
+ * @file $/htx/gui/tracking_text_editor/tracking_text_editor_1/tracking_text_editor_1.java
+ * @brief A simple text editor that tracks all changes.
  * @author Stephan Kreutzer
- * @since 2017-07-12
+ * @since 2017-10-14
  */
 
 
 
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.text.MessageFormat;
@@ -43,20 +42,27 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.XMLEvent;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.Attribute;
 import javax.xml.namespace.QName;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.XMLStreamException;
+import java.util.ArrayList;
+import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import javax.swing.text.BadLocationException;
 
 
 
-public class edl_to_xml_1
+public class tracking_text_editor_1
+  extends JFrame
 {
-    public static void main(String args[])
+    public static void main(String[] args)
     {
-        System.out.print("edl_to_xml_1 Copyright (C) 2016-2017 Stephan Kreutzer\n" +
+        System.out.print("tracking_text_editor_1 Copyright (C) 2014-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -64,38 +70,38 @@ public class edl_to_xml_1
                          "https://github.com/publishing-systems/digital_publishing_workflow_tools/ and\n" +
                          "the project website http://www.publishing-systems.org.\n\n");
 
-        edl_to_xml_1 converter = new edl_to_xml_1();
+        tracking_text_editor_1 editor = new tracking_text_editor_1();
 
         try
         {
-            converter.convert(args);
+            editor.edit(args);
         }
         catch (ProgramTerminationException ex)
         {
-            converter.handleTermination(ex);
+            editor.handleTermination(ex);
         }
 
-        if (converter.resultInfoFile != null)
+        if (editor.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(converter.resultInfoFile),
+                                        new FileOutputStream(editor.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-to-xml-1-result-information>\n");
+                writer.write("<!-- This file was created by tracking_text_editor_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<tracking-text-editor-1-result-information>\n");
                 writer.write("  <success>\n");
 
-                if (converter.getInfoMessages().size() > 0)
+                if (editor.getInfoMessages().size() > 0)
                 {
                     writer.write("    <info-messages>\n");
 
-                    for (int i = 0, max = converter.getInfoMessages().size(); i < max; i++)
+                    for (int i = 0, max = editor.getInfoMessages().size(); i < max; i++)
                     {
-                        InfoMessage infoMessage = converter.getInfoMessages().get(i);
+                        InfoMessage infoMessage = editor.getInfoMessages().get(i);
 
                         writer.write("      <info-message number=\"" + i + "\">\n");
                         writer.write("        <timestamp>" + infoMessage.getTimestamp() + "</timestamp>\n");
@@ -219,7 +225,7 @@ public class edl_to_xml_1
                 }
 
                 writer.write("  </success>\n");
-                writer.write("</edl-to-xml-1-result-information>\n");
+                writer.write("</tracking-text-editor-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -241,11 +247,18 @@ public class edl_to_xml_1
         }
     }
 
-    public int convert(String args[])
+    public tracking_text_editor_1()
+    {
+        super("tracking_text_editor_1");
+
+        addWindowListener(new FlushingWindowAdapter(this));
+    }
+
+    public int edit(String[] args)
     {
         if (args.length < 2)
         {
-            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tedl_to_xml_1 " + getI10nString("messageParameterList") + "\n");
+            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\ttracking_text_editor_1 " + getI10nString("messageParameterList") + "\n");
         }
 
         File resultInfoFile = new File(args[1]);
@@ -278,7 +291,7 @@ public class edl_to_xml_1
             }
         }
 
-        edl_to_xml_1.resultInfoFile = resultInfoFile;
+        tracking_text_editor_1.resultInfoFile = resultInfoFile;
         File jobFile = new File(args[0]);
 
         try
@@ -309,11 +322,11 @@ public class edl_to_xml_1
             throw constructTermination("messageJobFileIsntReadable", null, null, jobFile.getAbsolutePath());
         }
 
-        System.out.println("edl_to_xml_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
-
+        System.out.println("tracking_text_editor_1: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
         File inputFile = null;
-        File outputFile = null;
+        this.outputFile = null;
+        int fontSize = 16;
 
         try
         {
@@ -331,115 +344,87 @@ public class edl_to_xml_1
 
                     if (tagName.equals("input-file") == true)
                     {
-                        StartElement inputFileElement = event.asStartElement();
-                        Attribute pathAttribute = inputFileElement.getAttributeByName(new QName("path"));
-
-                        if (pathAttribute == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
-                        }
-
                         if (inputFile != null)
                         {
                             throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
                         }
 
-                        inputFile = new File(pathAttribute.getValue());
+                        Attribute attributePath = event.asStartElement().getAttributeByName(new QName("path"));
 
-                        if (inputFile.isAbsolute() != true)
-                        {
-                            inputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + pathAttribute.getValue());
-                        }
-
-                        try
-                        {
-                            inputFile = inputFile.getCanonicalFile();
-                        }
-                        catch (SecurityException ex)
-                        {
-                            throw constructTermination("messageInputFileCantGetCanonicalPath", ex, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
-                        }
-                        catch (IOException ex)
-                        {
-                            throw constructTermination("messageInputFileCantGetCanonicalPath", ex, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
-                        }
-
-                        if (inputFile.exists() != true)
-                        {
-                            throw constructTermination("messageInputFileDoesntExist", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
-                        }
-
-                        if (inputFile.isFile() != true)
-                        {
-                            throw constructTermination("messageInputPathIsntAFile", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
-                        }
-
-                        if (inputFile.canRead() != true)
-                        {
-                            throw constructTermination("messageInputFileIsntReadable", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
-                        }
-
-                        if (inputFile != null &&
-                            outputFile != null)
-                        {
-                            break;
-                        }
-                    }
-                    else if (tagName.equals("output-file") == true)
-                    {
-                        StartElement outputFileElement = event.asStartElement();
-                        Attribute pathAttribute = outputFileElement.getAttributeByName(new QName("path"));
-
-                        if (pathAttribute == null)
+                        if (attributePath == null)
                         {
                             throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        if (outputFile != null)
+                        inputFile = new File(attributePath.getValue());
+
+                        if (inputFile.isAbsolute() != true)
+                        {
+                            inputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + attributePath.getValue());
+                        }
+
+                        if (inputFile.exists() != true)
+                        {
+                            throw constructTermination("messageJobFileInputFileDoesntExist", null, null, jobFile.getAbsolutePath(), inputFile.getAbsolutePath());
+                        }
+
+                        if (inputFile.isFile() != true)
+                        {
+                            throw constructTermination("messageJobFileInputPathIsntAFile", null, null, jobFile.getAbsolutePath(), inputFile.getAbsolutePath());
+                        }
+
+                        if (inputFile.canRead() != true)
+                        {
+                            throw constructTermination("messageJobFileInputFileIsntReadable", null, null, jobFile.getAbsolutePath(), inputFile.getAbsolutePath());
+                        }
+                    }
+                    else if (tagName.equals("output-file") == true)
+                    {
+                        if (this.outputFile != null)
                         {
                             throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
                         }
 
-                        outputFile = new File(pathAttribute.getValue());
+                        Attribute attributePath = event.asStartElement().getAttributeByName(new QName("path"));
 
-                        if (outputFile.isAbsolute() != true)
+                        if (attributePath == null)
                         {
-                            outputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + pathAttribute.getValue());
-                        }
-
-                        try
-                        {
-                            outputFile = outputFile.getCanonicalFile();
-                        }
-                        catch (SecurityException ex)
-                        {
-                            throw constructTermination("messageOutputFileCantGetCanonicalPath", ex, null, outputFile.getAbsolutePath(), jobFile.getAbsolutePath());
-                        }
-                        catch (IOException ex)
-                        {
-                            throw constructTermination("messageOutputFileCantGetCanonicalPath", ex, null, outputFile.getAbsolutePath(), jobFile.getAbsolutePath());
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        if (outputFile.exists() == true)
+                        this.outputFile = new File(attributePath.getValue());
+
+                        if (this.outputFile.isAbsolute() != true)
                         {
-                            if (outputFile.isFile() == true)
-                            {
-                                if (outputFile.canWrite() != true)
-                                {
-                                    throw constructTermination("messageOutputFileIsntWritable", null, null, outputFile.getAbsolutePath());
-                                }
-                            }
-                            else
-                            {
-                                throw constructTermination("messageOutputPathIsntAFile", null, null, outputFile.getAbsolutePath());
-                            }
+                            this.outputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + attributePath.getValue());
                         }
 
-                        if (inputFile != null &&
-                            outputFile != null)
+                        if (this.outputFile.exists() == true)
                         {
-                            break;
+                            throw constructTermination("messageJobFileOutputFileExistsAlready", null, null, jobFile.getAbsolutePath(), this.outputFile.getAbsolutePath());
                         }
+                    }
+                    else if (tagName.equals("font-size") == true)
+                    {
+                        Attribute attributePoint = event.asStartElement().getAttributeByName(new QName("point"));
+
+                        if (attributePoint == null)
+                        {
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "point");
+                        }
+
+                        fontSize = Integer.parseInt(attributePoint.getValue());
+                    }
+                    else if (tagName.equals("autosave") == true)
+                    {
+                        Attribute attributeCharacters = event.asStartElement().getAttributeByName(new QName("characters"));
+
+                        if (attributeCharacters == null)
+                        {
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "characters");
+                        }
+
+                        this.autosaveCharacters = Integer.parseInt(attributeCharacters.getValue());
                     }
                 }
             }
@@ -459,233 +444,496 @@ public class edl_to_xml_1
 
         if (inputFile == null)
         {
-            throw constructTermination("messageJobFileInputFileIsntConfigured", null, null, jobFile.getAbsolutePath(), "input-file");
+            throw constructTermination("messageJobFileInputFileIsntConfigured", null, null, jobFile.getAbsolutePath());
         }
 
-        if (outputFile == null)
+        if (this.outputFile == null)
         {
-            throw constructTermination("messageJobFileOutputFileIsntConfigured", null, null, jobFile.getAbsolutePath(), "output-file");
+            throw constructTermination("messageJobFileOutputFileIsntConfigured", null, null, this.outputFile.getAbsolutePath());
         }
 
-
-        this.tokens = new ArrayList<String>();
+        StringBuilder inputText = new StringBuilder();
 
         try
         {
-            BufferedReader reader = new BufferedReader(
-                                    new InputStreamReader(
-                                    new FileInputStream(inputFile),
-                                    "UTF-8"));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile), "UTF-8"));
 
-            try
+            while (true)
             {
                 int character = reader.read();
-                int lastCharacter = -1;
-                String buffer = new String();
 
-                while (character >= 0)
+                if (character >= 0)
                 {
+                    boolean isUTF16 = false;
+
                     if (Character.isHighSurrogate((char)character) == true)
                     {
-                        throw constructTermination("messageTokenizerNoUTF16", null, null, inputFile.getAbsolutePath());
+                        int character2 = reader.read();
+
+                        if (character2 == 0)
+                        {
+                            throw constructTermination("messageInputFileSurrogateAborted", null, null, (char)character, String.format("0x%X", (int)character));
+                        }
+
+                        if (Character.isLowSurrogate((char)character2) != true)
+                        {
+                            throw constructTermination("messageInputFileSurrogateIncomplete", null, null, (char)character2, String.format("0x%X", (int)character2));
+                        }
+
+                        character = character * 0x10000;
+                        character += character2;
+
+                        isUTF16 = true;
                     }
 
-                    if (character == ':' ||
-                        character == ',' ||
-                        character == '=' ||
-                        character == '/' ||
-                        character == '.' ||
-                        character == '-' ||
-                        character == '_' ||
-                        character == '~' ||
-                        character == '?' ||
-                        character == '&' ||
-                        character == '%')
+                    if (isUTF16 == false)
                     {
-                        if (buffer.isEmpty() != true)
-                        {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
-
-                        this.tokens.add(new String() + (char)character);
-                        lastCharacter = character;
-                    }
-                    else if (character == '\n' ||
-                             character == '\r')
-                    {
-                        if (character == '\r')
-                        {
-                            character = '\n';
-                        }
-
-                        if (lastCharacter != character &&
-                            buffer.isEmpty() != true)
-                        {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
-                        
-                        if (buffer.isEmpty() == true)
-                        {
-                            buffer += (char)character;
-                        }
-
-                        lastCharacter = character;
-                    }
-                    else if (character == ' ' ||
-                             character == '\t')
-                    {
-                        if (lastCharacter != character &&
-                            buffer.isEmpty() != true)
-                        {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
-
-                        lastCharacter = character;
-                    }
-                    else if (character == '#')
-                    {
-                        lastCharacter = character;
-
-                        while (character >= 0)
-                        {
-                            if (character == '\n' ||
-                                character == '\r')
-                            {
-                                break;
-                            }
-
-                            character = reader.read();
-                        }
-                    }
-                    else if (isLetter(character))
-                    {
-                        if (isLetter(lastCharacter) != true &&
-                            buffer.isEmpty() != true)
-                        {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
-
-                        buffer += (char)character;
-                        lastCharacter = character;
-                    }
-                    else if (Character.isDigit(character))
-                    {
-                        if (Character.isDigit(lastCharacter) != true &&
-                            buffer.isEmpty() != true)
-                        {
-                            this.tokens.add(buffer);
-                            buffer = "";
-                        }
-
-                        buffer += (char)character;
-                        lastCharacter = character;
+                        inputText.append((char)character);
                     }
                     else
                     {
-                        throw constructTermination("messageTokenizerInvalidCharacter", null, null, (char)character, String.format("0x%X", (int)character));
+                        byte[] codePoints = ByteBuffer.allocate(Integer.SIZE / Byte.SIZE).putInt(character).array();
+                        inputText.append(new String(codePoints, "UTF-16"));
                     }
-
-                    character = reader.read();
                 }
-
-                if (buffer.isEmpty() != true)
+                else
                 {
-                    this.tokens.add(buffer);
+                    break;
                 }
-            }
-            finally
-            {
-                reader.close();
             }
         }
         catch (FileNotFoundException ex)
         {
-            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
+            throw constructTermination("messageErrorWhileReadingInputFile", ex, null, inputFile.getAbsolutePath());
         }
         catch (UnsupportedEncodingException ex)
         {
-            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
+            throw constructTermination("messageErrorWhileReadingInputFile", ex, null, inputFile.getAbsolutePath());
         }
         catch (IOException ex)
         {
-            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
+            throw constructTermination("messageErrorWhileReadingInputFile", ex, null, inputFile.getAbsolutePath());
         }
 
-        /*
-        for (int i = 0; i < this.tokens.size(); i++)
+        try
         {
-            System.out.println(i + ": \"" + this.tokens.get(i) + "\"");
+            this.outputWriter = new BufferedWriter(
+                                new OutputStreamWriter(
+                                new FileOutputStream(this.outputFile),
+                                "UTF-8"));
+
+            this.outputWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            this.outputWriter.append("<!-- This file was created by tracking_text_editor_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+            this.outputWriter.append("<tracking-text-editor-1-text-history version=\"0.1.0\">\n");
+            this.outputWriter.flush();
         }
-        */
-
-        EdlParser parser = new EdlParser(this.tokens, getInfoMessages());
-        StringBuilder sbOutput = parser.parse();
-
-        if (sbOutput != null)
+        catch (FileNotFoundException ex)
         {
-            if (sbOutput.length() > 0)
-            {
-                try
-                {
-                    BufferedWriter outputWriter = new BufferedWriter(
-                                                new OutputStreamWriter(
-                                                new FileOutputStream(outputFile),
-                                                "UTF-8"));
-
-                    try
-                    {
-                        outputWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                        outputWriter.append("<!-- This file was created by edl_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                        outputWriter.append("<edl-xml version=\"0.1.0\">");
-                        outputWriter.append(sbOutput.toString());
-                        outputWriter.append("</edl-xml>\n");
-                    }
-                    finally
-                    {
-                        outputWriter.close();
-                    }
-                }
-                catch (FileNotFoundException ex)
-                {
-                    throw constructTermination("messageParserErrorWhileParsing", ex, null);
-                }
-                catch (UnsupportedEncodingException ex)
-                {
-                    throw constructTermination("messageParserErrorWhileParsing", ex, null);
-                }
-                catch (IOException ex)
-                {
-                    throw constructTermination("messageParserErrorWhileParsing", ex, null);
-                }
-            }
+            throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile.getAbsolutePath());
         }
-        else
+        catch (UnsupportedEncodingException ex)
         {
-            throw constructTermination("messageParserFailed", null, null, inputFile.getAbsolutePath());
+            throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile.getAbsolutePath());
         }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile.getAbsolutePath());
+        }
+
+
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout(5, 5));
+
+        GridBagLayout gridbag = new GridBagLayout();
+        mainPanel.setLayout(gridbag);
+
+        GridBagConstraints gridbagConstraints = new GridBagConstraints();
+        gridbagConstraints.anchor = GridBagConstraints.NORTH;
+        gridbagConstraints.gridy = 0;
+        gridbagConstraints.weightx = 1.0;
+        gridbagConstraints.weighty = 1.0;
+        gridbagConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        gridbagConstraints.fill = GridBagConstraints.BOTH;
+
+        this.textArea = new JTextArea(inputText.toString());
+        JTextField positionField = new JTextField();
+
+        MouseEventListener mouseListener = new MouseEventListener(this);
+        KeyEventListener keyListener = new KeyEventListener(this, this.textArea);
+
+        this.textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
+        this.textArea.setLineWrap(true);
+        this.textArea.setWrapStyleWord(true);
+        this.textArea.setEditable(true);
+        this.textArea.setHighlighter(null);
+        this.textArea.getCaret().setVisible(true);
+        //this.textArea.getCaret().setSelectionVisible(true);
+        this.textArea.addMouseListener(mouseListener);
+        this.textArea.addKeyListener(keyListener);
+        this.textArea.setFocusable(true);
+
+        JScrollPane scrollPane = new JScrollPane(this.textArea);
+
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        mainPanel.add(scrollPane, gridbagConstraints);
+
+        positionField.setText(getI10nString("windowTextPositionInfoStart"));
+        positionField.setEditable(false);
+        positionField.addMouseListener(mouseListener);
+        positionField.addKeyListener(keyListener);
+
+        gridbagConstraints = new GridBagConstraints();
+        gridbagConstraints.anchor = GridBagConstraints.SOUTH;
+        gridbagConstraints.gridy = 1;
+        gridbagConstraints.weightx = 1.0;
+        gridbagConstraints.gridwidth = GridBagConstraints.REMAINDER;
+        gridbagConstraints.fill = GridBagConstraints.HORIZONTAL;
+        mainPanel.add(positionField, gridbagConstraints);
+
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+
+        setLocation(100, 100);
+        setSize(500, 400);
+        setVisible(true);
+
+        this.positionLast = this.textArea.getCaretPosition();
+        this.positionOperationStart = this.positionLast;
 
         return 0;
     }
 
-    public boolean isLetter(int character)
+    public void caretMoved()
     {
-        return Character.isLetter(character) ||
-               // SAMARITAN LETTER
-               (character >= 0x0800 &&
-                character <= 0x0815) ||
-               // MALAYALAM LETTER
-               (character >= 0x0D7A &&
-                character <= 0x0D7F) ||
-               // COPTIC CAPITAL/SMALL LETTER
-               (character >= 0x2C80 &&
-                character <= 0x2CB1) ||
-               // TIFINAGH LETTER
-               (character >= 0x2D30 &&
-                character <= 0x2D65);
+        if (this.textArea.getSelectionStart() != this.textArea.getSelectionEnd())
+        {
+            // Removes even the hidden selection (important because VK_DELETE could
+            // be executed on it).
+            /** @todo Allow editing with selected ranges. */
+            this.textArea.setCaretPosition(this.textArea.getCaretPosition());
+        }
+
+        /** @todo For optimization of the output, if the user clicks away from
+          * current caret position, clicks back to it and continues the same
+          * edit operation, that could be continued as the same operation,
+          * but as this probably doesn't happen too often and can be
+          * consolidated later by optimizing the finished output file,
+          * so this is left as a TODO. */
+
+        if (this.editMode == EDITMODE_ADD)
+        {
+            try
+            {
+                this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                String text = this.textArea.getText(this.positionOperationStart, this.positionLast - this.positionOperationStart);
+                // Ampersand needs to be the first, otherwise it would double-encode
+                // other entities.
+                text = text.replaceAll("&", "&amp;");
+                text = text.replaceAll("<", "&lt;");
+                text = text.replaceAll(">", "&gt;");
+
+                this.outputWriter.append (text + "</add>\n");
+                this.outputWriter.flush();
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+            }
+            catch (BadLocationException ex)
+            {
+                throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+            }
+        }
+        else if (this.editMode == EDITMODE_DELETE)
+        {
+            try
+            {
+                this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+                this.outputWriter.flush();
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+            }
+        }
+
+        this.positionLast = this.textArea.getCaretPosition();
+        this.positionOperationStart = this.positionLast;
+        this.editMode = EDITMODE_NONE;
+    }
+
+    public void keyTyped()
+    {
+        int positionCurrent = this.textArea.getCaretPosition();
+
+        if (this.positionLast < positionCurrent)
+        {
+            try
+            {
+                this.lastCharacterAdded = Character.codePointAt(this.textArea.getText(this.positionLast, positionCurrent - this.positionLast).toCharArray(), 0);
+            }
+            catch (BadLocationException ex)
+            {
+                throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+            }
+
+            if (this.editMode == EDITMODE_NONE)
+            {
+                this.positionOperationStart = this.positionLast;
+            }
+            else if (this.editMode == EDITMODE_ADD)
+            {
+
+            }
+            else if (this.editMode == EDITMODE_DELETE)
+            {
+                try
+                {
+                    this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+                    this.outputWriter.flush();
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                }
+
+                this.positionOperationStart = this.positionLast;
+            }
+            else
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            if (this.autosaveCharacters > 0 &&
+                (this.positionLast - this.positionOperationStart) >= this.autosaveCharacters)
+            {
+                try
+                {
+                    this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                    String text = this.textArea.getText(this.positionOperationStart, this.positionLast - this.positionOperationStart);
+
+                    // Ampersand needs to be the first, otherwise it would double-encode
+                    // other entities.
+                    text = text.replaceAll("&", "&amp;");
+                    text = text.replaceAll("<", "&lt;");
+                    text = text.replaceAll(">", "&gt;");
+
+                    this.outputWriter.append(text + "</add>\n");
+                    this.outputWriter.flush();
+                }
+                catch (BadLocationException ex)
+                {
+                    throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                }
+
+                this.positionOperationStart = this.positionLast;
+            }
+
+            this.editMode = EDITMODE_ADD;
+        }
+        else if (this.positionLast > positionCurrent)
+        {
+            if (this.editMode == EDITMODE_NONE)
+            {
+                this.positionOperationStart = this.positionLast;
+            }
+            else if (this.editMode == EDITMODE_DELETE)
+            {
+
+            }
+            else if (this.editMode == EDITMODE_ADD)
+            {
+                try
+                {
+                    this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                    String text = this.textArea.getText(this.positionOperationStart, positionCurrent - this.positionOperationStart);
+
+                    if (this.lastCharacterAdded != null)
+                    {
+                        text += new String(Character.toChars(this.lastCharacterAdded));
+                    }
+
+                    // Ampersand needs to be the first, otherwise it would double-encode
+                    // other entities.
+                    text = text.replaceAll("&", "&amp;");
+                    text = text.replaceAll("<", "&lt;");
+                    text = text.replaceAll(">", "&gt;");
+
+                    this.outputWriter.append(text + "</add>\n");
+                    this.outputWriter.flush();
+                }
+                catch (BadLocationException ex)
+                {
+                    throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                }
+
+                this.positionOperationStart = this.positionLast;
+            }
+            else
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            if (this.autosaveCharacters > 0 &&
+                (this.positionOperationStart - this.positionLast) >= this.autosaveCharacters)
+            {
+                try
+                {
+                    this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+                    this.outputWriter.flush();
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                }
+
+                this.positionOperationStart = this.positionLast;
+            }
+
+            this.lastCharacterAdded = null;
+            this.editMode = EDITMODE_DELETE;
+        }
+
+        this.positionLast = positionCurrent;
+    }
+
+    public void reverseDelete(long charactersDeleted)
+    {
+        int positionCurrent = this.textArea.getCaretPosition();
+
+        if (charactersDeleted > 0)
+        {
+            if (this.editMode == EDITMODE_NONE)
+            {
+                this.positionOperationStart = positionCurrent + (int)charactersDeleted;
+            }
+            else if (this.editMode == EDITMODE_DELETE)
+            {
+                this.positionLast = positionCurrent;
+                this.positionOperationStart += charactersDeleted;
+            }
+            else if (this.editMode == EDITMODE_ADD)
+            {
+                try
+                {
+                    this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                    String text = this.textArea.getText(this.positionOperationStart, positionCurrent - this.positionOperationStart);
+
+                    if (this.lastCharacterAdded != null)
+                    {
+                        text += new String(Character.toChars(this.lastCharacterAdded));
+                    }
+
+                    // Ampersand needs to be the first, otherwise it would double-encode
+                    // other entities.
+                    text = text.replaceAll("&", "&amp;");
+                    text = text.replaceAll("<", "&lt;");
+                    text = text.replaceAll(">", "&gt;");
+
+                    this.outputWriter.append(text + "</add>\n");
+                    this.outputWriter.flush();
+                }
+                catch (BadLocationException ex)
+                {
+                    throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                }
+
+                this.positionOperationStart = this.positionLast;
+            }
+            else
+            {
+                throw new UnsupportedOperationException();
+            }
+
+            if (this.autosaveCharacters > 0 &&
+                (this.positionOperationStart - this.positionLast) >= this.autosaveCharacters)
+            {
+                try
+                {
+                    this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+                    this.outputWriter.flush();
+                }
+                catch (IOException ex)
+                {
+                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                }
+
+                this.positionOperationStart = positionCurrent;
+                charactersDeleted = 0;
+            }
+
+            this.lastCharacterAdded = null;
+            this.editMode = EDITMODE_DELETE;
+        }
+    }
+
+    public void closeOutput()
+    {
+        if (this.editMode == EDITMODE_ADD &&
+            (this.positionLast - this.positionOperationStart) > 0)
+        {
+            try
+            {
+                this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                String text = this.textArea.getText(this.positionOperationStart, this.positionLast - this.positionOperationStart);
+                // Ampersand needs to be the first, otherwise it would double-encode
+                // other entities.
+                text = text.replaceAll("&", "&amp;");
+                text = text.replaceAll("<", "&lt;");
+                text = text.replaceAll(">", "&gt;");
+
+                this.outputWriter.append (text + "</add>\n");
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+            }
+            catch (BadLocationException ex)
+            {
+                throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+            }
+        }
+        else if (this.editMode == EDITMODE_DELETE &&
+                 (this.positionOperationStart - this.positionLast) > 0)
+        {
+            try
+            {
+                this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+            }
+        }
+
+        try
+        {
+            this.outputWriter.append("</tracking-text-editor-1-text-history>\n");
+            this.outputWriter.flush();
+            this.outputWriter.close();
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+        }
     }
 
     public InfoMessage constructInfoMessage(String id,
@@ -698,11 +946,11 @@ public class edl_to_xml_1
         {
             if (arguments == null)
             {
-                message = "edl_to_xml_1: " + getI10nString(id);
+                message = "tracking_text_editor_1: " + getI10nString(id);
             }
             else
             {
-                message = "edl_to_xml_1: " + getI10nStringFormatted(id, arguments);
+                message = "tracking_text_editor_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -726,11 +974,11 @@ public class edl_to_xml_1
         {
             if (arguments == null)
             {
-                message = "edl_to_xml_1: " + getI10nString(id);
+                message = "tracking_text_editor_1: " + getI10nString(id);
             }
             else
             {
-                message = "edl_to_xml_1: " + getI10nStringFormatted(id, arguments);
+                message = "tracking_text_editor_1: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -758,18 +1006,18 @@ public class edl_to_xml_1
             innerException.printStackTrace();
         }
 
-        if (edl_to_xml_1.resultInfoFile != null)
+        if (tracking_text_editor_1.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(edl_to_xml_1.resultInfoFile),
+                                        new FileOutputStream(tracking_text_editor_1.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_to_xml_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-to-xml-1-result-information>\n");
+                writer.write("<!-- This file was created by tracking_text_editor_1, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<tracking-text-editor-1-result-information>\n");
 
                 if (normalTermination == false)
                 {
@@ -994,7 +1242,7 @@ public class edl_to_xml_1
                     writer.write("  </success>\n");
                 }
 
-                writer.write("</edl-to-xml-1-result-information>\n");
+                writer.write("</tracking-text-editor-1-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -1012,7 +1260,7 @@ public class edl_to_xml_1
             }
         }
 
-        edl_to_xml_1.resultInfoFile = null;
+        tracking_text_editor_1.resultInfoFile = null;
 
         System.exit(-1);
         return -1;
@@ -1033,18 +1281,18 @@ public class edl_to_xml_1
      */
     private String getI10nString(String key)
     {
-        if (this.l10nConsole == null)
+        if (this.l10n == null)
         {
-            this.l10nConsole = ResourceBundle.getBundle(L10N_BUNDLE, this.getLocale());
+            this.l10n = ResourceBundle.getBundle(L10N_BUNDLE, this.getLocale());
         }
 
         try
         {
-            return new String(this.l10nConsole.getString(key).getBytes("ISO-8859-1"), "UTF-8");
+            return new String(this.l10n.getString(key).getBytes("ISO-8859-1"), "UTF-8");
         }
         catch (UnsupportedEncodingException ex)
         {
-            return this.l10nConsole.getString(key);
+            return this.l10n.getString(key);
         }
     }
 
@@ -1057,11 +1305,23 @@ public class edl_to_xml_1
         return formatter.format(arguments);
     }
 
-    protected ArrayList<String> tokens = null;
+    public final int EDITMODE_NONE = 0;
+    public final int EDITMODE_ADD = 1;
+    public final int EDITMODE_DELETE = 2;
+
+    protected JTextArea textArea = null;
+    protected int positionLast = -1;
+    protected int positionOperationStart = -1;
+    protected int editMode = EDITMODE_NONE;
+    protected Integer lastCharacterAdded = null;
+
+    protected File outputFile = null;
+    protected BufferedWriter outputWriter = null;
+    protected int autosaveCharacters = -1;
 
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nEdlToXml1Console";
-    private ResourceBundle l10nConsole;
+    private static final String L10N_BUNDLE = "l10n.l10nTrackingTextEditor1";
+    private ResourceBundle l10n;
 }
