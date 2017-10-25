@@ -485,7 +485,7 @@ public class change_instructions_executor_1
 
                         if (position < 0)
                         {
-                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.toString(), position);
+                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.getName(), position);
                         }
 
                         if (position > sbOutput.length())
@@ -540,7 +540,7 @@ public class change_instructions_executor_1
 
                         if (position < 0)
                         {
-                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.toString(), position);
+                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.getName(), position);
                         }
 
                         if (position > length)
@@ -552,7 +552,7 @@ public class change_instructions_executor_1
 
                         if ((count * -1) <= 0)
                         {
-                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributePosition.toString(), count);
+                            throw constructTermination("messageInputFileInvalidAttributeValue", null, null, inputFile.getAbsolutePath(), tagName, attributeCount.getName(), count);
                         }
 
                         if ((length - (count * -1)) < 0)

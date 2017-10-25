@@ -404,6 +404,32 @@ public class tracking_text_editor_1
                             throw constructTermination("messageJobFileOutputFileExistsAlready", null, null, jobFile.getAbsolutePath(), this.outputFile.getAbsolutePath());
                         }
                     }
+                    else if (tagName.equals("plaintext-file") == true)
+                    {
+                        if (this.plaintextFile != null)
+                        {
+                            throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
+                        }
+
+                        Attribute attributePath = event.asStartElement().getAttributeByName(new QName("path"));
+
+                        if (attributePath == null)
+                        {
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
+                        }
+
+                        this.plaintextFile = new File(attributePath.getValue());
+
+                        if (this.plaintextFile.isAbsolute() != true)
+                        {
+                            this.plaintextFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + attributePath.getValue());
+                        }
+
+                        if (this.plaintextFile.exists() == true)
+                        {
+                            throw constructTermination("messageJobFilePlaintextFileExistsAlready", null, null, jobFile.getAbsolutePath(), this.plaintextFile.getAbsolutePath());
+                        }
+                    }
                     else if (tagName.equals("font-size") == true)
                     {
                         Attribute attributePoint = event.asStartElement().getAttributeByName(new QName("point"));
@@ -934,6 +960,33 @@ public class tracking_text_editor_1
         {
             throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
         }
+
+        if (this.plaintextFile != null)
+        {
+            try
+            {
+                BufferedWriter plaintextOutputWriter = new BufferedWriter(
+                                                       new OutputStreamWriter(
+                                                       new FileOutputStream(this.plaintextFile),
+                                                       "UTF-8"));
+
+                plaintextOutputWriter.append(this.textArea.getText());
+                plaintextOutputWriter.flush();
+                plaintextOutputWriter.close();
+            }
+            catch (FileNotFoundException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingPlaintextFile", ex, null, this.plaintextFile.getAbsolutePath());
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingPlaintextFile", ex, null, this.plaintextFile.getAbsolutePath());
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingPlaintextFile", ex, null, this.plaintextFile.getAbsolutePath());
+            }
+        }
     }
 
     public InfoMessage constructInfoMessage(String id,
@@ -1316,6 +1369,7 @@ public class tracking_text_editor_1
     protected Integer lastCharacterAdded = null;
 
     protected File outputFile = null;
+    protected File plaintextFile = null;
     protected BufferedWriter outputWriter = null;
     protected int autosaveCharacters = -1;
 

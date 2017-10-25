@@ -20,6 +20,7 @@ along with tracking_text_editor_1. If not, see <http://www.gnu.org/licenses/>.
 <tracking-text-editor-1-jobfile>
   <input-file path="input.txt"/>
   <output-file path="output.xml"/>
+  <!--plaintext-file path="output.txt"/-->
   <font-size point="16"/>
   <autosave characters="20"/>
 </tracking-text-editor-1-jobfile>
