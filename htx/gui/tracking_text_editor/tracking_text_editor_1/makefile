@@ -26,7 +26,7 @@ tracking_text_editor_1: tracking_text_editor_1.class
 
 
 
-tracking_text_editor_1.class: tracking_text_editor_1.java InfoMessage.class ProgramTerminationException.class FlushingWindowAdapter.class KeyEventListener.class MouseEventListener.class
+tracking_text_editor_1.class: tracking_text_editor_1.java InfoMessage.class ProgramTerminationException.class FlushingWindowAdapter.class KeyEventListener.class MouseEventListener.class SingleClickCaret.class
 	javac -encoding UTF-8 tracking_text_editor_1.java
 
 InfoMessage.class: InfoMessage.java
@@ -43,6 +43,9 @@ KeyEventListener.class: KeyEventListener.java
 
 MouseEventListener.class: MouseEventListener.java
 	javac -encoding UTF-8 MouseEventListener.java
+
+SingleClickCaret.class: SingleClickCaret.java
+	javac -encoding UTF-8 SingleClickCaret.java
 
 clean:
 	rm -f ./*.class

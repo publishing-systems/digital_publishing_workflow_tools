@@ -592,8 +592,7 @@ public class tracking_text_editor_1
         this.textArea.setWrapStyleWord(true);
         this.textArea.setEditable(true);
         this.textArea.setHighlighter(null);
-        this.textArea.getCaret().setVisible(true);
-        //this.textArea.getCaret().setSelectionVisible(true);
+        this.textArea.setCaret(new SingleClickCaret(this.textArea));
         this.textArea.addMouseListener(mouseListener);
         this.textArea.addKeyListener(keyListener);
         this.textArea.setFocusable(true);
@@ -605,7 +604,7 @@ public class tracking_text_editor_1
 
         mainPanel.add(scrollPane, gridbagConstraints);
 
-        positionField.setText(getI10nString("windowTextPositionInfoStart"));
+        positionField.setText(getI10nString("windowStatusInfoStart"));
         positionField.setEditable(false);
         positionField.addMouseListener(mouseListener);
         positionField.addKeyListener(keyListener);
@@ -625,7 +624,8 @@ public class tracking_text_editor_1
         setVisible(true);
 
         this.positionLast = this.textArea.getCaretPosition();
-        this.positionOperationStart = this.positionLast;
+        this.positionOperationStart = -1;
+        this.editMode = EDITMODE_NONE;
 
         return 0;
     }
@@ -686,7 +686,7 @@ public class tracking_text_editor_1
         }
 
         this.positionLast = this.textArea.getCaretPosition();
-        this.positionOperationStart = this.positionLast;
+        this.positionOperationStart = -1;
         this.editMode = EDITMODE_NONE;
     }
 
@@ -844,6 +844,7 @@ public class tracking_text_editor_1
             if (this.editMode == EDITMODE_NONE)
             {
                 this.positionOperationStart = positionCurrent + (int)charactersDeleted;
+                this.positionLast = positionCurrent;
             }
             else if (this.editMode == EDITMODE_DELETE)
             {

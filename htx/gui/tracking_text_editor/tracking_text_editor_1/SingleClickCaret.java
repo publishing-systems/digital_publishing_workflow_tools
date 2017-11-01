@@ -16,43 +16,71 @@
  * along with tracking_text_editor_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/gui/tracking_text_editor/tracking_text_editor_1/MouseEventListener.java
+ * @file $/htx/gui/tracking_text_editor/tracking_text_editor_1/SingleClickCaret.java
+ * @brief Caret/Cursor that prevents double-click.
  * @author Stephan Kreutzer
- * @since 2017-07-13
+ * @since 2017-10-31
  */
 
 
 
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.text.*;
 import java.awt.event.*;
-import java.text.MessageFormat;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Clipboard;
 
 
 
-class MouseEventListener extends MouseAdapter
+public class SingleClickCaret extends DefaultCaret
 {
-    public MouseEventListener(tracking_text_editor_1 parent)
+    public SingleClickCaret(JTextArea textArea)
     {
-        if (parent == null)
+        if (textArea == null)
         {
             throw new NullPointerException();
         }
 
-        this.parent = parent;
+        this.textArea = textArea;
+
+        setBlinkRate(this.textArea.getCaret().getBlinkRate());
+        setVisible(true);
+        setSelectionVisible(false);
+    }
+
+    @Override
+    public int getMark()
+    {
+        return getDot();
     }
 
     public void mousePressed(MouseEvent event)
     {
-        this.parent.caretMoved();
+        if (event.getClickCount() > 1)
+        {
+            event.consume();
+        }
+
+        super.mousePressed(event);
     }
 
     public void mouseReleased(MouseEvent event)
     {
-        this.parent.caretMoved();
+        if (event.getClickCount() > 1)
+        {
+            event.consume();
+        }
+
+        super.mouseReleased(event);
     }
 
-    protected tracking_text_editor_1 parent = null;
+    public void mouseClicked(MouseEvent event)
+    {
+        if (event.getClickCount() > 1)
+        {
+            event.consume();
+        }
+
+        super.mouseClicked(event);
+    }
+
+    protected JTextArea textArea = null;
 }

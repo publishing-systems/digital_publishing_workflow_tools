@@ -86,6 +86,7 @@ class KeyEventListener implements KeyListener
         else if (keyCode == KeyEvent.VK_DELETE)
         {
             this.parent.reverseDelete(this.textLengthLast - textLengthCurrent);
+            this.textLengthLast = textLengthCurrent;
             return;
         }
 
@@ -96,12 +97,14 @@ class KeyEventListener implements KeyListener
 
     public void keyTyped(KeyEvent event)
     {
-        int textLengthCurrent = this.textArea.getText().length();
         int keyCode = event.getKeyCode();
 
         if (keyCode == KeyEvent.VK_DELETE)
         {
+            int textLengthCurrent = this.textArea.getText().length();
+
             this.parent.reverseDelete(this.textLengthLast - this.textArea.getText().length());
+            this.textLengthLast = textLengthCurrent;
             return;
         }
 
