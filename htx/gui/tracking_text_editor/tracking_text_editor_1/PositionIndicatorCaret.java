@@ -16,25 +16,24 @@
  * along with tracking_text_editor_1. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/gui/tracking_text_editor/tracking_text_editor_1/KeyEventListener.java
- * @todo Maybe the caret position calculations should be moved to here, too.
+ * @file $/htx/gui/tracking_text_editor/tracking_text_editor_1/PositionIndicatorCaret.java
+ * @brief Caret/Cursor that prevents double-click, selection of text ranges and reports
+ *     any mouse movement. Also blocks keyboard input while mouse dragging.
  * @author Stephan Kreutzer
- * @since 2017-07-13
+ * @since 2017-10-31
  */
 
 
 
 import javax.swing.*;
+import javax.swing.text.*;
 import java.awt.event.*;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Clipboard;
-import java.awt.*;
 
 
 
-class KeyEventListener implements KeyListener
+public class PositionIndicatorCaret extends DefaultCaret implements KeyListener
 {
-    public KeyEventListener(tracking_text_editor_1 parent, JTextArea textArea)
+    public PositionIndicatorCaret(tracking_text_editor_1 parent, JTextArea textArea)
     {
         if (parent == null ||
             textArea == null)
@@ -44,10 +43,97 @@ class KeyEventListener implements KeyListener
 
         this.parent = parent;
         this.textArea = textArea;
+        this.mouseClicked = false;
+        this.keyTyped = false;
+
+        setBlinkRate(this.textArea.getCaret().getBlinkRate());
+        setVisible(true);
+        setSelectionVisible(false);
+    }
+
+    @Override
+    public int getMark()
+    {
+        return getDot();
+    }
+
+    public void mousePressed(MouseEvent event)
+    {
+        if (this.keyTyped == true)
+        {
+            event.consume();
+            return;
+        }
+
+        this.mouseClicked = true;
+
+        if (event.getClickCount() > 1)
+        {
+            event.consume();
+        }
+
+        super.mousePressed(event);
+        this.parent.caretMoved();
+    }
+
+    public void mouseReleased(MouseEvent event)
+    {
+        if (this.keyTyped == true)
+        {
+            event.consume();
+            return;
+        }
+
+        if (event.getClickCount() > 1)
+        {
+            event.consume();
+        }
+
+        super.mouseReleased(event);
+        this.parent.caretMoved();
+
+        this.mouseClicked = false;
+    }
+
+    public void mouseClicked(MouseEvent event)
+    {
+        if (this.keyTyped == true)
+        {
+            event.consume();
+            return;
+        }
+
+        if (event.getClickCount() > 1)
+        {
+            event.consume();
+        }
+
+        super.mouseClicked(event);
+    }
+
+    public void mouseDragged(MouseEvent event)
+    {
+        if (this.keyTyped == true)
+        {
+            event.consume();
+            return;
+        }
+
+        this.parent.caretMoved();
+        super.mouseDragged(event);
+        this.parent.caretMoved();
     }
 
     public void keyPressed(KeyEvent event)
     {
+        if (this.mouseClicked == true)
+        {
+            event.consume();
+            return;
+        }
+
+        this.keyTyped = true;
+
         int keyCode = event.getKeyCode();
 
         if (keyCode == KeyEvent.VK_DELETE)
@@ -61,6 +147,12 @@ class KeyEventListener implements KeyListener
 
     public void keyReleased(KeyEvent event)
     {
+        if (this.mouseClicked == true)
+        {
+            event.consume();
+            return;
+        }
+
         /** @todo For optimization of the output, if the user moves away from
           * current caret position, moves back to it and continues the same
           * edit operation, that could be continued as the same operation,
@@ -81,22 +173,37 @@ class KeyEventListener implements KeyListener
             keyCode == KeyEvent.VK_END)
         {
             this.parent.caretMoved();
+            this.keyTyped = false;
             return;
         }
         else if (keyCode == KeyEvent.VK_DELETE)
         {
             this.parent.reverseDelete(this.textLengthLast - textLengthCurrent);
             this.textLengthLast = textLengthCurrent;
+            this.keyTyped = false;
             return;
         }
 
         this.textLengthLast = textLengthCurrent;
-        this.parent.keyTyped();
+
+        if (keyCode != 0)
+        {
+            this.parent.keyTyped();
+        }
+
+        this.keyTyped = false;
+
         return;
     }
 
     public void keyTyped(KeyEvent event)
     {
+        if (this.mouseClicked == true)
+        {
+            event.consume();
+            return;
+        }
+
         int keyCode = event.getKeyCode();
 
         if (keyCode == KeyEvent.VK_DELETE)
@@ -108,11 +215,17 @@ class KeyEventListener implements KeyListener
             return;
         }
 
-        this.parent.keyTyped();
+        if (keyCode != 0)
+        {
+            this.parent.keyTyped();
+        }
+
         return;
     }
 
     protected tracking_text_editor_1 parent = null;
     protected JTextArea textArea = null;
     protected long textLengthLast = -1;
+    protected boolean mouseClicked = false;
+    protected boolean keyTyped = false;
 }

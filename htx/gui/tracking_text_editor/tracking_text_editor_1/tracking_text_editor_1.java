@@ -584,17 +584,15 @@ public class tracking_text_editor_1
         this.textArea = new JTextArea(inputText.toString());
         JTextField positionField = new JTextField();
 
-        MouseEventListener mouseListener = new MouseEventListener(this);
-        KeyEventListener keyListener = new KeyEventListener(this, this.textArea);
+        PositionIndicatorCaret caret = new PositionIndicatorCaret(this, this.textArea);
 
         this.textArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, fontSize));
         this.textArea.setLineWrap(true);
         this.textArea.setWrapStyleWord(true);
         this.textArea.setEditable(true);
         this.textArea.setHighlighter(null);
-        this.textArea.setCaret(new SingleClickCaret(this.textArea));
-        this.textArea.addMouseListener(mouseListener);
-        this.textArea.addKeyListener(keyListener);
+        this.textArea.setCaret(caret);
+        this.textArea.addKeyListener(caret);
         this.textArea.setFocusable(true);
 
         JScrollPane scrollPane = new JScrollPane(this.textArea);
@@ -606,8 +604,6 @@ public class tracking_text_editor_1
 
         positionField.setText(getI10nString("windowStatusInfoStart"));
         positionField.setEditable(false);
-        positionField.addMouseListener(mouseListener);
-        positionField.addKeyListener(keyListener);
 
         gridbagConstraints = new GridBagConstraints();
         gridbagConstraints.anchor = GridBagConstraints.SOUTH;
@@ -660,7 +656,7 @@ public class tracking_text_editor_1
                 text = text.replaceAll("<", "&lt;");
                 text = text.replaceAll(">", "&gt;");
 
-                this.outputWriter.append (text + "</add>\n");
+                this.outputWriter.append(text + "</add>\n");
                 this.outputWriter.flush();
             }
             catch (IOException ex)
@@ -927,7 +923,7 @@ public class tracking_text_editor_1
                 text = text.replaceAll("<", "&lt;");
                 text = text.replaceAll(">", "&gt;");
 
-                this.outputWriter.append (text + "</add>\n");
+                this.outputWriter.append(text + "</add>\n");
             }
             catch (IOException ex)
             {
