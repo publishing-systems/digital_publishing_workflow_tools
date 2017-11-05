@@ -506,13 +506,15 @@ public class change_instructions_executor_1
                             }
                             else if (event.isCharacters() == true)
                             {
-                                int length = sbOutput.length();
+                                int lengthBefore = sbOutput.length();
 
                                 sbOutput.insert(position, event.asCharacters());
 
-                                if (length > sbOutput.length())
+                                int lengthAfter = sbOutput.length();
+
+                                if (lengthBefore < lengthAfter)
                                 {
-                                    position += sbOutput.length() - length;
+                                    position += lengthAfter - lengthBefore;
                                 }
                             }
                         }

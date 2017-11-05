@@ -210,7 +210,7 @@ public class PositionIndicatorCaret extends DefaultCaret implements KeyListener
         {
             int textLengthCurrent = this.textArea.getText().length();
 
-            this.parent.reverseDelete(this.textLengthLast - this.textArea.getText().length());
+            this.parent.reverseDelete(this.textLengthLast - textLengthCurrent);
             this.textLengthLast = textLengthCurrent;
             return;
         }
