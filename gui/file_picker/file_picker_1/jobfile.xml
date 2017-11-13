@@ -20,4 +20,5 @@ along with file_picker_1. If not, see <http://www.gnu.org/licenses/>.
 <file-picker-1-jobfile>
   <start-directory path="."/>
   <!-- file-type extension="txt">Plain text file (.txt)</file-type -->
+  <!-- directories-only/ -->
 </file-picker-1-jobfile>

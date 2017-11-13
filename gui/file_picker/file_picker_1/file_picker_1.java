@@ -326,6 +326,7 @@ public class file_picker_1
 
         File startDirectory = null;
         Map<String, String> fileExtensions = new LinkedHashMap<String, String>();
+        boolean directoriesOnly = false;
 
         try
         {
@@ -423,8 +424,12 @@ public class file_picker_1
                         }
                         else
                         {
-                            throw constructTermination("messageJobFileExtensionSpecifiedMoreThanOnce", null, null, jobFile.getAbsolutePath(), extension);                       
+                            throw constructTermination("messageJobFileExtensionSpecifiedMoreThanOnce", null, null, jobFile.getAbsolutePath(), extension);
                         }
+                    }
+                    else if (tagName.equals("directories-only") == true)
+                    {
+                        directoriesOnly = true;
                     }
                 }
             }
@@ -444,7 +449,15 @@ public class file_picker_1
 
         final JFileChooser chooser = new JFileChooser(getI10nString("windowCaptionSelectFile"));
         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
-        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        if (directoriesOnly == true)
+        {
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        }
+        else
+        {
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        }
 
         if (startDirectory != null)
         {
