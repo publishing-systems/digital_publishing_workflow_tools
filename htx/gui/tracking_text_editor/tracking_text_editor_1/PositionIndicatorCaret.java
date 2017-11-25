@@ -133,13 +133,22 @@ public class PositionIndicatorCaret extends DefaultCaret implements KeyListener
         }
 
         this.keyTyped = true;
-
         int keyCode = event.getKeyCode();
 
-        if (keyCode == KeyEvent.VK_DELETE)
+        if (keyCode == KeyEvent.VK_UP ||
+            keyCode == KeyEvent.VK_DOWN ||
+            keyCode == KeyEvent.VK_LEFT ||
+            keyCode == KeyEvent.VK_RIGHT ||
+            keyCode == KeyEvent.VK_HOME ||
+            keyCode == KeyEvent.VK_PAGE_UP ||
+            keyCode == KeyEvent.VK_PAGE_DOWN ||
+            keyCode == KeyEvent.VK_END)
         {
-            this.textLengthLast = this.textArea.getText().length();
-            return;
+            this.parent.caretMoved();
+        }
+        else
+        {
+            this.parent.keyTyped();
         }
 
         return;
@@ -160,7 +169,6 @@ public class PositionIndicatorCaret extends DefaultCaret implements KeyListener
           * consolidated later by optimizing the finished output file,
           * so this is left as a TODO. */
 
-        int textLengthCurrent = this.textArea.getText().length();
         int keyCode = event.getKeyCode();
 
         if (keyCode == KeyEvent.VK_UP ||
@@ -173,26 +181,13 @@ public class PositionIndicatorCaret extends DefaultCaret implements KeyListener
             keyCode == KeyEvent.VK_END)
         {
             this.parent.caretMoved();
-            this.keyTyped = false;
-            return;
         }
-        else if (keyCode == KeyEvent.VK_DELETE)
-        {
-            this.parent.reverseDelete(this.textLengthLast - textLengthCurrent);
-            this.textLengthLast = textLengthCurrent;
-            this.keyTyped = false;
-            return;
-        }
-
-        this.textLengthLast = textLengthCurrent;
-
-        if (keyCode != 0)
+        else
         {
             this.parent.keyTyped();
         }
 
         this.keyTyped = false;
-
         return;
     }
 
@@ -204,28 +199,12 @@ public class PositionIndicatorCaret extends DefaultCaret implements KeyListener
             return;
         }
 
-        int keyCode = event.getKeyCode();
-
-        if (keyCode == KeyEvent.VK_DELETE)
-        {
-            int textLengthCurrent = this.textArea.getText().length();
-
-            this.parent.reverseDelete(this.textLengthLast - textLengthCurrent);
-            this.textLengthLast = textLengthCurrent;
-            return;
-        }
-
-        if (keyCode != 0)
-        {
-            this.parent.keyTyped();
-        }
-
+        this.parent.keyTyped();
         return;
     }
 
     protected tracking_text_editor_1 parent = null;
     protected JTextArea textArea = null;
-    protected long textLengthLast = -1;
     protected boolean mouseClicked = false;
     protected boolean keyTyped = false;
 }

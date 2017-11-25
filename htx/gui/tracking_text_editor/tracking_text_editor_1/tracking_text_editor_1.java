@@ -619,6 +619,7 @@ public class tracking_text_editor_1
         setSize(500, 400);
         setVisible(true);
 
+        this.textLengthLast = this.textArea.getText().length();
         this.positionLast = this.textArea.getCaretPosition();
         this.positionOperationStart = -1;
         this.editMode = EDITMODE_NONE;
@@ -689,149 +690,171 @@ public class tracking_text_editor_1
     public void keyTyped()
     {
         int positionCurrent = this.textArea.getCaretPosition();
+        int textLengthCurrent = this.textArea.getText().length();
 
-        if (this.positionLast < positionCurrent)
+        if (this.textLengthLast < textLengthCurrent)
         {
-            try
-            {
-                this.lastCharacterAdded = Character.codePointAt(this.textArea.getText(this.positionLast, positionCurrent - this.positionLast).toCharArray(), 0);
-            }
-            catch (BadLocationException ex)
-            {
-                throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
-            }
-
-            if (this.editMode == EDITMODE_NONE)
-            {
-                this.positionOperationStart = this.positionLast;
-            }
-            else if (this.editMode == EDITMODE_ADD)
-            {
-
-            }
-            else if (this.editMode == EDITMODE_DELETE)
+            if (this.positionLast < positionCurrent)
             {
                 try
                 {
-                    this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
-                    this.outputWriter.flush();
-                }
-                catch (IOException ex)
-                {
-                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
-                }
-
-                this.positionOperationStart = this.positionLast;
-            }
-            else
-            {
-                throw new UnsupportedOperationException();
-            }
-
-            if (this.autosaveCharacters > 0 &&
-                (this.positionLast - this.positionOperationStart) >= this.autosaveCharacters)
-            {
-                try
-                {
-                    this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
-
-                    String text = this.textArea.getText(this.positionOperationStart, this.positionLast - this.positionOperationStart);
-
-                    // Ampersand needs to be the first, otherwise it would double-encode
-                    // other entities.
-                    text = text.replaceAll("&", "&amp;");
-                    text = text.replaceAll("<", "&lt;");
-                    text = text.replaceAll(">", "&gt;");
-
-                    this.outputWriter.append(text + "</add>\n");
-                    this.outputWriter.flush();
+                    this.lastCharacterAdded = Character.codePointAt(this.textArea.getText(this.positionLast, positionCurrent - this.positionLast).toCharArray(), 0);
                 }
                 catch (BadLocationException ex)
                 {
                     throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
                 }
-                catch (IOException ex)
+
+                if (this.editMode == EDITMODE_NONE)
                 {
-                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                    this.positionOperationStart = this.positionLast;
                 }
-
-                this.positionOperationStart = this.positionLast;
-            }
-
-            this.editMode = EDITMODE_ADD;
-        }
-        else if (this.positionLast > positionCurrent)
-        {
-            if (this.editMode == EDITMODE_NONE)
-            {
-                this.positionOperationStart = this.positionLast;
-            }
-            else if (this.editMode == EDITMODE_DELETE)
-            {
-
-            }
-            else if (this.editMode == EDITMODE_ADD)
-            {
-                try
+                else if (this.editMode == EDITMODE_ADD)
                 {
-                    this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
 
-                    String text = this.textArea.getText(this.positionOperationStart, positionCurrent - this.positionOperationStart);
-
-                    if (this.lastCharacterAdded != null)
+                }
+                else if (this.editMode == EDITMODE_DELETE)
+                {
+                    try
                     {
-                        text += new String(Character.toChars(this.lastCharacterAdded));
+                        this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+                        this.outputWriter.flush();
+                    }
+                    catch (IOException ex)
+                    {
+                        throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
                     }
 
-                    // Ampersand needs to be the first, otherwise it would double-encode
-                    // other entities.
-                    text = text.replaceAll("&", "&amp;");
-                    text = text.replaceAll("<", "&lt;");
-                    text = text.replaceAll(">", "&gt;");
-
-                    this.outputWriter.append(text + "</add>\n");
-                    this.outputWriter.flush();
+                    this.positionOperationStart = this.positionLast;
                 }
-                catch (BadLocationException ex)
+                else
                 {
-                    throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
-                }
-                catch (IOException ex)
-                {
-                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                    throw new UnsupportedOperationException();
                 }
 
-                this.positionOperationStart = this.positionLast;
+                if (this.autosaveCharacters > 0 &&
+                    (this.positionLast - this.positionOperationStart) >= this.autosaveCharacters)
+                {
+                    try
+                    {
+                        this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                        String text = this.textArea.getText(this.positionOperationStart, this.positionLast - this.positionOperationStart);
+
+                        // Ampersand needs to be the first, otherwise it would double-encode
+                        // other entities.
+                        text = text.replaceAll("&", "&amp;");
+                        text = text.replaceAll("<", "&lt;");
+                        text = text.replaceAll(">", "&gt;");
+
+                        this.outputWriter.append(text + "</add>\n");
+                        this.outputWriter.flush();
+                    }
+                    catch (BadLocationException ex)
+                    {
+                        throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+                    }
+                    catch (IOException ex)
+                    {
+                        throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+                    }
+
+                    this.positionOperationStart = this.positionLast;
+                }
+
+                this.editMode = EDITMODE_ADD;
+            }
+        }
+        else if (this.textLengthLast > textLengthCurrent)
+        {
+            if (this.positionLast > positionCurrent)
+            {
+                this.forwardDelete(positionCurrent);
+            }
+            else if (this.positionLast == positionCurrent)
+            {
+                this.reverseDelete(this.textLengthLast - textLengthCurrent);
             }
             else
             {
-                throw new UnsupportedOperationException();
+                this.infoMessages.add(constructInfoMessage("messageKeyTypedPositionLastLowerThanPositionCurrent", true, null, "tracking_text_editor_1.keyTyped(): positionLast (" + this.positionLast + ") < positionCurrent (" + positionCurrent + ")."));
             }
-
-            if (this.autosaveCharacters > 0 &&
-                (this.positionOperationStart - this.positionLast) >= this.autosaveCharacters)
-            {
-                try
-                {
-                    this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
-                    this.outputWriter.flush();
-                }
-                catch (IOException ex)
-                {
-                    throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
-                }
-
-                this.positionOperationStart = this.positionLast;
-            }
-
-            this.lastCharacterAdded = null;
-            this.editMode = EDITMODE_DELETE;
         }
 
         this.positionLast = positionCurrent;
+        this.textLengthLast = textLengthCurrent;
     }
 
-    public void reverseDelete(long charactersDeleted)
+    public void forwardDelete(int positionCurrent)
+    {
+        if (this.editMode == EDITMODE_NONE)
+        {
+            this.positionOperationStart = this.positionLast;
+        }
+        else if (this.editMode == EDITMODE_DELETE)
+        {
+
+        }
+        else if (this.editMode == EDITMODE_ADD)
+        {
+            try
+            {
+                this.outputWriter.append("<add position=\"" + this.positionOperationStart + "\">");
+
+                String text = this.textArea.getText(this.positionOperationStart, positionCurrent - this.positionOperationStart);
+
+                if (this.lastCharacterAdded != null)
+                {
+                    text += new String(Character.toChars(this.lastCharacterAdded));
+                }
+
+                // Ampersand needs to be the first, otherwise it would double-encode
+                // other entities.
+                text = text.replaceAll("&", "&amp;");
+                text = text.replaceAll("<", "&lt;");
+                text = text.replaceAll(">", "&gt;");
+
+                this.outputWriter.append(text + "</add>\n");
+                this.outputWriter.flush();
+            }
+            catch (BadLocationException ex)
+            {
+                this.infoMessages.add(constructInfoMessage("messageForwardDeleteBadLocationException", true, null, "tracking_text_editor_1.forwardDelete(): BadLocationException with positionOperationStart (" + this.positionOperationStart + "), positionCurrent (" + positionCurrent + ")."));
+                throw constructTermination("messageUnableToObtainPortionOfTextFromTextArea", ex, null);
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+            }
+
+            this.positionOperationStart = this.positionLast;
+        }
+        else
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        if (this.autosaveCharacters > 0 &&
+            (this.positionOperationStart - this.positionLast) >= this.autosaveCharacters)
+        {
+            try
+            {
+                this.outputWriter.append("<delete position=\"" + this.positionOperationStart + "\" count=\"" + (this.positionLast - this.positionOperationStart) + "\" />\n");
+                this.outputWriter.flush();
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageErrorWhileWritingOutputFile", ex, null, this.outputFile);
+            }
+
+            this.positionOperationStart = this.positionLast;
+        }
+
+        this.lastCharacterAdded = null;
+        this.editMode = EDITMODE_DELETE;
+    }
+
+    public void reverseDelete(int charactersDeleted)
     {
         int positionCurrent = this.textArea.getCaretPosition();
 
@@ -839,7 +862,7 @@ public class tracking_text_editor_1
         {
             if (this.editMode == EDITMODE_NONE)
             {
-                this.positionOperationStart = positionCurrent + (int)charactersDeleted;
+                this.positionOperationStart = positionCurrent + charactersDeleted;
                 this.positionLast = positionCurrent;
             }
             else if (this.editMode == EDITMODE_DELETE)
@@ -1360,6 +1383,7 @@ public class tracking_text_editor_1
     public final int EDITMODE_DELETE = 2;
 
     protected JTextArea textArea = null;
+    protected int textLengthLast = 0;
     protected int positionLast = -1;
     protected int positionOperationStart = -1;
     protected int editMode = EDITMODE_NONE;
