@@ -622,12 +622,14 @@ public class http_client_1
                                             ownsRequestDataSourceFile = true;
 
                                             writer = new BufferedWriter(
-                                                    new OutputStreamWriter(
-                                                    new FileOutputStream(requestDataSourceFile),
-                                                    "UTF-8"));
+                                                     new OutputStreamWriter(
+                                                     new FileOutputStream(requestDataSourceFile),
+                                                     "UTF-8"));
                                         }
 
-                                        event.writeAsEncodedUnicode(writer);
+                                        // event.writeAsEncodedUnicode(writer) would keep XML entities.
+                                        // Hopefully the alternative doesn't mess with the encoding.
+                                        writer.write(event.asCharacters().getData());
                                     }
                                     else if (event.isEndElement() == true)
                                     {

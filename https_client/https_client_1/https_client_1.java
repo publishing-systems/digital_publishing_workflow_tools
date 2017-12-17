@@ -681,7 +681,9 @@ public class https_client_1
                                                     "UTF-8"));
                                         }
 
-                                        event.writeAsEncodedUnicode(writer);
+                                        // event.writeAsEncodedUnicode(writer) would keep XML entities.
+                                        // Hopefully the alternative doesn't mess with the encoding.
+                                        writer.write(event.asCharacters().getData());
                                     }
                                     else if (event.isEndElement() == true)
                                     {
