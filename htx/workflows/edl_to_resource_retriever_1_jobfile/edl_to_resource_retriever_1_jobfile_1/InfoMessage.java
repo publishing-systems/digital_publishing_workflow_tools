@@ -1,25 +1,25 @@
 /* Copyright (C) 2016-2017 Stephan Kreutzer
  *
- * This file is part of edl_fulfiller_1 workflow, a submodule of the
+ * This file is part of edl_to_resource_retriever_1_jobfile_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * edl_fulfiller_1 workflow is free software: you can redistribute it and/or modify
+ * edl_to_resource_retriever_1_jobfile_1 workflow is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * edl_fulfiller_1 workflow is distributed in the hope that it will be useful,
+ * edl_to_resource_retriever_1_jobfile_1 workflow is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with edl_fulfiller_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+ * along with edl_to_resource_retriever_1_jobfile_1 workflow. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/workflows/edl_fulfiller/edl_fulfiller_1/InfoMessage.java
- * @brief For normal messages during edl_fulfiller_1 workflow execution.
+ * @file $/htx/workflows/edl_to_resource_retriever_1_jobfile/edl_to_resource_retriever_1_jobfile_1/InfoMessage.java
+ * @brief For normal messages during edl_to_resource_retriever_1_jobfile_1 workflow conversion.
  * @author Stephan Kreutzer
- * @since 2016-01-31
+ * @since 2016-01-04
  */
 
 
@@ -44,7 +44,6 @@ class InfoMessage
         this.message = message;
         this.bundle = bundle;
         this.arguments = arguments;
-        this.resourceIndex = -1;
 
         TimeZone timeZone = TimeZone.getTimeZone("UTC");
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -82,21 +81,10 @@ class InfoMessage
         return this.timestamp;
     }
 
-    public void SetResourceIndex(int resourceIndex)
-    {
-        this.resourceIndex = resourceIndex;
-    }
-
-    public int GetResourceIndex()
-    {
-        return this.resourceIndex;
-    }
-
     protected String id;
     protected Exception exception;
     protected String message;
     protected String bundle;
     protected Object[] arguments;
     protected String timestamp;
-    protected int resourceIndex;
 }

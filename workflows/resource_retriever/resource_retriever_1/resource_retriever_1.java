@@ -1,24 +1,23 @@
 /* Copyright (C) 2016-2017  Stephan Kreutzer
  *
- * This file is part of edl_fulfiller_1 workflow, a submodule of the
+ * This file is part of resource_retriever_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * edl_fulfiller_1 workflow is free software: you can redistribute it and/or modify
+ * resource_retriever_1 workflow is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * edl_fulfiller_1 workflow is distributed in the hope that it will be useful,
+ * resource_retriever_1 workflow is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with edl_fulfiller_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+ * along with resource_retriever_1 workflow. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/workflows/edl_fulfiller/edl_fulfiller_1/edl_fulfiller_1.java
- * @brief Attempts to retrieve all resources referenced by the XML version of an EDL
- *     (Edit Decision List).
+ * @file $/workflows/resource_retriever/resource_retriever_1/resource_retriever_1.java
+ * @brief Attempts to retrieve multiple resources as specified by scheme ("protocol").
  * @author Stephan Kreutzer
  * @since 2017-07-15
  */
@@ -52,11 +51,11 @@ import java.util.Scanner;
 
 
 
-public class edl_fulfiller_1
+public class resource_retriever_1
 {
     public static void main(String[] args)
     {
-        System.out.print("edl_fulfiller_1 workflow Copyright (C) 2016-2017 Stephan Kreutzer\n" +
+        System.out.print("resource_retriever_1 workflow Copyright (C) 2016-2017 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -64,7 +63,7 @@ public class edl_fulfiller_1
                          "https://github.com/publishing-systems/digital_publishing_workflow_tools/ and\n" +
                          "the project website http://www.publishing-systems.org.\n\n");
 
-        edl_fulfiller_1 fulfiller = new edl_fulfiller_1();
+        resource_retriever_1 fulfiller = new resource_retriever_1();
 
         try
         {
@@ -85,8 +84,8 @@ public class edl_fulfiller_1
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_fulfiller_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-fulfiller-1-workflow-result-information>\n");
+                writer.write("<!-- This file was created by resource_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<resource-retriever-1-workflow-result-information>\n");
                 writer.write("  <success>\n");
 
                 if (fulfiller.GetRetrievedResourceInfo().size() > 0)
@@ -268,7 +267,7 @@ public class edl_fulfiller_1
                 }
 
                 writer.write("  </success>\n");
-                writer.write("</edl-fulfiller-1-workflow-result-information>\n");
+                writer.write("</resource-retriever-1-workflow-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -296,7 +295,7 @@ public class edl_fulfiller_1
 
         if (args.length < 2)
         {
-            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tedl_fulfiller_1 " + getI10nString("messageParameterList") + "\n");
+            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tresource_retriever_1 " + getI10nString("messageParameterList") + "\n");
         }
 
         File resultInfoFile = new File(args[1]);
@@ -329,10 +328,10 @@ public class edl_fulfiller_1
             }
         }
 
-        edl_fulfiller_1.resultInfoFile = resultInfoFile;
+        resource_retriever_1.resultInfoFile = resultInfoFile;
 
 
-        String programPath = edl_fulfiller_1.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String programPath = resource_retriever_1.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
         try
         {
@@ -406,7 +405,7 @@ public class edl_fulfiller_1
             throw constructTermination("messageJobFileIsntReadable", null, null, jobFile.getAbsolutePath());
         }
 
-        System.out.println("edl_fulfiller_1 workflow: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
+        System.out.println("resource_retriever_1 workflow: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
 
         List<String> requestedResources = new ArrayList<String>();
@@ -553,7 +552,7 @@ public class edl_fulfiller_1
 
             File jobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_" + protocol + "_client_1_" + resourceIndex + ".xml");
             File resultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_" + protocol + "_client_1_" + resourceIndex + ".xml");
-            File resourceFile = new File(outputDirectory.getAbsolutePath() + File.separator + "resource_" + resourceIndex + ".txt");
+            File resourceFile = new File(outputDirectory.getAbsolutePath() + File.separator + "resource_" + resourceIndex);
 
             if (jobFile.exists() == true)
             {
@@ -662,7 +661,7 @@ public class edl_fulfiller_1
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_fulfiller_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<!-- This file was created by resource_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
                 writer.write("<" + protocol + "-client-1-jobfile>\n");
                 writer.write("  <request url=\"" + url + "\" method=\"GET\"/>\n");
                 writer.write("  <response destination=\"" + resourceFile.getAbsolutePath() + "\"/>\n");
@@ -690,7 +689,7 @@ public class edl_fulfiller_1
             }
 
             ProcessBuilder builder = new ProcessBuilder("java", protocol + "_client_1", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath());
-            builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + protocol + "_client" + File.separator + protocol + "_client_1"));
+            builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + protocol + "_client" + File.separator + protocol + "_client_1"));
             builder.redirectErrorStream(true);
 
             try
@@ -857,11 +856,11 @@ public class edl_fulfiller_1
         {
             if (arguments == null)
             {
-                message = "edl_fulfiller_1 workflow: " + getI10nString(id);
+                message = "resource_retriever_1 workflow: " + getI10nString(id);
             }
             else
             {
-                message = "edl_fulfiller_1 workflow: " + getI10nStringFormatted(id, arguments);
+                message = "resource_retriever_1 workflow: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -898,11 +897,11 @@ public class edl_fulfiller_1
         {
             if (arguments == null)
             {
-                message = "edl_fulfiller_1 workflow: " + getI10nString(id);
+                message = "resource_retriever_1 workflow: " + getI10nString(id);
             }
             else
             {
-                message = "edl_fulfiller_1 workflow: " + getI10nStringFormatted(id, arguments);
+                message = "resource_retriever_1 workflow: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -930,18 +929,18 @@ public class edl_fulfiller_1
             innerException.printStackTrace();
         }
 
-        if (edl_fulfiller_1.resultInfoFile != null)
+        if (resource_retriever_1.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(edl_fulfiller_1.resultInfoFile),
+                                        new FileOutputStream(resource_retriever_1.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by edl_fulfiller_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-fulfiller-1-workflow-result-information>\n");
+                writer.write("<!-- This file was created by resource_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<resource-retriever-1-workflow-result-information>\n");
 
                 if (normalTermination == false)
                 {
@@ -1166,7 +1165,7 @@ public class edl_fulfiller_1
                     writer.write("  </success>\n");
                 }
 
-                writer.write("</edl-fulfiller-1-workflow-result-information>\n");
+                writer.write("</resource-retriever-1-workflow-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -1184,7 +1183,7 @@ public class edl_fulfiller_1
             }
         }
 
-        edl_fulfiller_1.resultInfoFile = null;
+        resource_retriever_1.resultInfoFile = null;
 
         System.exit(-1);
         return -1;
@@ -1238,7 +1237,7 @@ public class edl_fulfiller_1
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
     protected List<RetrievedResourceInfo> retrievedResourceInfo = new ArrayList<RetrievedResourceInfo>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nEdlFulfiller1WorkflowConsole";
+    private static final String L10N_BUNDLE = "l10n.l10nResourceRetriever1WorkflowConsole";
     private ResourceBundle l10nConsole;
 }
 

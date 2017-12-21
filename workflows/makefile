@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Stephan Kreutzer
+# Copyright (C) 2016-2017  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./onix_to_woocommerce ./setup ./wordpress_media_library_file_uploader
+directories = ./onix_to_woocommerce ./resource_retriever ./setup ./wordpress_media_library_file_uploader
 
 
 

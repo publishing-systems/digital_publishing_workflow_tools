@@ -1,25 +1,25 @@
-/* Copyright (C) 2015-2017 Stephan Kreutzer
+/* Copyright (C) 2016-2017 Stephan Kreutzer
  *
- * This file is part of edl_fulfiller_1 workflow, a submodule of the
+ * This file is part of resource_retriever_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * edl_fulfiller_1 workflow is free software: you can redistribute it and/or modify
+ * resource_retriever_1 workflow is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * edl_fulfiller_1 workflow is distributed in the hope that it will be useful,
+ * resource_retriever_1 workflow is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with edl_fulfiller_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+ * along with resource_retriever_1 workflow. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/htx/workflows/edl_fulfiller/edl_fulfiller_1/ProgramTerminationException.java
- * @brief Handles error reporting and program termination for edl_fulfiller_1 workflow.
+ * @file $/workflows/resource_retriever/resource_retriever_1/InfoMessage.java
+ * @brief For normal messages during resource_retriever_1 workflow execution.
  * @author Stephan Kreutzer
- * @since 2015-11-14
+ * @since 2016-01-31
  */
 
 
@@ -31,20 +31,20 @@ import java.util.Date;
 
 
 
-class ProgramTerminationException extends RuntimeException
+class InfoMessage
 {
-    public ProgramTerminationException(String id,
-                                       Exception cause,
-                                       String message,
-                                       String bundle,
-                                       Object ... arguments)
+    public InfoMessage(String id,
+                       Exception exception,
+                       String message,
+                       String bundle,
+                       Object ... arguments)
     {
-        super(message, cause);
-
         this.id = id;
+        this.exception = exception;
+        this.message = message;
         this.bundle = bundle;
         this.arguments = arguments;
-        this.normalTermination = false;
+        this.resourceIndex = -1;
 
         TimeZone timeZone = TimeZone.getTimeZone("UTC");
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -55,6 +55,16 @@ class ProgramTerminationException extends RuntimeException
     public String getId()
     {
         return this.id;
+    }
+
+    public Exception getException()
+    {
+        return this.exception;
+    }
+
+    public String getMessage()
+    {
+        return this.message;
     }
 
     public String getBundle()
@@ -72,19 +82,21 @@ class ProgramTerminationException extends RuntimeException
         return this.timestamp;
     }
 
-    public boolean isNormalTermination()
+    public void SetResourceIndex(int resourceIndex)
     {
-        return this.normalTermination;
+        this.resourceIndex = resourceIndex;
     }
 
-    public void setNormalTermination(boolean normalTermination)
+    public int GetResourceIndex()
     {
-        this.normalTermination = normalTermination;
+        return this.resourceIndex;
     }
 
     protected String id;
+    protected Exception exception;
+    protected String message;
     protected String bundle;
     protected Object[] arguments;
     protected String timestamp;
-    protected boolean normalTermination;
+    protected int resourceIndex;
 }

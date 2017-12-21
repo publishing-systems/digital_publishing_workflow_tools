@@ -16,7 +16,7 @@
 
 
 
-directories = ./edl_to_edl_fulfiller_1_jobfile_1
+directories = ./resource_retriever_1
 
 
 
