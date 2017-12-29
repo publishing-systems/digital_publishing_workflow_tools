@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2017  Stephan Kreutzer
+# Copyright (C) 2017  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./edl_fulfiller ./edl_to_resource_retriever_1_jobfile ./text_position_retriever
+directories = ./edl_fulfiller_1
 
 
 
