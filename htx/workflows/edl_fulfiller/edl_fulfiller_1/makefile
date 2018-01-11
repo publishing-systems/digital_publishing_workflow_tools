@@ -1,4 +1,4 @@
-# Copyright (C) 2017  Stephan Kreutzer
+# Copyright (C) 2017-2018  Stephan Kreutzer
 #
 # This file is part of edl_fulfiller_1 workflow, a submodule of the
 # digital_publishing_workflow_tools package.
@@ -32,11 +32,15 @@ InfoMessage.class: InfoMessage.java
 ProgramTerminationException.class: ProgramTerminationException.java
 	javac -encoding UTF-8 ProgramTerminationException.java
 
-edl_fulfiller_1.class: edl_fulfiller_1.java InfoMessage.class ProgramTerminationException.class
+SpanInfo.class: SpanInfo.java
+	javac -encoding UTF-8 SpanInfo.java
+
+edl_fulfiller_1.class: edl_fulfiller_1.java SpanInfo.class InfoMessage.class ProgramTerminationException.class
 	javac -encoding UTF-8 edl_fulfiller_1.java
 
 
 clean:
 	rm -f edl_fulfiller_1.class
+	rm -f SpanInfo.class	
 	rm -f ProgramTerminationException.class
 	rm -f InfoMessage.class

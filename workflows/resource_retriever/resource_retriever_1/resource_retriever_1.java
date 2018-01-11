@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2017  Stephan Kreutzer
+/* Copyright (C) 2016-2018  Stephan Kreutzer
  *
  * This file is part of resource_retriever_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -55,7 +55,7 @@ public class resource_retriever_1
 {
     public static void main(String[] args)
     {
-        System.out.print("resource_retriever_1 workflow Copyright (C) 2016-2017 Stephan Kreutzer\n" +
+        System.out.print("resource_retriever_1 workflow Copyright (C) 2016-2018 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -548,8 +548,6 @@ public class resource_retriever_1
             url = url.replaceAll("\"", "&quot;");
             url = url.replaceAll("'", "&apos;");
 
-            identifier = identifier.substring(pos + new String("://").length());
-
             File jobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_" + protocol + "_client_1_" + resourceIndex + ".xml");
             File resultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_" + protocol + "_client_1_" + resourceIndex + ".xml");
             File resourceFile = new File(outputDirectory.getAbsolutePath() + File.separator + "resource_" + resourceIndex);
@@ -788,13 +786,13 @@ public class resource_retriever_1
         }
         else if (protocol.equals("file") == true)
         {
-            identifier = identifier.substring(pos + new String("://").length());
+            String path = identifier.substring(pos + new String("://").length());
 
-            File localResource = new File(identifier);
+            File localResource = new File(path);
 
             if (localResource.isAbsolute() != true)
             {
-                localResource = new File(jobFileDirectory + File.separator + identifier);
+                localResource = new File(jobFileDirectory + File.separator + path);
             }
 
             try

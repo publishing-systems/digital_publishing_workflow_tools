@@ -1,4 +1,4 @@
-/* Copyright (C) 2016-2017 Stephan Kreutzer
+/* Copyright (C) 2016-2018 Stephan Kreutzer
  *
  * This file is part of edl_fulfiller_1 workflow, a submodule of the
  * digital_publishing_workflow_tools package.
@@ -50,6 +50,10 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.util.Scanner;
+import java.lang.NumberFormatException;
+import java.util.Map;
+import java.util.HashMap;
+
 
 
 
@@ -57,7 +61,7 @@ public class edl_fulfiller_1
 {
     public static void main(String args[])
     {
-        System.out.print("edl_fulfiller_1 workflow Copyright (C) 2016-2017 Stephan Kreutzer\n" +
+        System.out.print("edl_fulfiller_1 workflow Copyright (C) 2016-2018 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -511,6 +515,94 @@ public class edl_fulfiller_1
         if (outputFile == null)
         {
             throw constructTermination("messageJobFileOutputFileIsntConfigured", null, null, jobFile.getAbsolutePath(), "output-file");
+        }
+
+
+        List<SpanInfo> spanInfos = new ArrayList<SpanInfo>();
+
+        try
+        {
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            InputStream in = new FileInputStream(inputFile);
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+            while (eventReader.hasNext() == true)
+            {
+                XMLEvent event = eventReader.nextEvent();
+
+                if (event.isStartElement() == true)
+                {
+                    String tagName = event.asStartElement().getName().getLocalPart();
+
+                    if (tagName.equals("span") == true)
+                    {
+                        StartElement spanElement = event.asStartElement();
+                        Attribute identifierAttribute = spanElement.getAttributeByName(new QName("identifier"));
+                        Attribute startAttribute = spanElement.getAttributeByName(new QName("start"));
+                        Attribute lengthAttribute = spanElement.getAttributeByName(new QName("length"));
+
+                        if (identifierAttribute == null)
+                        {
+                            throw constructTermination("messageInputFileEntryIsMissingAnAttribute", null, null, inputFile.getAbsolutePath(), tagName, "identifier");
+                        }
+
+                        if (startAttribute == null)
+                        {
+                            throw constructTermination("messageInputFileEntryIsMissingAnAttribute", null, null, inputFile.getAbsolutePath(), tagName, "start");
+                        }
+
+                        if (lengthAttribute == null)
+                        {
+                            throw constructTermination("messageInputFileEntryIsMissingAnAttribute", null, null, inputFile.getAbsolutePath(), tagName, "length");
+                        }
+
+                        long startNumber = 0;
+
+                        try
+                        {
+                            startNumber = Long.parseLong(startAttribute.getValue());
+                        }
+                        catch (NumberFormatException ex)
+                        {
+                            throw constructTermination("messageInputFileEntryAttributeIsntANumber", ex, null, inputFile.getAbsolutePath(), tagName, "start", startAttribute.getValue());
+                        }
+
+                        long lengthNumber = 0;
+
+                        try
+                        {
+                            lengthNumber = Long.parseLong(lengthAttribute.getValue());
+                        }
+                        catch (NumberFormatException ex)
+                        {
+                            throw constructTermination("messageInputFileEntryAttributeIsntANumber", ex, null, inputFile.getAbsolutePath(), tagName, "length", lengthAttribute.getValue());
+                        }
+
+                        spanInfos.add(new SpanInfo(identifierAttribute.getValue(),
+                                                   null,
+                                                   startNumber,
+                                                   lengthNumber));
+                    }
+                }
+            }
+        }
+        catch (XMLStreamException ex)
+        {
+            throw constructTermination("messageInputFileErrorWhileReading", ex, null, inputFile.getAbsolutePath());
+        }
+        catch (SecurityException ex)
+        {
+            throw constructTermination("messageInputFileErrorWhileReading", ex, null, inputFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageInputFileErrorWhileReading", ex, null, inputFile.getAbsolutePath());
+        }
+
+        if (spanInfos.isEmpty() == true)
+        {
+            this.getInfoMessages().add(constructInfoMessage("messageInputFileNoSpansSpecified", true, null, null, inputFile.getAbsolutePath()));
+            System.exit(0);
         }
 
 
@@ -989,6 +1081,8 @@ public class edl_fulfiller_1
 
         wasSuccess = false;
 
+        Map<String, File> identifierResourceMapping = new HashMap<String, File>();
+
         try
         {
             XMLInputFactory inputFactory = XMLInputFactory.newInstance();
@@ -1006,7 +1100,70 @@ public class edl_fulfiller_1
                     if (tagName.equals("success") == true)
                     {
                         wasSuccess = true;
-                        break;
+                    }
+                    else if (tagName.equals("retrieved-resource") == true)
+                    {
+                        StartElement retrievedResourceElement = event.asStartElement();
+                        Attribute identifierAttribute = retrievedResourceElement.getAttributeByName(new QName("identifier"));
+                        Attribute successAttribute = retrievedResourceElement.getAttributeByName(new QName("success"));
+                        Attribute pathAttribute = retrievedResourceElement.getAttributeByName(new QName("path"));
+
+                        if (identifierAttribute == null)
+                        {
+                            throw constructTermination("messageResourceRetriever1ResultInfoFileEntryIsMissingAnAttribute", null, null, resourceRetriever1ResultInfoFile.getAbsolutePath(), tagName, "identifier");
+                        }
+
+                        if (successAttribute == null)
+                        {
+                            throw constructTermination("messageResourceRetriever1ResultInfoFileEntryIsMissingAnAttribute", null, null, resourceRetriever1ResultInfoFile.getAbsolutePath(), tagName, "success");
+                        }
+
+                        if (pathAttribute == null)
+                        {
+                            throw constructTermination("messageResourceRetriever1ResultInfoFileEntryIsMissingAnAttribute", null, null, resourceRetriever1ResultInfoFile.getAbsolutePath(), tagName, "path");
+                        }
+
+                        if (successAttribute.getValue().equals("true") != true)
+                        {
+                            throw constructTermination("messageResourceRetriever1ResultInfoFileRetrievalWasntSuccessful", null, null, resourceRetriever1ResultInfoFile.getAbsolutePath(), identifierAttribute.getValue());
+                        }
+
+                        File resourceFile = new File(pathAttribute.getValue());
+
+                        if (resourceFile.isAbsolute() != true)
+                        {
+                            resourceFile = new File(resourceRetriever1ResultInfoFile.getAbsoluteFile().getParent() + File.separator + pathAttribute.getValue());
+                        }
+
+                        try
+                        {
+                            resourceFile = resourceFile.getCanonicalFile();
+                        }
+                        catch (SecurityException ex)
+                        {
+                            throw constructTermination("messageResourceRetriever1ResultInfoFileResourceFileCantGetCanonicalPath", ex, null, resourceFile.getAbsolutePath(), resourceRetriever1ResultInfoFile.getAbsolutePath());
+                        }
+                        catch (IOException ex)
+                        {
+                            throw constructTermination("messageResourceRetriever1ResultInfoFileResourceFileCantGetCanonicalPath", ex, null, resourceFile.getAbsolutePath(), resourceRetriever1ResultInfoFile.getAbsolutePath());
+                        }
+
+                        if (resourceFile.exists() != true)
+                        {
+                            throw constructTermination("messageResourceFileDoesntExist", null, null, resourceFile.getAbsolutePath(), resourceRetriever1ResultInfoFile.getAbsolutePath());
+                        }
+
+                        if (resourceFile.isFile() != true)
+                        {
+                            throw constructTermination("messageResourcePathIsntAFile", null, null, resourceFile.getAbsolutePath(), resourceRetriever1ResultInfoFile.getAbsolutePath());
+                        }
+
+                        if (resourceFile.canRead() != true)
+                        {
+                            throw constructTermination("messageResourceFileIsntReadable", null, null, resourceFile.getAbsolutePath(), resourceRetriever1ResultInfoFile.getAbsolutePath());
+                        }
+
+                        identifierResourceMapping.put(identifierAttribute.getValue(), resourceFile);
                     }
                 }
             }
@@ -1027,6 +1184,27 @@ public class edl_fulfiller_1
         if (wasSuccess != true)
         {
             throw constructTermination("messageResourceRetriever1CallWasntSuccessful", null, null);
+        }
+
+        for (int i = 0; i < spanInfos.size(); i++)
+        {
+            SpanInfo spanInfo = spanInfos.get(i);
+
+            if (identifierResourceMapping.containsKey(spanInfo.getIdentifier()) == true)
+            {
+                spanInfo.setResource(identifierResourceMapping.get(spanInfo.getIdentifier()));
+            }
+            else
+            {
+                throw constructTermination("messageIdentifierNotFoundInResourceMapping", null, null, spanInfo.getIdentifier());
+            }
+        }
+
+        for (int i = 0; i < spanInfos.size(); i++)
+        {
+            SpanInfo spanInfo = spanInfos.get(i);
+
+            System.out.println(spanInfo.getIdentifier() + ", " + spanInfo.getResource().getAbsolutePath() + ", " + spanInfo.getStart() + ", " + spanInfo.getLength()); 
         }
 
         return 0;
