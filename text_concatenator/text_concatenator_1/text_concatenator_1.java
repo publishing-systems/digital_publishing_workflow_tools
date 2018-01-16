@@ -533,7 +533,7 @@ public class text_concatenator_1
                             (remainingCharacters <= 1024 &&
                              bytesRead < remainingCharacters))
                         {
-                            throw constructTermination("messageInputFileAttemptToReadBytesFailed", null, null, spanInfo.getFile().getAbsolutePath());
+                            throw constructTermination("messageInputFileAttemptToReadBytesFailed", null, null, spanInfo.getFile().getAbsolutePath(), spanInfo.getStart(), spanInfo.getLength(), bytesRead, remainingCharacters);
                         }
 
                         writer.write(buffer, 0, bytesRead);

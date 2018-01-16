@@ -1200,11 +1200,206 @@ public class edl_fulfiller_1
             }
         }
 
-        for (int i = 0; i < spanInfos.size(); i++)
-        {
-            SpanInfo spanInfo = spanInfos.get(i);
 
-            System.out.println(spanInfo.getIdentifier() + ", " + spanInfo.getResource().getAbsolutePath() + ", " + spanInfo.getStart() + ", " + spanInfo.getLength()); 
+        File textConcatenator1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_text_concatenator_1.xml");
+
+        if (textConcatenator1JobFile.exists() == true)
+        {
+            if (textConcatenator1JobFile.isFile() == true)
+            {
+                boolean deleteSuccessful = false;
+
+                try
+                {
+                    deleteSuccessful = textConcatenator1JobFile.delete();
+                }
+                catch (SecurityException ex)
+                {
+
+                }
+
+                if (deleteSuccessful != true)
+                {
+                    if (textConcatenator1JobFile.canWrite() != true)
+                    {
+                        throw constructTermination("messageTextConcatenator1JobFileExistsButIsntWritable", null, null, textConcatenator1JobFile.getAbsolutePath());
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageTextConcatenator1Jobfile1JobPathExistsButIsntAFile", null, null, textConcatenator1JobFile.getAbsolutePath());
+            }
+        }
+
+        File textConcatenator1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_text_concatenator_1.xml");
+
+        if (textConcatenator1ResultInfoFile.exists() == true)
+        {
+            if (textConcatenator1ResultInfoFile.isFile() == true)
+            {
+                boolean deleteSuccessful = false;
+
+                try
+                {
+                    deleteSuccessful = textConcatenator1ResultInfoFile.delete();
+                }
+                catch (SecurityException ex)
+                {
+
+                }
+
+                if (deleteSuccessful != true)
+                {
+                    if (textConcatenator1ResultInfoFile.canWrite() != true)
+                    {
+                        throw constructTermination("messageTextConcatenator1ResultInfoFileExistsButIsntWritable", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageTextConcatenator1ResultInfoPathExistsButIsntAFile", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+        }
+
+        if (outputFile.exists() == true)
+        {
+            boolean deleteSuccessful = false;
+
+            try
+            {
+                deleteSuccessful = outputFile.delete();
+            }
+            catch (SecurityException ex)
+            {
+
+            }
+
+            if (deleteSuccessful != true)
+            {
+                if (outputFile.canWrite() != true)
+                {
+                    throw constructTermination("messageOutputFileIsntWritable", null, null, outputFile.getAbsolutePath(), jobFile.getAbsolutePath());
+                }
+            }
+        }
+
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(
+                                    new OutputStreamWriter(
+                                    new FileOutputStream(textConcatenator1JobFile),
+                                    "UTF-8"));
+
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.write("<!-- This file was created by edl_fulfiller_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+            writer.write("<text-concatenator-1-job>\n");
+            writer.write("  <input>\n");
+
+            for (int i = 0; i < spanInfos.size(); i++)
+            {
+                SpanInfo spanInfo = spanInfos.get(i);
+
+                writer.write("    <text-file path=\"" + spanInfo.getResource().getAbsolutePath() + "\" start=\"" + spanInfo.getStart() + "\" length=\"" + spanInfo.getLength() + "\"/>\n");
+            }
+
+            writer.write("  </input>\n");
+            writer.write("  <output-file path=\"" + outputFile.getAbsolutePath() + "\"/>\n");
+            writer.write("</text-concatenator-1-job>\n");
+
+            writer.flush();
+            writer.close();
+        }
+        catch (FileNotFoundException ex)
+        {
+            throw constructTermination("messageTextConcatenator1JobFileWritingError", ex, null, textConcatenator1JobFile.getAbsolutePath());
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+            throw constructTermination("messageTextConcatenator1JobFileWritingError", ex, null, textConcatenator1JobFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageTextConcatenator1JobFileWritingError", ex, null, textConcatenator1JobFile.getAbsolutePath());
+        }
+
+        builder = new ProcessBuilder("java", "text_concatenator_1", textConcatenator1JobFile.getAbsolutePath(), textConcatenator1ResultInfoFile.getAbsolutePath());
+        builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "text_concatenator" + File.separator + "text_concatenator_1"));
+        builder.redirectErrorStream(true);
+
+        try
+        {
+            Process process = builder.start();
+            Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+
+            while (scanner.hasNext() == true)
+            {
+                System.out.println(scanner.next());
+            }
+
+            scanner.close();
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageTextConcatenator1ErrorWhileReadingOutput", ex, null);
+        }
+
+        if (textConcatenator1ResultInfoFile.exists() != true)
+        {
+            throw constructTermination("messageTextConcatenator1ResultInfoFileDoesntExistButShould", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+        }
+
+        if (textConcatenator1ResultInfoFile.isFile() != true)
+        {
+            throw constructTermination("messageTextConcatenator1ResultInfoPathExistsButIsntAFile", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+        }
+
+        if (textConcatenator1ResultInfoFile.canRead() != true)
+        {
+            throw constructTermination("messageTextConcatenator1ResultInfoFileIsntReadable", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+        }
+
+        wasSuccess = false;
+
+        try
+        {
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            InputStream in = new FileInputStream(textConcatenator1ResultInfoFile);
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+            while (eventReader.hasNext() == true)
+            {
+                XMLEvent event = eventReader.nextEvent();
+
+                if (event.isStartElement() == true)
+                {
+                    String tagName = event.asStartElement().getName().getLocalPart();
+
+                    if (tagName.equals("success") == true)
+                    {
+                        wasSuccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+        catch (XMLStreamException ex)
+        {
+            throw constructTermination("messageTextConcatenator1ResultInfoFileErrorWhileReading", ex, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+        }
+        catch (SecurityException ex)
+        {
+            throw constructTermination("messageTextConcatenator1ResultInfoFileErrorWhileReading", ex, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageTextConcatenator1ResultInfoFileErrorWhileReading", ex, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+        }
+
+        if (wasSuccess != true)
+        {
+            throw constructTermination("messageTextConcatenator1CallWasntSuccessful", null, null);
         }
 
         return 0;
@@ -1291,7 +1486,7 @@ public class edl_fulfiller_1
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
                 writer.write("<!-- This file was created by edl_fulfiller_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<edl-fulfiller-1-workflow-jobfile-result-information>\n");
+                writer.write("<edl-fulfiller-1-workflow-result-information>\n");
 
                 if (normalTermination == false)
                 {
