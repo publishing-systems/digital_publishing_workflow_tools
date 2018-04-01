@@ -114,7 +114,7 @@ public class resource_retriever_1
                         if (success == true)
                         {
                             writer.write("success=\"true\" ");
-                            
+
                             if (resourceFile != null)
                             {
                                 writer.write("path=\"" + resourceFile.getAbsolutePath() + "\" ");
@@ -124,7 +124,7 @@ public class resource_retriever_1
                         {
                             writer.write("success=\"false\" ");
                         }
-                        
+
                         writer.write("/>\n");
                     }
 
