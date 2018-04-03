@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2018 Stephan Kreutzer
+
+This file is part of wordpress_client_1 workflow, a submodule of the
+digital_publishing_workflow_tools package.
+
+wordpress_client_1 workflow is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3 or any later version,
+as published by the Free Software Foundation.
+
+wordpress_client_1 workflow is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License 3 for more details.
+
+You should have received a copy of the GNU Affero General Public License 3
+along with wordpress_client_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="wordpress-client-1-workflow-job">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="request"/>
+        <xsd:element ref="temp-directory" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="output-file"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="request">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="parameter"/>
+      </xsd:sequence>
+      <xsd:attribute name="url" type="xsd:string" use="required"/>
+      <xsd:attribute name="action" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="parameter">
+    <xsd:complexType>
+      <xsd:attribute name="name" type="xsd:string" use="required"/>
+      <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="temp-directory">
+    <xsd:complexType>
+      <xsd:attribute name="path" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="output-file">
+    <xsd:complexType>
+      <xsd:attribute name="path" type="xsd:string" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>

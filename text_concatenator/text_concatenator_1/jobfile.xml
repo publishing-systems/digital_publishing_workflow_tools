@@ -21,7 +21,7 @@ along with text_concatenator_1. If not, see <http://www.gnu.org/licenses/>.
   <input>
     <text-file path="./input.txt" start="0" length="423"/>
     <text-file path="./input-2.txt" start="23" length="42"/>
-    <text-file path="./input.txt" start="0" length="423"/>
+    <text-file path="./input.txt"/>
   </input>
   <output-file path="./output.txt"/>
 </text-concatenator-1-job>

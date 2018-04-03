@@ -832,7 +832,8 @@ public class wordpress_client_1
                             {
                                 tagName = event.asStartElement().getName().getLocalPart();
 
-                                if (tagName.equals("response-header-fields") == true)
+                                if (tagName.equals("response-header-fields") == true &&
+                                    wasSuccess == true)
                                 {
                                     while (eventReader.hasNext() == true)
                                     {
@@ -913,6 +914,34 @@ public class wordpress_client_1
                                     }
 
                                     break;
+                                }
+                                else if (tagName.equals("http-status-code") == true)
+                                {
+                                    StringBuilder sb = new StringBuilder();
+
+                                    while (eventReader.hasNext() == true)
+                                    {
+                                        event = eventReader.nextEvent();
+
+                                        if (event.isCharacters() == true)
+                                        {
+                                            sb.append(event.asCharacters());
+                                        }
+                                        else if (event.isEndElement() == true)
+                                        {
+                                            tagName = event.asEndElement().getName().getLocalPart();
+
+                                            if (tagName.equals("http-status-code") == true)
+                                            {
+                                                if (sb.toString().equals("200") != true)
+                                                {
+                                                    wasSuccess = false;
+                                                }
+
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

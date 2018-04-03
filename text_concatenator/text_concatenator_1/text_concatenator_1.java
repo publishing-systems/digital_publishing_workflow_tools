@@ -342,14 +342,18 @@ public class text_concatenator_1
                             throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        if (startAttribute == null)
+                        if (startAttribute != null ||
+                            lengthAttribute != null)
                         {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "start");
-                        }
+                            if (startAttribute == null)
+                            {
+                                throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "start");
+                            }
 
-                        if (lengthAttribute == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "length");
+                            if (lengthAttribute == null)
+                            {
+                                throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "length");
+                            }
                         }
 
                         File inputFile = new File(pathAttribute.getValue());
@@ -387,41 +391,49 @@ public class text_concatenator_1
                             throw constructTermination("messageInputFileIsntReadable", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
-                        long startNumber = 0;
-
-                        try
+                        if (startAttribute != null &&
+                            lengthAttribute != null)
                         {
-                            startNumber = Long.parseLong(startAttribute.getValue());
-                        }
-                        catch (NumberFormatException ex)
-                        {
-                            throw constructTermination("messageJobFileEntryAttributeIsntANumber", ex, null, jobFile.getAbsolutePath(), tagName, "start", startAttribute.getValue());
-                        }
+                            long startNumber = 0;
 
-                        int lengthNumber = 0;
+                            try
+                            {
+                                startNumber = Long.parseLong(startAttribute.getValue());
+                            }
+                            catch (NumberFormatException ex)
+                            {
+                                throw constructTermination("messageJobFileEntryAttributeIsntANumber", ex, null, jobFile.getAbsolutePath(), tagName, "start", startAttribute.getValue());
+                            }
 
-                        try
-                        {
-                            lengthNumber = Integer.parseInt(lengthAttribute.getValue());
-                        }
-                        catch (NumberFormatException ex)
-                        {
-                            throw constructTermination("messageJobFileEntryAttributeIsntANumber", ex, null, jobFile.getAbsolutePath(), tagName, "length", lengthAttribute.getValue());
-                        }
+                            int lengthNumber = 0;
 
-                        if (startNumber < 0)
-                        {
-                            throw constructTermination("messageJobFileEntryAttributeIsNegative", null, null, jobFile.getAbsolutePath(), tagName, "start", startNumber);
-                        }
+                            try
+                            {
+                                lengthNumber = Integer.parseInt(lengthAttribute.getValue());
+                            }
+                            catch (NumberFormatException ex)
+                            {
+                                throw constructTermination("messageJobFileEntryAttributeIsntANumber", ex, null, jobFile.getAbsolutePath(), tagName, "length", lengthAttribute.getValue());
+                            }
 
-                        if (lengthNumber <= 0)
-                        {
-                            throw constructTermination("messageJobFileEntryAttributeIsZeroOrNegative", null, null, jobFile.getAbsolutePath(), tagName, "length", lengthNumber);
-                        }
+                            if (startNumber < 0)
+                            {
+                                throw constructTermination("messageJobFileEntryAttributeIsNegative", null, null, jobFile.getAbsolutePath(), tagName, "start", startNumber);
+                            }
 
-                        spanInfos.add(new SpanInfo(inputFile,
-                                                   startNumber,
-                                                   lengthNumber));
+                            if (lengthNumber <= 0)
+                            {
+                                throw constructTermination("messageJobFileEntryAttributeIsZeroOrNegative", null, null, jobFile.getAbsolutePath(), tagName, "length", lengthNumber);
+                            }
+
+                            spanInfos.add(new SpanInfo(inputFile,
+                                                       startNumber,
+                                                       lengthNumber));
+                        }
+                        else
+                        {
+                            spanInfos.add(new SpanInfo(inputFile));
+                        }
                     }
                     else if (tagName.equals("output-file") == true)
                     {
@@ -509,51 +521,87 @@ public class text_concatenator_1
 
             for (SpanInfo spanInfo : spanInfos) 
             {
-                try
+                if (spanInfo.getComplete() != true)
                 {
-                    BufferedReader reader = new BufferedReader(
-                                            new InputStreamReader(
-                                            new FileInputStream(spanInfo.getFile()),
-                                            "UTF-8"));
-
-                    if (reader.skip(spanInfo.getStart()) != spanInfo.getStart())
+                    try
                     {
-                        throw constructTermination("messageInputFileCantJumpToStartPosition", null, null, spanInfo.getFile().getAbsolutePath(), spanInfo.getStart());
-                    }
+                        BufferedReader reader = new BufferedReader(
+                                                new InputStreamReader(
+                                                new FileInputStream(spanInfo.getFile()),
+                                                "UTF-8"));
 
-                    char[] buffer = new char[1024];
-                    int remainingCharacters = spanInfo.getLength();
-
-                    do
-                    {
-                        int bytesRead = reader.read(buffer, 0, remainingCharacters > 1024 ? 1024 : remainingCharacters);
-
-                        if ((remainingCharacters > 1024 &&
-                             bytesRead < 1024) ||
-                            (remainingCharacters <= 1024 &&
-                             bytesRead < remainingCharacters))
+                        if (reader.skip(spanInfo.getStart()) != spanInfo.getStart())
                         {
-                            throw constructTermination("messageInputFileAttemptToReadBytesFailed", null, null, spanInfo.getFile().getAbsolutePath(), spanInfo.getStart(), spanInfo.getLength(), bytesRead, remainingCharacters);
+                            throw constructTermination("messageInputFileCantJumpToStartPosition", null, null, spanInfo.getFile().getAbsolutePath(), spanInfo.getStart());
                         }
 
-                        writer.write(buffer, 0, bytesRead);
-                        remainingCharacters -= bytesRead;
+                        char[] buffer = new char[1024];
+                        int remainingCharacters = spanInfo.getLength();
 
-                    } while (remainingCharacters > 0);
+                        do
+                        {
+                            int bytesRead = reader.read(buffer, 0, remainingCharacters > 1024 ? 1024 : remainingCharacters);
 
-                    reader.close();
+                            if ((remainingCharacters > 1024 &&
+                                 bytesRead < 1024) ||
+                                (remainingCharacters <= 1024 &&
+                                 bytesRead < remainingCharacters))
+                            {
+                                throw constructTermination("messageInputFileAttemptToReadBytesFailed", null, null, spanInfo.getFile().getAbsolutePath(), spanInfo.getStart(), spanInfo.getLength(), bytesRead, remainingCharacters);
+                            }
+
+                            writer.write(buffer, 0, bytesRead);
+                            remainingCharacters -= bytesRead;
+
+                        } while (remainingCharacters > 0);
+
+                        reader.close();
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    }
+                    catch (UnsupportedEncodingException ex)
+                    {
+                        throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    }
+                    catch (IOException ex)
+                    {
+                        throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    }
                 }
-                catch (FileNotFoundException ex)
+                else
                 {
-                    throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
-                }
-                catch (UnsupportedEncodingException ex)
-                {
-                    throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
-                }
-                catch (IOException ex)
-                {
-                    throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    try
+                    {
+                        BufferedReader reader = new BufferedReader(
+                                                new InputStreamReader(
+                                                new FileInputStream(spanInfo.getFile()),
+                                                "UTF-8"));
+
+                        char[] buffer = new char[1024];
+                        int bytesRead = reader.read(buffer, 0, buffer.length);
+
+                        while (bytesRead > 0)
+                        {
+                            writer.write(buffer, 0, bytesRead);
+                            bytesRead = reader.read(buffer, 0, buffer.length);
+                        }
+
+                        reader.close();
+                    }
+                    catch (FileNotFoundException ex)
+                    {
+                        throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    }
+                    catch (UnsupportedEncodingException ex)
+                    {
+                        throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    }
+                    catch (IOException ex)
+                    {
+                        throw constructTermination("messageErrorWhileConcatenating", ex, null, spanInfo.getFile().getAbsolutePath());
+                    }
                 }
             }
 

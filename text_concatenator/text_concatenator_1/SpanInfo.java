@@ -37,6 +37,15 @@ class SpanInfo
         this.file = file;
         this.start = start;
         this.length = length;
+        this.complete = false;
+    }
+
+    public SpanInfo(File file)
+    {
+        this.file = file;
+        this.start = 0;
+        this.length = Integer.MAX_VALUE;
+        this.complete = true;
     }
 
     public File getFile()
@@ -46,15 +55,31 @@ class SpanInfo
 
     public long getStart()
     {
+        if (this.complete == true)
+        {
+            throw new UnsupportedOperationException();
+        }
+
         return this.start;
     }
 
     public int getLength()
     {
+        if (this.complete == true)
+        {
+            throw new UnsupportedOperationException();
+        }
+
         return this.length;
+    }
+
+    public boolean getComplete()
+    {
+        return complete;
     }
 
     protected File file;
     protected long start;
     protected int length;
+    protected boolean complete;
 }
