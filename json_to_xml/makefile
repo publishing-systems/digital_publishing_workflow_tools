@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Stephan Kreutzer
+# Copyright (C) 2016-2018  Stephan Kreutzer
 #
 # This file is part of digital_publishing_workflow_tools.
 #
@@ -16,7 +16,7 @@
 
 
 
-directories = ./json_to_xml_1
+directories = ./json_to_xml_1 ./json_to_xml_2
 
 
 

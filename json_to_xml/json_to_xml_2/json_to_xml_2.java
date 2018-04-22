@@ -1,31 +1,29 @@
-/* Copyright (C) 2016-2018 Stephan Kreutzer
+/* Copyright (C) 2016-2018  Stephan Kreutzer
  *
- * This file is part of wordpress_retriever_1 workflow, a submodule of the
+ * This file is part of json_to_xml_2, a submodule of the
  * digital_publishing_workflow_tools package.
  *
- * wordpress_retriever_1 workflow is free software: you can redistribute it and/or modify
+ * json_to_xml_2 is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License version 3 or any later version,
  * as published by the Free Software Foundation.
  *
- * wordpress_retriever_1 workflow is distributed in the hope that it will be useful,
+ * json_to_xml_2 is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License 3 for more details.
  *
  * You should have received a copy of the GNU Affero General Public License 3
- * along with wordpress_retriever_1 workflow. If not, see <http://www.gnu.org/licenses/>.
+ * along with json_to_xml_2. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * @file $/workflows/wordpress_retriever/wordpress_retriever_1/wordpress_retriever_1.java
- * @brief Retrieves all posts from a WordPress base URL.
+ * @file $/json_to_xml/json_to_xml_2/json_to_xml_2.java
+ * @brief Converts JSON to XML.
  * @author Stephan Kreutzer
- * @since 2018-03-31
+ * @since 2016-02-13
  */
 
 
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.text.MessageFormat;
@@ -33,11 +31,13 @@ import java.io.File;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 import java.io.FileOutputStream;
-import java.io.StringWriter;
-import java.io.PrintWriter;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.io.IOException;
+import java.io.StringWriter;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.ArrayList;
 import javax.xml.stream.XMLInputFactory;
 import java.io.InputStream;
 import java.io.FileInputStream;
@@ -47,16 +47,16 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.Attribute;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
-import java.net.URLDecoder;
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 
 
-public class wordpress_retriever_1
+public class json_to_xml_2
 {
     public static void main(String args[])
     {
-        System.out.print("wordpress_retriever_1 workflow Copyright (C) 2016-2018 Stephan Kreutzer\n" +
+        System.out.print("json_to_xml_2 workflow Copyright (C) 2016-2018 Stephan Kreutzer\n" +
                          "This program comes with ABSOLUTELY NO WARRANTY.\n" +
                          "This is free software, and you are welcome to redistribute it\n" +
                          "under certain conditions. See the GNU Affero General Public License 3\n" +
@@ -64,7 +64,8 @@ public class wordpress_retriever_1
                          "https://github.com/publishing-systems/digital_publishing_workflow_tools/ and\n" +
                          "the project website http://www.publishing-systems.org.\n\n");
 
-        wordpress_retriever_1 instance = new wordpress_retriever_1();
+
+        json_to_xml_2 instance = new json_to_xml_2();
 
         try
         {
@@ -85,8 +86,8 @@ public class wordpress_retriever_1
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<wordpress-retriever-1-workflow-result-information>\n");
+                writer.write("<!-- This file was created by json_to_xml_2, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<json-to-xml-2-result-information>\n");
                 writer.write("  <success>\n");
 
                 if (instance.getInfoMessages().size() > 0)
@@ -216,10 +217,10 @@ public class wordpress_retriever_1
                     }
 
                     writer.write("    </info-messages>\n");
+                    writer.write("  </success>\n");
                 }
 
-                writer.write("  </success>\n");
-                writer.write("</wordpress-retriever-1-workflow-result-information>\n");
+                writer.write("</json-to-xml-2-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -241,11 +242,13 @@ public class wordpress_retriever_1
         }
     }
 
-    public int call(String args[])
+    public int call(String args[]) throws ProgramTerminationException
     {
+        this.getInfoMessages().clear();
+
         if (args.length < 2)
         {
-            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\twordpress_retriever_1 " + getI10nString("messageParameterList") + "\n");
+            throw constructTermination("messageArgumentsMissing", null, getI10nString("messageArgumentsMissingUsage") + "\n\tjson_to_xml_2 " + getI10nString("messageParameterList") + "\n");
         }
 
         File resultInfoFile = new File(args[1]);
@@ -278,23 +281,8 @@ public class wordpress_retriever_1
             }
         }
 
-        wordpress_retriever_1.resultInfoFile = resultInfoFile;
+        json_to_xml_2.resultInfoFile = resultInfoFile;
 
-        String programPath = wordpress_retriever_1.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-        try
-        {
-            programPath = new File(programPath).getCanonicalPath() + File.separator;
-            programPath = URLDecoder.decode(programPath, "UTF-8");
-        }
-        catch (UnsupportedEncodingException ex)
-        {
-            throw constructTermination("messageCantDetermineProgramPath", ex, null);
-        }
-        catch (IOException ex)
-        {
-            throw constructTermination("messageCantDetermineProgramPath", ex, null);
-        }
 
         File jobFile = new File(args[0]);
 
@@ -326,12 +314,11 @@ public class wordpress_retriever_1
             throw constructTermination("messageJobFileIsntReadable", null, null, jobFile.getAbsolutePath());
         }
 
-        System.out.println("wordpress_retriever_1 workflow: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
+        System.out.println("json_to_xml_2: " + getI10nStringFormatted("messageCallDetails", jobFile.getAbsolutePath(), resultInfoFile.getAbsolutePath()));
 
 
-        String inputUrl = null;
+        File inputFile = null;
         File outputFile = null;
-        File tempDirectory = null;
 
         try
         {
@@ -347,63 +334,90 @@ public class wordpress_retriever_1
                 {
                     String tagName = event.asStartElement().getName().getLocalPart();
 
-                    if (tagName.equals("input") == true)
+                    if (tagName.equals("json-input-file") == true)
                     {
-                        StartElement inputElement = event.asStartElement();
-                        Attribute urlAttribute = inputElement.getAttributeByName(new QName("url"));
-
-                        if (urlAttribute == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "url");
-                        }
-
-                        if (inputUrl != null)
+                        if (inputFile != null)
                         {
                             throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
                         }
 
-                        inputUrl = urlAttribute.getValue();
-                    }
-                    else if (tagName.equals("temp-directory") == true)
-                    {
-                        Attribute attributePath = event.asStartElement().getAttributeByName(new QName("path"));
+                        StartElement inputFileElement = event.asStartElement();
+                        Attribute pathAttribute = inputFileElement.getAttributeByName(new QName("path"));
 
-                        if (attributePath == null)
+                        if (pathAttribute == null)
                         {
                             throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        if (tempDirectory != null)
+                        String inputFilePath = pathAttribute.getValue();
+
+                        if (inputFilePath.isEmpty() == true)
                         {
-                            throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
+                            throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), tagName, "path");
                         }
 
-                        tempDirectory = new File(attributePath.getValue());
+                        inputFile = new File(inputFilePath);
 
-                        if (tempDirectory.isAbsolute() != true)
+                        if (inputFile.isAbsolute() != true)
                         {
-                            tempDirectory = new File(jobFile.getAbsoluteFile().getParent() + File.separator + attributePath.getValue());
+                            inputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + inputFilePath);
+                        }
+
+                        try
+                        {
+                            inputFile = inputFile.getCanonicalFile();
+                        }
+                        catch (SecurityException ex)
+                        {
+                            throw constructTermination("messageInputFileCantGetCanonicalPath", ex, null, new File(inputFilePath).getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+                        catch (IOException ex)
+                        {
+                            throw constructTermination("messageInputFileCantGetCanonicalPath", ex, null, new File(inputFilePath).getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+
+                        if (inputFile.exists() != true)
+                        {
+                            throw constructTermination("messageInputFileDoesntExist", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
+                        }
+
+                        if (inputFile.isFile() != true)
+                        {
+                            throw constructTermination("messageInputPathIsntAFile", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());  
+                        }
+
+                        if (inputFile.canRead() != true)
+                        {
+                            throw constructTermination("messageInputFileIsntReadable", null, null, inputFile.getAbsolutePath(), jobFile.getAbsolutePath());
                         }
                     }
-                    else if (tagName.equals("output-file") == true)
+                    else if (tagName.equals("xml-output-file") == true)
                     {
-                        Attribute attributePath = event.asStartElement().getAttributeByName(new QName("path"));
-
-                        if (attributePath == null)
-                        {
-                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
-                        }
-
                         if (outputFile != null)
                         {
                             throw constructTermination("messageJobFileElementConfiguredMoreThanOnce", null, null, jobFile.getAbsolutePath(), tagName);
                         }
 
-                        outputFile = new File(attributePath.getValue());
+                        StartElement outputFileElement = event.asStartElement();
+                        Attribute pathAttribute = outputFileElement.getAttributeByName(new QName("path"));
+
+                        if (pathAttribute == null)
+                        {
+                            throw constructTermination("messageJobFileEntryIsMissingAnAttribute", null, null, jobFile.getAbsolutePath(), tagName, "path");
+                        }
+
+                        String outputFilePath = pathAttribute.getValue();
+
+                        if (outputFilePath.isEmpty() == true)
+                        {
+                            throw constructTermination("messageJobFileAttributeValueIsEmpty", null, null, jobFile.getAbsolutePath(), tagName, "path");
+                        }
+
+                        outputFile = new File(outputFilePath);
 
                         if (outputFile.isAbsolute() != true)
                         {
-                            outputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + attributePath.getValue());
+                            outputFile = new File(jobFile.getAbsoluteFile().getParent() + File.separator + outputFilePath);
                         }
 
                         try
@@ -412,11 +426,11 @@ public class wordpress_retriever_1
                         }
                         catch (SecurityException ex)
                         {
-                            throw constructTermination("messageOutputFileCantGetCanonicalPath", ex, null, outputFile.getAbsolutePath());
+                            throw constructTermination("messageOutputFileCantGetCanonicalPath", ex, null, new File(outputFilePath).getAbsolutePath(), jobFile.getAbsolutePath());
                         }
                         catch (IOException ex)
                         {
-                            throw constructTermination("messageOutputFileCantGetCanonicalPath", ex, null, outputFile.getAbsolutePath());
+                            throw constructTermination("messageOutputFileCantGetCanonicalPath", ex, null, new File(outputFilePath).getAbsolutePath(), jobFile.getAbsolutePath());
                         }
 
                         if (outputFile.exists() == true)
@@ -450,519 +464,169 @@ public class wordpress_retriever_1
             throw constructTermination("messageJobFileErrorWhileReading", ex, null, jobFile.getAbsolutePath());
         }
 
-        if (inputUrl == null)
+        if (inputFile == null)
         {
-            throw constructTermination("messageJobFileInputUrlIsntConfigured", null, null, jobFile.getAbsolutePath(), "input");
+            throw constructTermination("messageJobFileNoInputFile", null, null, jobFile.getAbsolutePath());
         }
 
         if (outputFile == null)
         {
-            throw constructTermination("messageJobFileOutputFileIsntConfigured", null, null, jobFile.getAbsolutePath(), "output-file");
+            throw constructTermination("messageJobFileNoOutputFile", null, null, jobFile.getAbsolutePath());
         }
 
-        if (tempDirectory == null)
-        {
-            tempDirectory = new File(programPath + "temp");
-        }
+
+        List<JsonNode> tokens = new ArrayList<JsonNode>();
 
         try
         {
-            tempDirectory = tempDirectory.getCanonicalFile();
-        }
-        catch (SecurityException ex)
-        {
-            throw constructTermination("messageTempDirectoryCantGetCanonicalPath", ex, null, tempDirectory.getAbsolutePath());
-        }
-        catch (IOException ex)
-        {
-            throw constructTermination("messageTempDirectoryCantGetCanonicalPath", ex, null, tempDirectory.getAbsolutePath());
-        }
+            BufferedReader reader = new BufferedReader(
+                                    new InputStreamReader(
+                                    new FileInputStream(inputFile),
+                                    "UTF-8"));
 
-        if (tempDirectory.exists() == true)
-        {
-            if (tempDirectory.isDirectory() == true)
-            {
-                if (tempDirectory.canWrite() != true)
-                {
-                    throw constructTermination("messageTempDirectoryIsntWritable", null, null, tempDirectory.getAbsolutePath());
-                }
-            }
-            else
-            {
-                throw constructTermination("messageTempPathIsntADirectory", null, null, tempDirectory.getAbsolutePath());
-            }
-        }
-        else
-        {
             try
             {
-                tempDirectory.mkdirs();
-            }
-            catch (SecurityException ex)
-            {
-                throw constructTermination("messageTempDirectoryCantCreate", null, null, tempDirectory.getAbsolutePath());
-            }
-        }
+                int character = reader.read();
+                String buffer = new String();
+                boolean isWhitespace = false;
 
-
-        List<File> pageFiles = new ArrayList<File>();
-        int pageIndex = 0;
-
-        while (true)
-        {
-            File jobFileWordpressClient1Workflow = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_wordpress_client_1_workflow_job_" + pageIndex + ".xml");
-
-            if (jobFileWordpressClient1Workflow.exists() == true)
-            {
-                if (jobFileWordpressClient1Workflow.isFile() == true)
+                while (character >= 0)
                 {
-                    boolean deleteSuccessful = false;
-
-                    try
+                    if (character == '{' ||
+                        character == '}' ||
+                        character == '"' ||
+                        character == ':' ||
+                        character == '[' ||
+                        character == ']' ||
+                        character == ',')
                     {
-                        deleteSuccessful = jobFileWordpressClient1Workflow.delete();
-                    }
-                    catch (SecurityException ex)
-                    {
-
-                    }
-
-                    if (deleteSuccessful != true)
-                    {
-                        if (jobFileWordpressClient1Workflow.canWrite() != true)
+                        if (buffer.isEmpty() != true)
                         {
-                            throw constructTermination("messageWordpressClient1WorkflowJobFileIsntWritable", null, null, jobFileWordpressClient1Workflow.getAbsolutePath());
+                            tokens.add(new JsonNode(buffer, isWhitespace));
+                            buffer = "";
+                            isWhitespace = false;
                         }
+
+                        tokens.add(new JsonNode(new String() + (char)character, isWhitespace));
                     }
-                }
-                else
-                {
-                    throw constructTermination("messageWordpressClient1WorkflowJobPathExistsButIsntAFile", null, null, jobFileWordpressClient1Workflow.getAbsolutePath());
-                }
-            }
-
-            File resultInfoFileWordpressClient1Workflow = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_wordpress_client_1_workflow_job_" + pageIndex + ".xml");
-
-            if (resultInfoFileWordpressClient1Workflow.exists() == true)
-            {
-                if (resultInfoFileWordpressClient1Workflow.isFile() == true)
-                {
-                    boolean deleteSuccessful = false;
-
-                    try
+                    else if (character == '\\')
                     {
-                        deleteSuccessful = resultInfoFileWordpressClient1Workflow.delete();
-                    }
-                    catch (SecurityException ex)
-                    {
-
-                    }
-
-                    if (deleteSuccessful != true)
-                    {
-                        if (resultInfoFileWordpressClient1Workflow.canWrite() != true)
+                        if (buffer.isEmpty() != true)
                         {
-                            throw constructTermination("messageWordpressClient1WorkflowResultInfoFileIsntWritable", null, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
+                            tokens.add(new JsonNode(buffer, isWhitespace));
+                            buffer = "";
+                            isWhitespace = false;
                         }
-                    }
-                }
-                else
-                {
-                    throw constructTermination("messageWordpressClient1WorkflowResultInfoPathExistsButIsntAFile", null, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-                }
-            }
 
-            /** @todo Check both, tempDirectoryWordpressClient1Workflow and pageFile, and delete pageFile if already existing. */
-            File tempDirectoryWordpressClient1Workflow = new File(tempDirectory.getAbsolutePath() + File.separator + "temp_wordpress_client_1_workflow_" + pageIndex);
-            File pageFile = new File(tempDirectory.getAbsolutePath() + File.separator + "posts_" + pageIndex + ".json");
+                        tokens.add(new JsonNode(new String() + (char)character, isWhitespace));
 
-            try
-            {
-                BufferedWriter writer = new BufferedWriter(
-                                        new OutputStreamWriter(
-                                        new FileOutputStream(jobFileWordpressClient1Workflow),
-                                        "UTF-8"));
+                        character = reader.read();
 
-                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<wordpress-client-1-workflow-jobfile>\n");
-                writer.write("  <request url=\"" + inputUrl + "\" action=\"retrieve-posts-list\">\n");
-                writer.write("    <parameter name=\"page\" value=\"" + (pageIndex + 1) + "\"/>\n");
-                writer.write("  </request>\n");
-                writer.write("  <temp-directory path=\"" + tempDirectoryWordpressClient1Workflow.getAbsolutePath() + "\"/>\n");
-                writer.write("  <output-file path=\"" + pageFile.getAbsolutePath() + "\"/>\n");
-                writer.write("</wordpress-client-1-workflow-jobfile>\n");
-                writer.flush();
-                writer.close();
-            }
-            catch (FileNotFoundException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowJobFileErrorWhileWriting", ex, null, jobFileWordpressClient1Workflow.getAbsolutePath());
-            }
-            catch (UnsupportedEncodingException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowJobFileErrorWhileWriting", ex, null, jobFileWordpressClient1Workflow.getAbsolutePath());
-            }
-            catch (IOException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowJobFileErrorWhileWriting", ex, null, jobFileWordpressClient1Workflow.getAbsolutePath());
-            }
-
-            ProcessBuilder builder = new ProcessBuilder("java", "wordpress_client_1", jobFileWordpressClient1Workflow.getAbsolutePath(), resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + "wordpress_client" + File.separator + "wordpress_client_1"));
-            builder.redirectErrorStream(true);
-
-            try
-            {
-                Process process = builder.start();
-                Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
-
-                while (scanner.hasNext() == true)
-                {
-                    System.out.println(scanner.next());
-                }
-
-                scanner.close();
-            }
-            catch (IOException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowErrorWhileReadingOutput", ex, null);
-            }
-
-            if (resultInfoFileWordpressClient1Workflow.exists() != true)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowResultInfoFileDoesntExistButShould", null, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            }
-
-            if (resultInfoFileWordpressClient1Workflow.isFile() != true)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowResultInfoPathExistsButIsntAFile", null, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            }
-
-            if (resultInfoFileWordpressClient1Workflow.canRead() != true)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowResultInfoFileIsntReadable", null, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            }
-
-            boolean wasSuccess = false;
-
-            try
-            {
-                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-                InputStream in = new FileInputStream(resultInfoFileWordpressClient1Workflow);
-                XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-
-                while (eventReader.hasNext() == true)
-                {
-                    XMLEvent event = eventReader.nextEvent();
-
-                    if (event.isStartElement() == true)
-                    {
-                        String tagName = event.asStartElement().getName().getLocalPart();
-
-                        if (tagName.equals("success") == true)
+                        if (character >= 0)
                         {
-                            wasSuccess = true;
+                            // isWhitespace, ignored for convenience reasons, likely irrelevant
+                            // for escape sequences anyway.
+                            tokens.add(new JsonNode(new String() + (char)character, false));
+                        }
+                        else
+                        {
                             break;
                         }
                     }
-                }
-            }
-            catch (XMLStreamException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowResultInfoFileErrorWhileReading", ex, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            }
-            catch (SecurityException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowResultInfoFileErrorWhileReading", ex, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            }
-            catch (IOException ex)
-            {
-                throw constructTermination("messageWordpressClient1WorkflowResultInfoFileErrorWhileReading", ex, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            }
-
-            if (wasSuccess == true)
-            {
-                File xmlFile = new File(tempDirectory.getAbsolutePath() + File.separator + "page_" + pageIndex + ".xml");
-
-                if (TransformJsonToXml(pageFile, pageIndex, programPath, tempDirectory, xmlFile) == 0)
-                {
-                    pageFiles.add(xmlFile);
-                }
-                else
-                {
-                    wasSuccess = false;
-                    break;
-                }
-            }
-            else
-            {
-                break;
-            }
-
-            ++pageIndex;
-        }
-
-        /** @todo Concatenate the files in pageFiles together into outputFile with the help
-          * of a xml_concatenator. */
-
-        return 0;
-    }
-
-    public int TransformJsonToXml(File jsonFile, int fileIndex, String programPath, File tempDirectory, File xmlFile)
-    {
-        File textConcatenator1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_text_concatenator_1_job_" + fileIndex + ".xml");
-
-        if (textConcatenator1JobFile.exists() == true)
-        {
-            if (textConcatenator1JobFile.isFile() == true)
-            {
-                boolean deleteSuccessful = false;
-
-                try
-                {
-                    deleteSuccessful = textConcatenator1JobFile.delete();
-                }
-                catch (SecurityException ex)
-                {
-                }
-
-                if (deleteSuccessful != true)
-                {
-                    if (textConcatenator1JobFile.canWrite() != true)
+                    else if (Character.isWhitespace(character) == true)
                     {
-                        throw constructTermination("messageTextConcatenator1JobFileIsntWritable", null, null, textConcatenator1JobFile.getAbsolutePath());
+                        if (isWhitespace != true &&
+                            buffer.isEmpty() != true)
+                        {
+                            tokens.add(new JsonNode(buffer, isWhitespace));
+                            buffer = "";
+                        }
+
+                        buffer += (char)character;
+                        isWhitespace = true;
                     }
-                }
-            }
-            else
-            {
-                throw constructTermination("messageTextConcatenator1JobPathIsntAFile", null, null, textConcatenator1JobFile.getAbsolutePath());
-            }
-        }
-
-        File textConcatenator1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_text_concatenator_1_job_" + fileIndex + ".xml");
-
-        if (textConcatenator1ResultInfoFile.exists() == true)
-        {
-            if (textConcatenator1ResultInfoFile.isFile() == true)
-            {
-                boolean deleteSuccessful = false;
-
-                try
-                {
-                    deleteSuccessful = textConcatenator1ResultInfoFile.delete();
-                }
-                catch (SecurityException ex)
-                {
-                }
-
-                if (deleteSuccessful != true)
-                {
-                    if (textConcatenator1ResultInfoFile.canWrite() != true)
+                    else
                     {
-                        throw constructTermination("messageTextConcatenator1ResultInfoFileIsntWritable", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+                        if (isWhitespace == true &&
+                            buffer.isEmpty() != true)
+                        {
+                            tokens.add(new JsonNode(buffer, isWhitespace));
+                            buffer = "";
+                            isWhitespace = false;
+                        }
+
+                        buffer += (char)character;
                     }
+
+                    character = reader.read();
+                }
+
+                if (buffer.isEmpty() != true)
+                {
+                    tokens.add(new JsonNode(buffer, isWhitespace));
                 }
             }
-            else
+            finally
             {
-                throw constructTermination("messageTextConcatenator1ResultInfoPathIsntAFile", null, null, textConcatenator1ResultInfoFile.getAbsolutePath());
+                reader.close();
             }
-        }
-
-
-        if (xmlFile.exists() == true)
-        {
-            if (xmlFile.isFile() == true)
-            {
-                boolean deleteSuccessful = false;
-
-                try
-                {
-                    deleteSuccessful = xmlFile.delete();
-                }
-                catch (SecurityException ex)
-                {
-                }
-
-                if (deleteSuccessful != true)
-                {
-                    if (xmlFile.canWrite() != true)
-                    {
-                        throw constructTermination("messageXmlFileIsntWritable", null, null, xmlFile.getAbsolutePath());
-                    }
-                }
-            }
-            else
-            {
-                throw constructTermination("messageXmlPathIsntAFile", null, null, xmlFile.getAbsolutePath());
-            }
-        }
-
-        File jsonToXml2JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_json_to_xml_2_job_" + fileIndex + ".xml");
-
-        if (jsonToXml2JobFile.exists() == true)
-        {
-            if (jsonToXml2JobFile.isFile() == true)
-            {
-                boolean deleteSuccessful = false;
-
-                try
-                {
-                    deleteSuccessful = jsonToXml2JobFile.delete();
-                }
-                catch (SecurityException ex)
-                {
-                }
-
-                if (deleteSuccessful != true)
-                {
-                    if (jsonToXml2JobFile.canWrite() != true)
-                    {
-                        throw constructTermination("messageJsonToXml2JobFileIsntWritable", null, null, jsonToXml2JobFile.getAbsolutePath());
-                    }
-                }
-            }
-            else
-            {
-                throw constructTermination("messageJsonToXml2JobPathIsntAFile", null, null, jsonToXml2JobFile.getAbsolutePath());
-            }
-        }
-
-        File jsonToXml2ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_json_to_xml_2_job_" + fileIndex + ".xml");
-
-        if (jsonToXml2ResultInfoFile.exists() == true)
-        {
-            if (jsonToXml2ResultInfoFile.isFile() == true)
-            {
-                boolean deleteSuccessful = false;
-
-                try
-                {
-                    deleteSuccessful = jsonToXml2ResultInfoFile.delete();
-                }
-                catch (SecurityException ex)
-                {
-                }
-
-                if (deleteSuccessful != true)
-                {
-                    if (jsonToXml2ResultInfoFile.canWrite() != true)
-                    {
-                        throw constructTermination("messageJsonToXml2ResultInfoFileIsntWritable", null, null, jsonToXml2ResultInfoFile.getAbsolutePath());
-                    }
-                }
-            }
-            else
-            {
-                throw constructTermination("messageJsonToXml2ResultInfoPathIsntAFile", null, null, jsonToXml2ResultInfoFile.getAbsolutePath());
-            }
-        }
-
-        try
-        {
-            BufferedWriter writer = new BufferedWriter(
-                                    new OutputStreamWriter(
-                                    new FileOutputStream(jsonToXml2JobFile),
-                                    "UTF-8"));
-
-            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-            writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-            writer.write("<json-to-xml-2-jobfile>\n");
-            writer.write("  <json-input-file path=\"" + jsonFile.getAbsolutePath() + "\"/>\n");
-            writer.write("  <xml-output-file path=\"" + xmlFile.getAbsolutePath() + "\"/>\n");
-            writer.write("</json-to-xml-2-jobfile>\n");
-            writer.flush();
-            writer.close();
         }
         catch (FileNotFoundException ex)
         {
-            throw constructTermination("messageJsonToXml2JobFileWritingError", ex, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
         }
         catch (UnsupportedEncodingException ex)
         {
-            throw constructTermination("messageJsonToXml2JobFileWritingError", ex, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
         }
         catch (IOException ex)
         {
-            throw constructTermination("messageJsonToXml2JobFileWritingError", ex, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageTokenizerErrorWhileTokenizing", ex, null);
         }
 
-        ProcessBuilder builder = new ProcessBuilder("java", "json_to_xml_2", jsonToXml2JobFile.getAbsolutePath(), jsonToXml2ResultInfoFile.getAbsolutePath());
-        builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "json_to_xml" + File.separator + "json_to_xml_2"));
-        builder.redirectErrorStream(true);
+        /*
+        for (int i = 0; i < tokens.size(); i++)
+        {
+            System.out.println(i + ": \"" + tokens.get(i).getToken() + "\" (" + tokens.get(i).isWhitespace() + ").");
+        }
+        */
+
+
+        ParserJson parser = new ParserJson(tokens, getInfoMessages());
 
         try
         {
-            Process process = builder.start();
-            Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
-            while (scanner.hasNext() == true)
+            BufferedWriter outputWriter = new BufferedWriter(
+                                          new OutputStreamWriter(
+                                          new FileOutputStream(outputFile),
+                                          "UTF-8"));
+
+            try
             {
-                System.out.println(scanner.next());
-            }
-            scanner.close();
-        }
-        catch (IOException ex)
-        {
-            throw constructTermination("messageJsonToXml2ErrorWhileReadingOutput", ex, null, jsonToXml2JobFile.getAbsolutePath());
-        }
+                outputWriter.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                outputWriter.append("<!-- This file was created by json_to_xml_2, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/clients/ and http://www.publishing-systems.org). -->\n");
 
-        if (jsonToXml2ResultInfoFile.exists() != true)
-        {
-            throw constructTermination("messageJsonToXml2ResultInfoFileDoesntExistButShould", null, null, jsonToXml2ResultInfoFile.getAbsolutePath());
-        }
-
-        if (jsonToXml2ResultInfoFile.isFile() != true)
-        {
-            throw constructTermination("messageJsonToXml2ResultInfoPathIsntAFile", null, null, jsonToXml2ResultInfoFile.getAbsolutePath());
-        }
-
-        if (jsonToXml2ResultInfoFile.canRead() != true)
-        {
-            throw constructTermination("messageJsonToXml2ResultInfoFileIsntReadable", null, null, jsonToXml2ResultInfoFile.getAbsolutePath());
-        }
-
-        boolean wasSuccess = false;
-
-        try
-        {
-            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-            InputStream in = new FileInputStream(jsonToXml2ResultInfoFile);
-            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-
-            while (eventReader.hasNext() == true)
-            {
-                XMLEvent event = eventReader.nextEvent();
-
-                if (event.isStartElement() == true)
+                if (parser.parse(outputWriter) != 0)
                 {
-                    String tagName = event.asStartElement().getName().getLocalPart();
-
-                    if (tagName.equals("success") == true)
-                    {
-                        wasSuccess = true;
-                        break;
-                    }
+                    throw constructTermination("messageParserErrorWhileParsing", null, null);
                 }
             }
+            finally
+            {
+                outputWriter.close();
+            }
         }
-        catch (XMLStreamException ex)
+        catch (FileNotFoundException ex)
         {
-            throw constructTermination("messageJsonToXml2ResultInfoFileErrorWhileReading", ex, null, jsonToXml2ResultInfoFile.getAbsolutePath());
+            throw constructTermination("messageParserErrorWhileParsing", ex, null);
         }
-        catch (SecurityException ex)
+        catch (UnsupportedEncodingException ex)
         {
-            throw constructTermination("messageJsonToXml2ResultInfoFileErrorWhileReading", ex, null, jsonToXml2ResultInfoFile.getAbsolutePath());
+            throw constructTermination("messageParserErrorWhileParsing", ex, null);
         }
         catch (IOException ex)
         {
-            throw constructTermination("messageJsonToXml2ResultInfoFileErrorWhileReading", ex, null, jsonToXml2ResultInfoFile.getAbsolutePath());
-        }
-
-        if (wasSuccess != true)
-        {
-            throw constructTermination("messageJsonToXml2CallWasntSuccessful", null, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageParserErrorWhileParsing", ex, null);
         }
 
         return 0;
@@ -978,11 +642,11 @@ public class wordpress_retriever_1
         {
             if (arguments == null)
             {
-                message = "wordpress_retriever_1 workflow: " + getI10nString(id);
+                message = "json_to_xml_2: " + getI10nString(id);
             }
             else
             {
-                message = "wordpress_retriever_1 workflow: " + getI10nStringFormatted(id, arguments);
+                message = "json_to_xml_2: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -1006,11 +670,11 @@ public class wordpress_retriever_1
         {
             if (arguments == null)
             {
-                message = "wordpress_retriever_1 workflow: " + getI10nString(id);
+                message = "json_to_xml_2: " + getI10nString(id);
             }
             else
             {
-                message = "wordpress_retriever_1 workflow: " + getI10nStringFormatted(id, arguments);
+                message = "json_to_xml_2: " + getI10nStringFormatted(id, arguments);
             }
         }
 
@@ -1038,18 +702,18 @@ public class wordpress_retriever_1
             innerException.printStackTrace();
         }
 
-        if (wordpress_retriever_1.resultInfoFile != null)
+        if (json_to_xml_2.resultInfoFile != null)
         {
             try
             {
                 BufferedWriter writer = new BufferedWriter(
                                         new OutputStreamWriter(
-                                        new FileOutputStream(wordpress_retriever_1.resultInfoFile),
+                                        new FileOutputStream(json_to_xml_2.resultInfoFile),
                                         "UTF-8"));
 
                 writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-                writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
-                writer.write("<wordpress-retriever-1-workflow-result-information>\n");
+                writer.write("<!-- This file was created by json_to_xml_2, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<json-to-xml-2-result-information>\n");
 
                 if (normalTermination == false)
                 {
@@ -1274,7 +938,7 @@ public class wordpress_retriever_1
                     writer.write("  </success>\n");
                 }
 
-                writer.write("</wordpress-retriever-1-workflow-result-information>\n");
+                writer.write("</json-to-xml-2-result-information>\n");
                 writer.flush();
                 writer.close();
             }
@@ -1292,7 +956,7 @@ public class wordpress_retriever_1
             }
         }
 
-        wordpress_retriever_1.resultInfoFile = null;
+        json_to_xml_2.resultInfoFile = null;
 
         System.exit(-1);
         return -1;
@@ -1340,6 +1004,7 @@ public class wordpress_retriever_1
     public static File resultInfoFile = null;
     protected List<InfoMessage> infoMessages = new ArrayList<InfoMessage>();
 
-    private static final String L10N_BUNDLE = "l10n.l10nWordpressRetriever1WorkflowConsole";
+    private static final String L10N_BUNDLE = "l10n.l10nJsonToXml2Console";
     private ResourceBundle l10nConsole;
 }
+
