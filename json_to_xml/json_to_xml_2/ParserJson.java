@@ -267,7 +267,38 @@ public class ParserJson
         }
         else if (node.getToken().equals("u") == true)
         {
-            throw constructTermination("messageParserUnsupportedEscapeSequence", null, null, "\\u");
+            node = lookAhead();
+
+            if (node.getToken().length() < 4)
+            {
+                throw constructTermination("messageParserEscapeSequenceIncomplete", null, null, "\\u" + node.getToken());
+            }
+
+            String hex = node.getToken().substring(0, 4);
+
+            int codepoint = Integer.parseInt(hex, 16);
+            char character = (char)codepoint;
+
+            String restToken = node.getToken().substring(4);
+
+            if (restToken.length() > 0)
+            {
+                if (this.nodeCursor > 0)
+                {
+                    this.nodes.set(this.nodeCursor, new JsonNode(restToken, node.isWhitespace()));
+                }
+                else
+                {
+                    throw constructTermination("messageParserEscapeSequenceAtStart", null, null, "\\u");
+                }
+            }
+            else
+            {
+                // Consume the lookAhead().
+                nextNode();
+            }
+
+            return new String() + (char)character;
         }
         else
         {

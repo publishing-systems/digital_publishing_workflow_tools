@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-Copyright (C) 2016 Stephan Kreutzer
+Copyright (C) 2018 Stephan Kreutzer
 
 This file is part of json_to_xml_2, a submodule of the
 digital_publishing_workflow_tools package.
@@ -20,5 +20,4 @@ along with json_to_xml_2. If not, see <http://www.gnu.org/licenses/>.
 <json-to-xml-2-jobfile>
   <json-input-file path="./input.json"/>
   <xml-output-file path="./output.xml"/>
-  <root-element name="nsprefix:root"/>
 </json-to-xml-2-jobfile>
