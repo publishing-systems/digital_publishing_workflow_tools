@@ -45,10 +45,13 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Namespace;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import java.net.URLDecoder;
 import java.util.Scanner;
+import java.util.Stack;
+import java.util.Iterator;
 
 
 
@@ -507,8 +510,9 @@ public class wordpress_retriever_1
 
         List<File> pageFiles = new ArrayList<File>();
         int pageIndex = 0;
+        boolean wasSuccess = true;
 
-        while (true)
+        while (wasSuccess == true)
         {
             File jobFileWordpressClient1Workflow = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_wordpress_client_1_workflow_job_" + pageIndex + ".xml");
 
@@ -609,7 +613,7 @@ public class wordpress_retriever_1
             }
 
             ProcessBuilder builder = new ProcessBuilder("java", "wordpress_client_1", jobFileWordpressClient1Workflow.getAbsolutePath(), resultInfoFileWordpressClient1Workflow.getAbsolutePath());
-            builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + "wordpress_client" + File.separator + "wordpress_client_1"));
+            builder.directory(new File(programPath + ".." + File.separator + ".." + File.separator + "wordpress_client" + File.separator + "wordpress_client_1"));
             builder.redirectErrorStream(true);
 
             try
@@ -644,7 +648,7 @@ public class wordpress_retriever_1
                 throw constructTermination("messageWordpressClient1WorkflowResultInfoFileIsntReadable", null, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
             }
 
-            boolean wasSuccess = false;
+            wasSuccess = false;
 
             try
             {
@@ -681,35 +685,234 @@ public class wordpress_retriever_1
                 throw constructTermination("messageWordpressClient1WorkflowResultInfoFileErrorWhileReading", ex, null, resultInfoFileWordpressClient1Workflow.getAbsolutePath());
             }
 
-            if (wasSuccess == true)
+            if (wasSuccess != true)
             {
-                File xmlFile = new File(tempDirectory.getAbsolutePath() + File.separator + "page_" + pageIndex + ".xml");
-
-                if (TransformJsonToXml(pageFile, pageIndex, programPath, tempDirectory, xmlFile) == 0)
-                {
-                    pageFiles.add(xmlFile);
-                }
-                else
-                {
-                    wasSuccess = false;
-                    break;
-                }
-            }
-            else
-            {
+                /**
+                 * @todo Identify legitimate fails because the client reached the end of the post
+                 *     list so the server refused to send more posts, or an internal failure of
+                 *     wordpress_client_1 workflow.
+                 */
+                //throw constructTermination("messageWordpressClient1WorkflowCallWasntSuccessful", null, null, jobFileWordpressClient1Workflow.getAbsolutePath());
                 break;
             }
 
+            File xmlFile = new File(tempDirectory.getAbsolutePath() + File.separator + "page_" + pageIndex + ".xml");
+
+            if (TransformJsonToXml(pageFile, pageIndex, programPath, tempDirectory, xmlFile) != 0)
+            {
+                wasSuccess = false;
+                break;
+            }
+
+            File xmlFilePrepared = new File(tempDirectory.getAbsolutePath() + File.separator + "page_" + pageIndex + "_prepared.xml");
+
+            if (TransformXml(xmlFile, pageIndex, programPath, tempDirectory, xmlFilePrepared) != 0)
+            {
+                wasSuccess = false;
+                break;
+            }
+
+            File xmlFileDeescaped = new File(tempDirectory.getAbsolutePath() + File.separator + "page_" + pageIndex + "_deescaped.xml");
+
+            if (DeescapeXml(xmlFilePrepared, pageIndex, programPath, tempDirectory, xmlFileDeescaped) != 0)
+            {
+                wasSuccess = false;
+                break;
+            }
+
+            if (ValidateXml(xmlFileDeescaped, pageIndex, programPath, tempDirectory) != 0)
+            {
+                wasSuccess = false;
+                break;
+            }
+
+            pageFiles.add(xmlFileDeescaped);
             ++pageIndex;
         }
 
-        /** @todo Concatenate the files in pageFiles together into outputFile with the help
-          * of a xml_concatenator. */
+        if (pageFiles.size() <= 0)
+        {
+            return -1;
+        }
+
+        {
+            File xmlConcatenator1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_xml_concatenator_1_job.xml");
+
+            if (xmlConcatenator1JobFile.exists() == true)
+            {
+                if (xmlConcatenator1JobFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = xmlConcatenator1JobFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (xmlConcatenator1JobFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageXmlConcatenator1JobFileIsntWritable", null, null, xmlConcatenator1JobFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageXmlConcatenator1JobPathIsntAFile", null, null, xmlConcatenator1JobFile.getAbsolutePath());
+                }
+            }
+
+            File xmlConcatenator1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_xml_concatenator_1_job.xml");
+
+            if (xmlConcatenator1ResultInfoFile.exists() == true)
+            {
+                if (xmlConcatenator1ResultInfoFile.isFile() == true)
+                {
+                    boolean deleteSuccessful = false;
+
+                    try
+                    {
+                        deleteSuccessful = xmlConcatenator1ResultInfoFile.delete();
+                    }
+                    catch (SecurityException ex)
+                    {
+                    }
+
+                    if (deleteSuccessful != true)
+                    {
+                        if (xmlConcatenator1ResultInfoFile.canWrite() != true)
+                        {
+                            throw constructTermination("messageXmlConcatenator1ResultInfoFileIsntWritable", null, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+                        }
+                    }
+                }
+                else
+                {
+                    throw constructTermination("messageXmlConcatenator1ResultInfoPathIsntAFile", null, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+                }
+            }
+
+            try
+            {
+                BufferedWriter writer = new BufferedWriter(
+                                        new OutputStreamWriter(
+                                        new FileOutputStream(xmlConcatenator1JobFile),
+                                        "UTF-8"));
+
+                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+                writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+                writer.write("<xml-concatenator-1-job>\n");
+                writer.write("  <input-files>\n");
+
+                for (int i = 0, max = pageFiles.size(); i < max; i++)
+                {
+                    writer.write("    <input-file path=\"" + pageFiles.get(i).getAbsolutePath() + "\"/>\n");
+                }
+
+                writer.write("  </input-files>\n");
+                writer.write("  <output-file path=\"" + outputFile.getAbsolutePath() + "\" processing-instruction-data=\"encoding=&quot;UTF-8&quot;\" root-element-name=\"wordpress\"/>\n");
+                writer.write("</xml-concatenator-1-job>\n");
+                writer.flush();
+                writer.close();
+            }
+            catch (FileNotFoundException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1JobFileErrorWhileWriting", ex, null, xmlConcatenator1JobFile.getAbsolutePath());
+            }
+            catch (UnsupportedEncodingException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1JobFileErrorWhileWriting", ex, null, xmlConcatenator1JobFile.getAbsolutePath());
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1JobFileErrorWhileWriting", ex, null, xmlConcatenator1JobFile.getAbsolutePath());
+            }
+
+            ProcessBuilder builder = new ProcessBuilder("java", "xml_concatenator_1", xmlConcatenator1JobFile.getAbsolutePath(), xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            builder.directory(new File(programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_concatenator" + File.separator + "xml_concatenator_1"));
+            builder.redirectErrorStream(true);
+
+            try
+            {
+                Process process = builder.start();
+                Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+                while (scanner.hasNext() == true)
+                {
+                    System.out.println(scanner.next());
+                }
+                scanner.close();
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1ErrorWhileReadingOutput", ex, null, xmlConcatenator1JobFile.getAbsolutePath());
+            }
+
+            if (xmlConcatenator1ResultInfoFile.exists() != true)
+            {
+                throw constructTermination("messageXmlConcatenator1ResultInfoFileDoesntExistButShould", null, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+
+            if (xmlConcatenator1ResultInfoFile.isFile() != true)
+            {
+                throw constructTermination("messageXmlConcatenator1ResultInfoPathIsntAFile", null, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+
+            if (xmlConcatenator1ResultInfoFile.canRead() != true)
+            {
+                throw constructTermination("messageXmlConcatenator1ResultInfoFileIsntReadable", null, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+
+            wasSuccess = false;
+
+            try
+            {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                InputStream in = new FileInputStream(xmlConcatenator1ResultInfoFile);
+                XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+                while (eventReader.hasNext() == true)
+                {
+                    XMLEvent event = eventReader.nextEvent();
+
+                    if (event.isStartElement() == true)
+                    {
+                        String tagName = event.asStartElement().getName().getLocalPart();
+
+                        if (tagName.equals("success") == true)
+                        {
+                            wasSuccess = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            catch (XMLStreamException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1ResultInfoFileErrorWhileReading", ex, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+            catch (SecurityException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1ResultInfoFileErrorWhileReading", ex, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageXmlConcatenator1ResultInfoFileErrorWhileReading", ex, null, xmlConcatenator1ResultInfoFile.getAbsolutePath());
+            }
+
+            if (wasSuccess != true)
+            {
+                throw constructTermination("messageXmlConcatenator1CallWasntSuccessful", null, null, xmlConcatenator1JobFile.getAbsolutePath());
+            }
+        }
 
         return 0;
     }
 
-    public int TransformJsonToXml(File jsonFile, int fileIndex, String programPath, File tempDirectory, File xmlFile)
+    protected int TransformJsonToXml(File jsonFile, int fileIndex, String programPath, File tempDirectory, File xmlFile)
     {
         File textConcatenator1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_text_concatenator_1_job_" + fileIndex + ".xml");
 
@@ -878,19 +1081,19 @@ public class wordpress_retriever_1
         }
         catch (FileNotFoundException ex)
         {
-            throw constructTermination("messageJsonToXml2JobFileWritingError", ex, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageJsonToXml2JobFileErrorWhileWriting", ex, null, jsonToXml2JobFile.getAbsolutePath());
         }
         catch (UnsupportedEncodingException ex)
         {
-            throw constructTermination("messageJsonToXml2JobFileWritingError", ex, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageJsonToXml2JobFileErrorWhileWriting", ex, null, jsonToXml2JobFile.getAbsolutePath());
         }
         catch (IOException ex)
         {
-            throw constructTermination("messageJsonToXml2JobFileWritingError", ex, null, jsonToXml2JobFile.getAbsolutePath());
+            throw constructTermination("messageJsonToXml2JobFileErrorWhileWriting", ex, null, jsonToXml2JobFile.getAbsolutePath());
         }
 
         ProcessBuilder builder = new ProcessBuilder("java", "json_to_xml_2", jsonToXml2JobFile.getAbsolutePath(), jsonToXml2ResultInfoFile.getAbsolutePath());
-        builder.directory(new File(programPath + File.separator + ".." + File.separator + ".." + File.separator + ".." + File.separator + "json_to_xml" + File.separator + "json_to_xml_2"));
+        builder.directory(new File(programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "json_to_xml" + File.separator + "json_to_xml_2"));
         builder.redirectErrorStream(true);
 
         try
@@ -964,6 +1167,427 @@ public class wordpress_retriever_1
         {
             throw constructTermination("messageJsonToXml2CallWasntSuccessful", null, null, jsonToXml2JobFile.getAbsolutePath());
         }
+
+        return 0;
+    }
+
+    protected int TransformXml(File xmlFile, int fileIndex, String programPath, File tempDirectory, File xmlFilePrepared)
+    {
+        File xmlXsltTransformator1JobFile = new File(tempDirectory.getAbsolutePath() + File.separator + "jobfile_xml_xslt_transformator_1_job_" + fileIndex + ".xml");
+
+        if (xmlXsltTransformator1JobFile.exists() == true)
+        {
+            if (xmlXsltTransformator1JobFile.isFile() == true)
+            {
+                boolean deleteSuccessful = false;
+
+                try
+                {
+                    deleteSuccessful = xmlXsltTransformator1JobFile.delete();
+                }
+                catch (SecurityException ex)
+                {
+                }
+
+                if (deleteSuccessful != true)
+                {
+                    if (xmlXsltTransformator1JobFile.canWrite() != true)
+                    {
+                        throw constructTermination("messageXmlXsltTransformator11JobFileIsntWritable", null, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageXmlXsltTransformator11JobPathIsntAFile", null, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+            }
+        }
+
+        File xmlXsltTransformator1ResultInfoFile = new File(tempDirectory.getAbsolutePath() + File.separator + "resultinfo_xml_xslt_transformator_1_job_" + fileIndex + ".xml");
+
+        if (xmlXsltTransformator1ResultInfoFile.exists() == true)
+        {
+            if (xmlXsltTransformator1ResultInfoFile.isFile() == true)
+            {
+                boolean deleteSuccessful = false;
+
+                try
+                {
+                    deleteSuccessful = xmlXsltTransformator1ResultInfoFile.delete();
+                }
+                catch (SecurityException ex)
+                {
+                }
+
+                if (deleteSuccessful != true)
+                {
+                    if (xmlXsltTransformator1ResultInfoFile.canWrite() != true)
+                    {
+                        throw constructTermination("messageXmlXsltTransformator1ResultInfoFileIsntWritable", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageXmlXsltTransformator1ResultInfoPathIsntAFile", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+            }
+        }
+
+        if (xmlFilePrepared.exists() == true)
+        {
+            if (xmlFilePrepared.isFile() == true)
+            {
+                boolean deleteSuccessful = false;
+
+                try
+                {
+                    deleteSuccessful = xmlFilePrepared.delete();
+                }
+                catch (SecurityException ex)
+                {
+                }
+
+                if (deleteSuccessful != true)
+                {
+                    if (xmlFilePrepared.canWrite() != true)
+                    {
+                        throw constructTermination("messageXmlFilePreparedIsntWritable", null, null, xmlFilePrepared.getAbsolutePath());
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageXmlPathPreparedIsntAFile", null, null, xmlFilePrepared.getAbsolutePath());
+            }
+        }
+
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(
+                                    new OutputStreamWriter(
+                                    new FileOutputStream(xmlXsltTransformator1JobFile),
+                                    "UTF-8"));
+
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+            writer.write("<xml-xslt-transformator-1-jobfile>\n");
+            writer.write("  <job input-file=\"" + xmlFile.getAbsolutePath() + "\" entities-resolver-config-file=\"" + programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1" + File.separator + "entities" + File.separator + "config_empty.xml\" stylesheet-file=\"" + programPath + "xml_prepare.xsl\" output-file=\"" + xmlFilePrepared.getAbsolutePath() + "\"/>\n");
+            writer.write("</xml-xslt-transformator-1-jobfile>\n");
+            writer.flush();
+            writer.close();
+        }
+        catch (FileNotFoundException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1JobFileErrorWhileWriting", ex, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1JobFileErrorWhileWriting", ex, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1JobFileErrorWhileWriting", ex, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+        }
+
+        ProcessBuilder builder = new ProcessBuilder("java", "xml_xslt_transformator_1", xmlXsltTransformator1JobFile.getAbsolutePath(), xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        builder.directory(new File(programPath + ".." + File.separator + ".." + File.separator + ".." + File.separator + "xml_xslt_transformator" + File.separator + "xml_xslt_transformator_1"));
+        builder.redirectErrorStream(true);
+
+        try
+        {
+            Process process = builder.start();
+            Scanner scanner = new Scanner(process.getInputStream()).useDelimiter("\n");
+            while (scanner.hasNext() == true)
+            {
+                System.out.println(scanner.next());
+            }
+            scanner.close();
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ErrorWhileReadingOutput", ex, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+        }
+
+        if (xmlXsltTransformator1ResultInfoFile.exists() != true)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ResultInfoFileDoesntExistButShould", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        }
+
+        if (xmlXsltTransformator1ResultInfoFile.isFile() != true)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ResultInfoPathIsntAFile", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        }
+
+        if (xmlXsltTransformator1ResultInfoFile.canRead() != true)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ResultInfoFileIsntReadable", null, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        }
+
+        boolean wasSuccess = false;
+
+        try
+        {
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            InputStream in = new FileInputStream(xmlXsltTransformator1ResultInfoFile);
+            XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+            while (eventReader.hasNext() == true)
+            {
+                XMLEvent event = eventReader.nextEvent();
+
+                if (event.isStartElement() == true)
+                {
+                    String tagName = event.asStartElement().getName().getLocalPart();
+
+                    if (tagName.equals("success") == true)
+                    {
+                        wasSuccess = true;
+                        break;
+                    }
+                }
+            }
+        }
+        catch (XMLStreamException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", ex, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        }
+        catch (SecurityException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", ex, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageXmlXsltTransformator1ResultInfoFileErrorWhileReading", ex, null, xmlXsltTransformator1ResultInfoFile.getAbsolutePath());
+        }
+
+        if (wasSuccess != true)
+        {
+            throw constructTermination("messageXmlXsltTransformator1CallWasntSuccessful", null, null, xmlXsltTransformator1JobFile.getAbsolutePath());
+        }
+
+        return 0;
+    }
+
+    protected int DeescapeXml(File xmlFilePrepared, int pageIndex, String programPath, File tempDirectory, File xmlFileDeescaped)
+    {
+        if (xmlFileDeescaped.exists() == true)
+        {
+            if (xmlFileDeescaped.isFile() == true)
+            {
+                boolean deleteSuccessful = false;
+
+                try
+                {
+                    deleteSuccessful = xmlFileDeescaped.delete();
+                }
+                catch (SecurityException ex)
+                {
+                }
+
+                if (deleteSuccessful != true)
+                {
+                    if (xmlFileDeescaped.canWrite() != true)
+                    {
+                        throw constructTermination("messageXmlFileDeescapedIsntWritable", null, null, xmlFileDeescaped.getAbsolutePath());
+                    }
+                }
+            }
+            else
+            {
+                throw constructTermination("messageXmlPathDeescapedIsntAFile", null, null, xmlFileDeescaped.getAbsolutePath());
+            }
+        }
+
+
+        try
+        {
+            BufferedWriter writer = new BufferedWriter(
+                                    new OutputStreamWriter(
+                                    new FileOutputStream(xmlFileDeescaped),
+                                    "UTF-8"));
+
+            writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+            writer.write("<!-- This file was created by wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see https://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). -->\n");
+
+            try
+            {
+                XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+                InputStream in = new FileInputStream(xmlFilePrepared);
+                XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+                Stack<String> structureStack = new Stack<String>();
+
+                while (eventReader.hasNext() == true)
+                {
+                    XMLEvent event = eventReader.nextEvent();
+
+                    if (event.isStartElement() == true)
+                    {
+                        QName elementName = event.asStartElement().getName();
+                        String fullElementName = elementName.getLocalPart();
+
+                        if (elementName.getPrefix().isEmpty() != true)
+                        {
+                            fullElementName = elementName.getPrefix() + ":" + fullElementName;
+                        }
+
+                        writer.write("<" + fullElementName);
+
+                        // http://coding.derkeiler.com/Archive/Java/comp.lang.java.help/2008-12/msg00090.html
+                        @SuppressWarnings("unchecked")
+                        Iterator<Namespace> namespaces = (Iterator<Namespace>)event.asStartElement().getNamespaces();
+
+                        if (namespaces.hasNext() == true)
+                        {
+                            Namespace namespace = namespaces.next();
+
+                            if (namespace.isDefaultNamespaceDeclaration() == true &&
+                                namespace.getPrefix().length() <= 0)
+                            {
+                                writer.write(" xmlns=\"" + namespace.getNamespaceURI() + "\"");
+                            }
+                            else
+                            {
+                                writer.write(" xmlns:" + namespace.getPrefix() + "=\"" + namespace.getNamespaceURI() + "\"");
+                            }
+                        }
+
+                        // http://coding.derkeiler.com/Archive/Java/comp.lang.java.help/2008-12/msg00090.html
+                        @SuppressWarnings("unchecked")
+                        Iterator<Attribute> attributes = (Iterator<Attribute>)event.asStartElement().getAttributes();
+
+                        while (attributes.hasNext() == true)
+                        {
+                            Attribute attribute = attributes.next();
+                            QName attributeName = attribute.getName();
+                            String fullAttributeName = attributeName.getLocalPart();
+
+                            if (attributeName.getPrefix().length() > 0)
+                            {
+                                fullAttributeName = attributeName.getPrefix() + ":" + fullAttributeName;
+                            }
+
+                            String attributeValue = attribute.getValue();
+
+                            // Ampersand needs to be the first, otherwise it would double-encode
+                            // other entities.
+                            attributeValue = attributeValue.replaceAll("&", "&amp;");
+                            attributeValue = attributeValue.replaceAll("\"", "&quot;");
+                            attributeValue = attributeValue.replaceAll("'", "&apos;");
+                            attributeValue = attributeValue.replaceAll("<", "&lt;");
+                            attributeValue = attributeValue.replaceAll(">", "&gt;");
+
+                            writer.write(" " + fullAttributeName + "=\"" + attributeValue + "\"");
+                        }
+
+                        writer.write(">");
+
+                        structureStack.push(fullElementName);
+                    }
+                    else if (event.isEndElement() == true)
+                    {
+                        QName elementName = event.asEndElement().getName();
+                        String fullElementName = elementName.getLocalPart();
+
+                        if (elementName.getPrefix().isEmpty() != true)
+                        {
+                            fullElementName = elementName.getPrefix() + ":" + fullElementName;
+                        }
+
+                        writer.write("</" + fullElementName + ">");
+
+                        if (fullElementName.equals(structureStack.pop()) != true)
+                        {
+
+                        }
+                    }
+                    else if (event.isCharacters() == true)
+                    {
+                        String structurePath = "/";
+
+                        for (String elementName : structureStack)
+                        {
+                            structurePath += elementName + "/";
+                        }
+
+                        if (structurePath.equals("/wordpress-posts/wordpress-post/content/") == true)
+                        {
+                            // The reader already de-escaped the first order of escape-entities.
+
+                            String text = event.asCharacters().getData();
+
+                            for (int i = 0, max = text.length(); i < max; i++)
+                            {
+                                writer.write(text.charAt(i));
+                            }
+                        }
+                        else
+                        {
+                            String text = event.asCharacters().getData();
+
+                            for (int i = 0, max = text.length(); i < max; i++)
+                            {
+                                char character = text.charAt(i);
+
+                                switch (character)
+                                {
+                                case '&':
+                                    writer.write("&amp;");
+                                    break;
+                                case '<':
+                                    writer.write("&lt;");
+                                    break;
+                                case '>':
+                                    writer.write("&gt;");
+                                    break;
+                                default:
+                                    writer.write(character);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (XMLStreamException ex)
+            {
+                throw constructTermination("messageXmlFilePreparedErrorWhileReading", ex, null, xmlFilePrepared.getAbsolutePath());
+            }
+            catch (SecurityException ex)
+            {
+                throw constructTermination("messageXmlFilePreparedErrorWhileReading", ex, null, xmlFilePrepared.getAbsolutePath());
+            }
+            catch (IOException ex)
+            {
+                throw constructTermination("messageXmlFilePreparedErrorWhileReading", ex, null, xmlFilePrepared.getAbsolutePath());
+            }
+
+            writer.flush();
+            writer.close();
+        }
+        catch (FileNotFoundException ex)
+        {
+            throw constructTermination("messageXmlFileDeescapedErrorWhileWriting", ex, null, xmlFileDeescaped.getAbsolutePath());
+        }
+        catch (UnsupportedEncodingException ex)
+        {
+            throw constructTermination("messageXmlFileDeescapedErrorWhileWriting", ex, null, xmlFileDeescaped.getAbsolutePath());
+        }
+        catch (IOException ex)
+        {
+            throw constructTermination("messageXmlFileDeescapedErrorWhileWriting", ex, null, xmlFileDeescaped.getAbsolutePath());
+        }
+
+        return 0;
+    }
+
+    protected int ValidateXml(File xmlFileDeescaped, int pageIndex, String programPath, File tempDirectory)
+    {
+        /**
+         * @todo Validate xmlFileDeescaped according to the allowed HTML tags in
+         *     /wordpress-posts/wordpress-post/content/ as specified by
+         *     https://core.trac.wordpress.org/browser/tags/4.9.5/src/wp-includes/kses.php#L0.
+         */
 
         return 0;
     }
