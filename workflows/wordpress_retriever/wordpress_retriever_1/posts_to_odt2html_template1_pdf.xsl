@@ -21,7 +21,7 @@ along with wordpress_retriever_1 workflow. If not, see <http://www.gnu.org/licen
   <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="no" doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"/>
 
   <xsl:template match="/wordpress">
-    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <html xml:lang="en" lang="en">
       <head>
         <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8"/>
         <xsl:comment> This file was created by posts_to_odt2html_template1_pdf.xsl of wordpress_retriever_1 workflow, which is free software licensed under the GNU Affero General Public License 3 or any later version (see http://github.com/publishing-systems/digital_publishing_workflow_tools/ and http://www.publishing-systems.org). </xsl:comment>
@@ -69,7 +69,7 @@ along with wordpress_retriever_1 workflow. If not, see <http://www.gnu.org/licen
   </xsl:template>
 
   <xsl:template match="/wordpress/wordpress-posts/wordpress-post/content//a">
-    <a href="{@href}"><xsl:value-of select="./text()"/></a>
+    <a href="{@href}"><xsl:apply-templates/></a>
   </xsl:template>
 
   <xsl:template match="/wordpress/wordpress-posts/wordpress-post/content//code">
